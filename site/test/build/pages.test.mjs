@@ -86,10 +86,10 @@ describe("R5/AC-2, AC-3: plugin page", () => {
     assert.match(text(demo.page("engineering-paved-path/")), /Used by research-tools architecture-review sdd-engineering/);
   });
 
-  test("install block: one-step install, auto-installed dependencies (CAT-02 R2/AC-11)", () => {
+  test("install panel: one-step install, auto-installed dependencies (CAT-02 R2; details in install-and-use.test.mjs)", () => {
     const t = text(demo.page("sdd-engineering/"));
     assert.match(t, /\/plugin install sdd-engineering --marketplace lindigo-design\/devdigest-marketplace Copy/);
-    assert.match(t, /Also installs: engineering-paved-path \^0\.2, research-tools \^0\.1, architecture-review \^0\.1/);
+    assert.match(t, /Also installs, at the same scope: engineering-paved-path \^0\.2, research-tools \^0\.1, architecture-review \^0\.1/);
   });
 
   test("component list links to every component", () => {

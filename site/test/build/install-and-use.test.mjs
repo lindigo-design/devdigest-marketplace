@@ -82,4 +82,96 @@ describe("R1: components grouped by kind", () => {
   });
 });
 
+describe("R2, R3: install panel", () => {
+  const M = "lindigo-design/devdigest-marketplace";
+  const variant = (html, surface, scope) => {
+    const panel = html.slice(html.indexOf(`data-surface-panel="${surface}"`));
+    const start = panel.indexOf(`data-scope="${scope}"`);
+    const next = panel.indexOf("data-scope=", start + 12);
+    return text(panel.slice(start, next > -1 ? next : undefined));
+  };
+
+  test("AC-1, AC-2: scope radios with who and where, default User; the panel replaces the old block", () => {
+    const html = site.page("sdd-engineering/");
+    const t = text(html);
+    assert.match(t, /Who gets it User you, in every project · ~\/\.claude\/settings\.json Project everyone in this repository · \.claude\/settings\.json, committed Local you, in this repository only · \.claude\/settings\.local\.json, not committed/);
+    assert.match(html, /<input type="radio" name="install-scope" value="user" checked/);
+    assert.equal((html.match(/id="install"/g) ?? []).length, 1);
+  });
+
+  test("R3/AC-1: two tabs in a tablist, session selected, with panels", () => {
+    const html = site.page("sdd-engineering/");
+    assert.match(html, /role="tablist" aria-label="Where you run it"/);
+    assert.match(html, /role="tab"[^>]*aria-controls="install-panel-session"[^>]*aria-selected="true"[^>]*tabindex="0"[^>]*>In a Claude Code session/);
+    assert.match(html, /role="tab"[^>]*aria-controls="install-panel-terminal"[^>]*aria-selected="false"[^>]*tabindex="-1"[^>]*>In your terminal/);
+    assert.match(html, /id="install-panel-terminal" role="tabpanel" aria-labelledby="install-tab-terminal"/);
+  });
+
+  test("R2/AC-4, R3/AC-3: session commands and the panel option per scope", () => {
+    const html = site.page("sdd-engineering/");
+    for (const [scope, option] of [["user", "Install for you \\(user scope\\)"], ["project", "Install for all collaborators on this repository \\(project scope\\)"], ["local", "Install for you, in this repo only \\(local scope\\)"]]) {
+      const v = variant(html, "session", scope);
+      assert.match(v, new RegExp(`/plugin install sdd-engineering --marketplace ${M} Copy`));
+      assert.match(v, /details open; nothing is installed yet/);
+      assert.match(v, new RegExp(`Choose ${option}`));
+    }
+  });
+
+  test("R2/AC-4: terminal commands per scope, then reload", () => {
+    const html = site.page("sdd-engineering/");
+    assert.match(variant(html, "terminal", "user"), new RegExp(`Run in your terminal: claude plugin install sdd-engineering --marketplace ${M} Copy Restart Claude Code, or run /reload-plugins`));
+    assert.match(variant(html, "terminal", "project"), new RegExp(`claude plugin marketplace add ${M} --scope project Copy claude plugin install sdd-engineering@lindigo-devdigest --scope project Copy`));
+    assert.match(variant(html, "terminal", "local"), new RegExp(`claude plugin install sdd-engineering --marketplace ${M} --scope local Copy`));
+  });
+
+  test("R2/AC-5, AC-6: project scope shows the settings file, git add, the note and the fallback", () => {
+    const html = site.page("sdd-engineering/");
+    for (const surface of ["session", "terminal"]) {
+      const v = variant(html, surface, "project");
+      assert.match(v, /The commands write this \.claude\/settings\.json: \{ "enabledPlugins": \{ "sdd-engineering@lindigo-devdigest": true, "engineering-paved-path@lindigo-devdigest": true, "research-tools@lindigo-devdigest": true, "architecture-review@lindigo-devdigest": true \}, "extraKnownMarketplaces": \{ "lindigo-devdigest": \{ "source": \{ "source": "github", "repo": "lindigo-design\/devdigest-marketplace" \} \} \} \} Copy/);
+      assert.match(v, /Commit it: git add \.claude\/settings\.json Copy/);
+      assert.match(v, /load without a separate install\. Each collaborator needs Claude Code ≥ 2\.1\.110\. Hooks need Node\.js on PATH\./);
+      assert.match(v, /run this once: claude plugin install sdd-engineering@lindigo-devdigest --scope project Copy/);
+    }
+    assert.match(variant(html, "session", "project"), new RegExp(`record the marketplace in the repository for collaborators .*claude plugin marketplace add ${M} --scope project Copy`));
+    // The JSON keeps its line breaks and indentation for copying.
+    assert.match(html, /<code class="t-mono" data-copy-text[^>]*>\{\n {2}&quot;enabledPlugins&quot;: \{\n {4}&quot;sdd-engineering@lindigo-devdigest&quot;: true,/);
+  });
+
+  test("R2/AC-7: local scope note; no Node.js note for a plugin without hooks", () => {
+    const html = site.page("research-tools/");
+    assert.match(variant(html, "terminal", "local"), /\.claude\/settings\.local\.json is personal and is not committed\./);
+    assert.doesNotMatch(variant(html, "terminal", "project"), /Node\.js/);
+  });
+
+  test("R2/AC-1, F7: dependencies installed at the same scope", () => {
+    assert.match(text(site.page("sdd-engineering/")), /Also installs, at the same scope: engineering-paved-path \^0\.2, research-tools \^0\.1, architecture-review \^0\.1/);
+  });
+
+  test("R2/AC-8: context cost, and the total only when every dependency declares one", () => {
+    assert.match(text(site.page("research-tools/")), /Adds ~155 tokens to every session\. With its dependencies: ~501 tokens\./);
+    const sdd = text(site.page("sdd-engineering/"));
+    assert.match(sdd, /Adds ~1,492 tokens to every session\./);
+    assert.doesNotMatch(sdd, /With its dependencies/); // architecture-review declares none
+    assert.doesNotMatch(text(site.page("architecture-review/")), /tokens to every session/);
+  });
+
+  test("R2/AC-10: without JavaScript every variant has a heading", () => {
+    const html = site.page("sdd-engineering/");
+    assert.equal((html.match(/class="t-label ip__nojs-title"/g) ?? []).length, 2 + 6);
+  });
+
+  test("R7/AC-5: commands come from data (marketplace name and SITE_REPO)", () => {
+    const fork = buildSite({ repoRoot: join(FIXTURES, "demo"), env: { SITE_REPO: "https://github.com/someone/fork-of-marketplace" } });
+    try {
+      const t = text(fork.page("research-tools/"));
+      assert.match(t, /claude plugin install research-tools --marketplace someone\/fork-of-marketplace Copy/);
+      assert.match(t, /"repo": "someone\/fork-of-marketplace"/);
+      assert.match(t, /"research-tools@lindigo-devdigest": true/);
+    } finally {
+      fork.cleanup();
+    }
+  });
+});
+
 export { section };

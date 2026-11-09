@@ -196,3 +196,17 @@ describe("R2, R4, R5: install model", () => {
     assert.equal(oneStep(M, "research-tools"), `/plugin install research-tools --marketplace ${M}`);
   });
 });
+
+describe("R2/AC-9: install panel URL state", async () => {
+  const { installSearch, parseInstallState } = await import("../../src/client/install-panel.mjs");
+  test("parse: defaults, valid values, unknown values fall back", () => {
+    assert.deepEqual(parseInstallState(""), { scope: "user", surface: "session" });
+    assert.deepEqual(parseInstallState("?scope=project&in=terminal"), { scope: "project", surface: "terminal" });
+    assert.deepEqual(parseInstallState("?scope=bogus&in=x"), { scope: "user", surface: "session" });
+  });
+  test("search: defaults left out, other parameters kept", () => {
+    assert.equal(installSearch("", { scope: "user", surface: "session" }), "");
+    assert.equal(installSearch("?a=1&scope=local", { scope: "project", surface: "terminal" }), "?a=1&scope=project&in=terminal");
+    assert.equal(installSearch("?scope=project&in=terminal", { scope: "user", surface: "session" }), "");
+  });
+});

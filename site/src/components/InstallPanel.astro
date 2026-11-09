@@ -1,0 +1,187 @@
+---
+// Install panel on the plugin page (spec CAT-02 R2, R3; tokens §5 InstallPanel, ScopeChoice, SurfaceTabs).
+// Every scope × surface variant is in the HTML. With JavaScript, src/client/install-panel.mjs shows one variant
+// and keeps the choice in the URL; without it, all variants are visible under their headings (R2/AC-10).
+import { SCOPES, SURFACES } from "../../lib/install.mjs";
+import { t } from "../i18n/t.mjs";
+import CopyCommand from "./CopyCommand.astro";
+import SettingsSnippet from "./SettingsSnippet.astro";
+interface Props {
+  plugin: string;
+  model: any;
+  alsoInstalls: { name: string; range: string | null }[];
+  contextCost: number | null;
+  totalCost: number | null;
+  minVersion: string | null;
+  hasHooks: boolean;
+}
+const { plugin, model, alsoInstalls, contextCost, totalCost, minVersion, hasHooks } = Astro.props;
+const n = (v: number) => v.toLocaleString("en-US");
+const scopeLabel = (s: string) => (s === "user" ? t("install.scope.user") : s === "project" ? t("install.scope.project") : t("install.scope.local"));
+const scopeHint = (s: string) => (s === "user" ? t("install.scope.user.hint") : s === "project" ? t("install.scope.project.hint") : t("install.scope.local.hint"));
+const choose = (s: string) => (s === "user" ? t("install.choose.user") : s === "project" ? t("install.choose.project") : t("install.choose.local"));
+const tabLabel = (s: string) => (s === "session" ? t("install.tab.session") : t("install.tab.terminal"));
+const project = model.install.project;
+---
+<section id="install" class="ip" aria-labelledby="install-title" data-install-panel>
+  <h2 id="install-title" class="t-heading-2">{t("install.title")}</h2>
+
+  <fieldset class="ip__scopes">
+    <legend class="t-label">{t("install.scope.legend")}</legend>
+    {SCOPES.map((s) => (
+      <label class="ip__scope">
+        <input type="radio" name="install-scope" value={s} checked={s === "user"} data-scope-input />
+        <span class="ip__scope-text">
+          <span class="t-body">{scopeLabel(s)}</span>
+          <span class="t-caption t-secondary">{scopeHint(s)}</span>
+        </span>
+      </label>
+    ))}
+  </fieldset>
+
+  <div class="ip__tabs" role="tablist" aria-label={t("install.tabs.label")}>
+    {SURFACES.map((s) => (
+      <button type="button" role="tab" class="ip__tab t-body" id={`install-tab-${s}`} aria-controls={`install-panel-${s}`}
+        aria-selected={String(s === "session")} tabindex={s === "session" ? 0 : -1} data-surface={s}>{tabLabel(s)}</button>
+    ))}
+  </div>
+
+  {SURFACES.map((surface) => (
+    <div class:list={["ip__panel", surface === "session" && "is-active"]} id={`install-panel-${surface}`} role="tabpanel"
+      aria-labelledby={`install-tab-${surface}`} tabindex="0" data-surface-panel={surface}>
+      <h3 class="t-label ip__nojs-title">{tabLabel(surface)}</h3>
+      {SCOPES.map((scope) => {
+        const v = model.install[scope][surface];
+        return (
+          <div class:list={["ip__variant", scope === "user" && "is-active"]} data-scope={scope}>
+            <h4 class="t-label ip__nojs-title">{scopeLabel(scope)}</h4>
+            {surface === "session" ? (
+              <ol class="ip__steps">
+                <li><p>{t("install.session.run")}</p><CopyCommand command={v.commands[0]} label={t("install.label.install", { plugin })} /></li>
+                <li><p>{t("install.session.opens")}</p></li>
+                <li><p>{t("install.session.choose")} <strong>{choose(scope)}</strong></p></li>
+                {v.alsoTerminal && (
+                  <li>
+                    <p>{t("install.session.alsoTerminal")}</p>
+                    {v.alsoTerminal.map((c: string) => <CopyCommand command={c} label={t("install.label.marketplaceProject")} />)}
+                  </li>
+                )}
+              </ol>
+            ) : (
+              <ol class="ip__steps">
+                <li>
+                  <p>{t("install.terminal.run")}</p>
+                  {v.commands.map((c: string) => <CopyCommand command={c} label={t("install.label.terminal", { plugin })} />)}
+                </li>
+                <li><p>{t("install.terminal.reload")}</p></li>
+              </ol>
+            )}
+            {scope === "project" && (
+              <div class="ip__project">
+                <p>{t("install.project.writes")}</p>
+                <SettingsSnippet json={project.settings} label={t("install.project.settingsLabel")} />
+                <p>{t("install.project.commit")}</p>
+                <CopyCommand command={project.commit} label={t("install.project.commitLabel")} />
+                <p class="t-secondary">
+                  {t("install.project.note")}
+                  {minVersion && <> {t("install.project.needs", { min: minVersion })}</>}
+                  {hasHooks && <> {t("install.project.hooks")}</>}
+                </p>
+                <p class="t-secondary">{t("install.project.fallback")}</p>
+                <CopyCommand command={project.fallback} label={t("install.label.terminal", { plugin })} />
+              </div>
+            )}
+            {scope === "local" && <p class="t-secondary">{t("install.local.note")}</p>}
+          </div>
+        );
+      })}
+    </div>
+  ))}
+
+  {alsoInstalls.length > 0 && (
+    <p class="ip__also t-mono">
+      {t("install.panel.also")} {alsoInstalls.map((d, i) => <>{i > 0 && ", "}{d.name}{d.range && ` ${d.range}`}</>)}
+    </p>
+  )}
+  {contextCost !== null && (
+    <p class="t-caption t-secondary">
+      {t("install.cost", { tokens: n(contextCost) })}
+      {totalCost !== null && alsoInstalls.length > 0 && <> {t("install.cost.total", { tokens: n(totalCost) })}</>}
+    </p>
+  )}
+</section>
+
+<script>
+  import { initInstallPanel } from "../client/install-panel.mjs";
+  initInstallPanel();
+</script>
+
+<style>
+  .ip {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    min-width: 0;
+    padding: var(--space-5);
+    background: var(--surface-raised);
+    border: var(--rule-thin) solid var(--rule-hairline);
+  }
+  .ip h2 { margin: 0; }
+  .ip p { margin: 0; }
+  .ip__scopes { display: flex; flex-wrap: wrap; gap: var(--space-2); min-width: 0; margin: 0; padding: 0; border: 0; }
+  .ip__scopes legend { margin-bottom: var(--space-2); padding: 0; color: var(--ink-secondary); }
+  .ip__scope {
+    display: flex;
+    flex: 1 1 calc(var(--space-10) + var(--space-8));
+    gap: var(--space-2);
+    align-items: flex-start;
+    min-width: 0;
+    padding: var(--space-3);
+    border: var(--rule-thin) solid var(--rule-hairline);
+    border-radius: var(--radius-s);
+    cursor: pointer;
+  }
+  .ip__scope input { margin: var(--space-1) 0 0; accent-color: var(--accent-indigo); }
+  .ip__scope:has(input:checked) { background: var(--accent-indigo-soft); border-color: var(--accent-indigo); }
+  .ip__scope:has(input:checked) .t-body { color: var(--accent-indigo); }
+  .ip__scope:has(input:focus-visible) { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
+  .ip__scope input:focus-visible { outline: none; }
+  .ip__scope-text { display: flex; flex-direction: column; min-width: 0; overflow-wrap: anywhere; }
+  .ip__tabs { display: flex; gap: var(--space-5); border-bottom: var(--rule-thin) solid var(--rule-hairline); }
+  .ip__tab {
+    flex: 0 1 auto;
+    min-width: 0;
+    text-align: start;
+    margin-bottom: calc(-1 * var(--rule-thin));
+    padding: var(--space-2) 0;
+    border: 0;
+    border-bottom: var(--rule-strong) solid transparent;
+    background: none;
+    color: var(--ink-secondary);
+    cursor: pointer;
+    transition: color var(--duration-quick) var(--ease-snap), border-color var(--duration-quick) var(--ease-snap);
+  }
+  .ip__tab:hover { color: var(--ink-primary); }
+  .ip__tab[aria-selected="true"] { color: var(--accent-indigo); border-bottom-color: var(--accent-indigo); }
+  .ip__panel, .ip__variant { display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
+  .ip__panel:focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
+  .ip__steps { display: flex; flex-direction: column; gap: var(--space-4); margin: 0; padding-left: var(--space-5); }
+  .ip__steps li { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
+  .ip__project { display: flex; flex-direction: column; gap: var(--space-3); padding-top: var(--space-4); border-top: var(--rule-thin) solid var(--rule-hairline); }
+  .ip__also { font-size: var(--type-caption); color: var(--ink-secondary); overflow-wrap: anywhere; }
+
+  /* With JavaScript: one variant, one panel, no per-variant headings. Without: tabs and radios hidden, all shown. */
+  :global(html.js) .ip__panel:not(.is-active), :global(html.js) .ip__variant:not(.is-active) { display: none; }
+  :global(html.js) .ip__nojs-title { display: none; }
+  :global(html:not(.js)) .ip__tabs, :global(html:not(.js)) .ip__scopes { display: none; }
+  :global(html:not(.js)) .ip__variant { padding-top: var(--space-4); border-top: var(--rule-thin) solid var(--rule-hairline); }
+
+  /* Narrow screens: commands get the width (tabs may break onto two lines each, never wrap below each other). */
+  @media (max-width: 767px) {
+    .ip { padding: var(--space-4); }
+    .ip__tabs { gap: var(--space-4); }
+    .ip__steps { padding-left: var(--space-4); }
+  }
+
+  @media (prefers-reduced-motion: reduce) { .ip__tab { transition: none; } }
+</style>

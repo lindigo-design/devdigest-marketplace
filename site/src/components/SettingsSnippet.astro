@@ -1,0 +1,33 @@
+---
+// JSON block with a copy action (spec CAT-02 R2/AC-5, R4 auto-update; tokens §5 SettingsSnippet).
+// Uses the CopyCommand behaviour (src/client/copy.mjs copies [data-copy-text]). The block keeps its line breaks
+// and scrolls on narrow screens, so it is a focusable, labelled region (WCAG: keyboard access to scrolling).
+import { t } from "../i18n/t.mjs";
+interface Props { json: string; label: string }
+const { json, label } = Astro.props;
+---
+<div class="snippet" data-copy>
+  <pre class="snippet__pre" tabindex="0" role="region" aria-label={label}><code class="t-mono" data-copy-text>{json}</code></pre>
+  <button type="button" class="copy__button snippet__button t-label" data-copy-button aria-label={t("copy.aria", { label })}>{t("copy.button")}</button>
+</div>
+
+<style>
+  .snippet {
+    display: flex;
+    align-items: flex-start;
+    min-width: 0;
+    max-width: var(--measure);
+    border: var(--rule-thin) solid var(--rule-hairline);
+    border-radius: var(--radius-s);
+    background: var(--surface-sunken);
+  }
+  .snippet__pre {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    padding: var(--space-3);
+    overflow-x: auto;
+    color: var(--ink-primary);
+  }
+  .snippet__button { align-self: stretch; }
+</style>
