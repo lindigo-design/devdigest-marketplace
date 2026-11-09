@@ -7,7 +7,7 @@ Public [Claude Code plugin marketplace](https://code.claude.com/docs/en/plugin-m
 | [`engineering-paved-path`](plugins/engineering-paved-path) | Architecture rules shared by the other plugins: onion backend architecture, frontend UI structure | — |
 | [`research-tools`](plugins/research-tools) | Read-only `researcher` agent with evidence for every finding | — |
 | [`architecture-review`](plugins/architecture-review) | Read-only `architecture-reviewer` agent with a read-only Bash guard | engineering-paved-path |
-| [`sdd-engineering`](plugins/sdd-engineering) | Spec → plan → implement → test → verify → docs | engineering-paved-path, research-tools, architecture-review |
+| [`sdd-engineering`](plugins/sdd-engineering) | Spec → plan → implement → verify → architecture review → retro | engineering-paved-path, research-tools, architecture-review |
 
 > Status: **0.1.0 scaffold.** Manifests and dependency graph are in place; skills, agents and hooks are migrated one plugin at a time.
 
@@ -59,19 +59,15 @@ graph TD
     EPP["engineering-paved-path<br/>onion-architecture · frontend-ui-architecture"]
     RT["research-tools<br/>researcher"]
     AR["architecture-review<br/>architecture-reviewer · bash-guard"]
-    SDD["sdd-engineering<br/>spec → plan → implement → test → verify → docs"]
-    MCP["devdigest-mcp (planned)<br/>DevDigest MCP server"]
+    SDD["sdd-engineering<br/>spec → plan → implement → verify → review → retro"]
 
     AR -->|"^0.1"| EPP
     SDD -->|"^0.1"| EPP
     SDD -->|"^0.1"| RT
     SDD -->|"^0.1"| AR
-    SDD -.->|"optional, not a dependency"| MCP
 ```
 
-`sdd-engineering` depends on `architecture-review` because `implement-plan` runs `architecture-reviewer` and `security-reviewer` on *Finish*.
-
-**DevDigest MCP** is not a dependency. `spec-creator` can use the DevDigest MCP tools when they are available; they will ship later as a separate `devdigest-mcp` plugin.
+`sdd-engineering` depends on `architecture-review` because `run-plan` runs `architecture-reviewer` on the full diff when every task has passed, and on `research-tools` because `researcher` feeds `spec-creator`.
 
 ## Repository layout
 

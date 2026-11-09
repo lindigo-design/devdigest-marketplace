@@ -30,9 +30,9 @@
     {
       "name": "sdd-engineering",
       "source": "./plugins/sdd-engineering",
-      "description": "Spec-driven development workflow: spec, plan, implement, test, verify and document with scoped write hooks.",
+      "description": "Spec-driven workflow: spec-creator, implementation-planner, implementer and plan-verifier agents, run-plan and workflow-retro skills.",
       "category": "workflow",
-      "tags": ["sdd", "spec", "planning", "implementation", "testing", "agents"]
+      "tags": ["sdd", "spec", "planning", "implementation", "verification", "agents"]
     }
   ]
 }
