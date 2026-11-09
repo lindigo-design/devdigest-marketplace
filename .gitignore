@@ -19,3 +19,5 @@ Thumbs.db
 site/dist/
 site/.astro/
 site/.test-dist/
+site/test-results/
+site/playwright-report/

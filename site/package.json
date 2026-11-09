@@ -14,7 +14,8 @@
     "test": "node --test \"test/unit/**/*.test.mjs\"",
     "fonts": "node scripts/fonts-css.mjs",
     "check": "node scripts/check-catalog.mjs",
-    "test:build": "node --test --test-concurrency=1 \"test/build/**/*.test.mjs\""
+    "test:build": "node --test --test-concurrency=1 \"test/build/**/*.test.mjs\"",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@fontsource-variable/source-serif-4": "5.3.1",
@@ -33,6 +34,8 @@
     "yaml": "2.9.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.64.1",
     "fast-xml-parser": "5.11.2"
   }
 }

@@ -22,9 +22,8 @@ const words = ["I", "need", "a"];
     </p>
     <ul class="search__chips" aria-label="Active filters" data-search-chips hidden></ul>
   </div>
-  <noscript>
-    <p class="search__noscript t-caption">Search needs JavaScript. Every plugin is listed below, and each plugin page lists its components.</p>
-  </noscript>
+  <!-- Not <noscript>: an element the inline "js" class hides also works where scripts are blocked after parsing. -->
+  <p class="search__noscript t-caption" data-no-js>Search needs JavaScript. Every plugin is listed below, and each plugin page lists its components.</p>
 </section>
 
 <style>
@@ -81,4 +80,5 @@ const words = ["I", "need", "a"];
   .search__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); min-height: var(--space-7); padding-top: var(--space-4); }
   .search__chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
   .search__noscript { padding-top: var(--space-2); }
+  :global(html.js) [data-no-js] { display: none; }
 </style>

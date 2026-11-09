@@ -38,7 +38,9 @@ const fullTitle = title ? `${title} · ${catalog.marketplace.name}` : catalog.ma
     </div>
     <script>
       import { initCopy } from "../client/copy.mjs";
+      import { initShortcuts } from "../client/shortcuts.mjs";
       initCopy();
+      initShortcuts({ base: document.querySelector('meta[name="catalog-base"]')?.getAttribute("content") ?? "/" });
     </script>
   </body>
 </html>

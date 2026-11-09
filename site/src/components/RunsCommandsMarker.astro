@@ -11,7 +11,8 @@ const { runs } = Astro.props;
   </p>
 )}
 
-<style>
+<style is:global>
+  /* Global: src/client/render.mjs builds the same markup for live results, without Astro's scope attributes. */
   .runs {
     display: flex;
     flex-wrap: wrap;

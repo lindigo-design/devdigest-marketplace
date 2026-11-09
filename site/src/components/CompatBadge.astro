@@ -14,7 +14,8 @@ const [first, ...os] = badgeLabels(compat);
   {verified && compat.verifiedOn && <li class="badge badge--note">verified on {compat.verifiedOn}</li>}
 </ul>
 
-<style>
+<style is:global>
+  /* Global: src/client/render.mjs builds the same markup for live results, without Astro's scope attributes. */
   .badges {
     display: flex;
     flex-wrap: wrap;

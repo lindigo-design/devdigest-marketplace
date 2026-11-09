@@ -10,7 +10,8 @@ const { command, label = command } = Astro.props;
   <button type="button" class="copy__button t-label" data-copy-button aria-label={`Copy: ${label}`}>Copy</button>
 </div>
 
-<style>
+<style is:global>
+  /* Global: src/client/render.mjs builds the same markup for live results, without Astro's scope attributes. */
   .copy {
     display: flex;
     align-items: stretch;
@@ -43,5 +44,5 @@ const { command, label = command } = Astro.props;
   .copy__button:hover { color: var(--accent-indigo); }
   .copy__button[data-state="copied"] { color: var(--signal-positive); }
   .copy__button[data-state="error"] { color: var(--signal-caution); }
-  :global(html:not(.js)) .copy__button { display: none; }
+  html:not(.js) .copy__button { display: none; }
 </style>

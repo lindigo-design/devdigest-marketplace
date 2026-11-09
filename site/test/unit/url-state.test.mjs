@@ -1,10 +1,10 @@
 // Query and filters in the URL (spec CAT-01 R4/AC-2).
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { emptyState, hasFilters, isEmpty, parseState, toSearch, toggle } from "../../src/client/url-state.mjs";
+import { clearFilters, emptyState, hasFilters, isEmpty, parseState, toSearch, toggle } from "../../src/client/url-state.mjs";
 
 test("round trip restores the same state", () => {
-  const s = { q: "рев'ю безпеки", kind: ["skill", "agent"], plugin: ["architecture-review"], category: [], tag: ["pr"], os: ["macOS"] };
+  const s = { q: "рев'ю безпеки", view: "", kind: ["skill", "agent"], plugin: ["architecture-review"], category: [], tag: ["pr"], os: ["macOS"] };
   assert.deepEqual(parseState(toSearch(s)), s);
 });
 
@@ -29,6 +29,23 @@ test("parsing drops unknown kinds, blanks and duplicates; caps q", () => {
 
 test("accepts URLSearchParams and ignores unrelated params", () => {
   assert.deepEqual(parseState(new URLSearchParams("utm_source=x&os=Windows")), { ...emptyState(), os: ["Windows"] });
+});
+
+test("view=all: the full list with an empty query (R2/AC-8, AC-9)", () => {
+  const all = parseState("?view=all");
+  assert.equal(all.view, "all");
+  assert.ok(!isEmpty(all));
+  assert.equal(toSearch(all), "?view=all");
+  // A query or filter already means "search"; view=all is dropped from the URL then.
+  assert.equal(toSearch({ ...all, q: "review" }), "?q=review");
+  assert.equal(toSearch({ ...all, kind: ["skill"] }), "?kind=skill");
+  assert.equal(parseState("?view=other").view, "");
+});
+
+test("clearFilters keeps the query", () => {
+  const s = clearFilters({ ...emptyState(), q: "x", kind: ["skill"], tag: ["a"] });
+  assert.equal(s.q, "x");
+  assert.ok(!hasFilters(s));
 });
 
 test("toggle, hasFilters, isEmpty", () => {

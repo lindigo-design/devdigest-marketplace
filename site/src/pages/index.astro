@@ -3,6 +3,7 @@
 // Everything here is static HTML, so the page works without JavaScript; T8's search UI takes over the
 // main column and the rail when a query or filter is active (R2, R4).
 import { countByKind } from "../../lib/catalog.mjs";
+import EmptyState from "../components/EmptyState.astro";
 import ResultEntry from "../components/ResultEntry.astro";
 import SearchLine from "../components/SearchLine.astro";
 import StatNumeral from "../components/StatNumeral.astro";
@@ -57,7 +58,31 @@ const relations = (p: any) => ({
       </div>
     </aside>
 
+    <aside class="rail rail-sticky filters" aria-label="Filters" data-rail-filters hidden>
+      <button type="button" class="button filters__toggle t-label" aria-expanded="false" aria-controls="filters-panel" data-filters-toggle>Filters</button>
+      <div id="filters-panel" class="filters__panel" data-filters-panel>
+        <div class="filters__head">
+          <h2 class="t-label">Filters</h2>
+          <span class="filters__actions">
+            <button type="button" class="link-button t-caption" data-filters-clear>Clear</button>
+            <button type="button" class="link-button t-caption filters__done" data-filters-done>Done</button>
+          </span>
+        </div>
+        <div class="filters__groups" data-filter-groups></div>
+      </div>
+    </aside>
+
     <div class="main">
+      <section class="results" aria-labelledby="results-title" data-results hidden>
+        <h2 id="results-title" class="visually-hidden">Search results</h2>
+        <div class="entries" role="list" data-results-list></div>
+        <button type="button" class="button results__more" data-results-more hidden>Show more</button>
+        <EmptyState variant="page" id="no-results" title="Nothing matches." hidden>
+          <button type="button" class="button" data-clear-filters>Clear filters</button>
+          <a class="button button--primary" href={href("?view=all")} data-show-all>Show everything</a>
+        </EmptyState>
+      </section>
+
       <section class="news-block" aria-labelledby="whatsnew" data-home-section>
         <div class="section-head">
           <h2 id="whatsnew" class="t-heading-1">What’s new</h2>
@@ -101,4 +126,91 @@ const relations = (p: any) => ({
   .section-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: var(--space-2) var(--space-4); padding-bottom: var(--space-4); }
   .news-list { margin: 0; padding: 0; list-style: none; border-bottom: var(--rule-thin) solid var(--rule-hairline); }
   .entries { border-bottom: var(--rule-thin) solid var(--rule-hairline); }
+  .entries:empty { border-bottom: 0; }
+  .results__more { margin-top: var(--space-5); }
+</style>
+
+<script>
+  import { initSearch } from "../client/search-ui.mjs";
+  initSearch();
+</script>
+
+<style is:global>
+  /* Global: chips and filter options are created by src/client/search-ui.mjs. */
+  [hidden] { display: none !important; }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3);
+    background: var(--accent-indigo-soft);
+    color: var(--accent-indigo);
+    border-radius: var(--radius-s);
+    font-size: var(--type-caption);
+    font-weight: var(--weight-semibold);
+  }
+  .chip__remove {
+    min-width: var(--space-6);
+    min-height: var(--space-6);
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: var(--type-body);
+    line-height: var(--leading-numeral);
+  }
+
+  .filters__toggle { display: none; width: 100%; }
+  .filters__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: var(--rule-thin) solid var(--rule-hairline);
+  }
+  .filters__actions { display: flex; gap: var(--space-4); }
+  .filters__done { display: none; }
+  .filters__groups { display: flex; flex-direction: column; gap: var(--space-6); padding-top: var(--space-5); }
+  .filter-group { margin: 0; padding: 0; border: 0; min-width: 0; }
+  .filter-group legend { padding: 0; margin-bottom: var(--space-2); }
+  .filter-option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: var(--space-6);
+    padding-block: var(--space-1);
+    cursor: pointer;
+    transition: color var(--duration-quick) var(--ease-settle);
+  }
+  .filter-option:hover { color: var(--accent-indigo); }
+  .filter-option input { width: var(--space-4); height: var(--space-4); margin: 0; accent-color: var(--accent-indigo); flex: 0 0 auto; }
+  .filter-option__label { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .filter-option__count { font-family: var(--font-mono); font-size: var(--type-caption); color: var(--ink-secondary); font-variant-numeric: tabular-nums; }
+  .filter-option--checked { color: var(--accent-indigo); }
+  .filter-option--disabled { color: var(--ink-secondary); cursor: default; }
+
+  @media (min-width: 768px) and (max-width: 1199px) {
+    .filters__groups { flex-direction: row; flex-wrap: wrap; gap: var(--space-6) var(--space-7); }
+    .filter-group { flex: 1 1 var(--space-10); }
+  }
+
+  /* < 768px: filters live in a full-screen drawer (tokens §4). */
+  @media (max-width: 767px) {
+    .filters__toggle { display: inline-flex; }
+    .filters__panel:not(.is-open) { display: none; }
+    .filters__panel.is-open {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      overflow: auto;
+      padding: var(--space-5) var(--grid-margin);
+      background: var(--surface-page);
+    }
+    .filters__panel.is-open .filters__done { display: inline; }
+  }
+
+  /* Live results reveal quickly; on first paint of the home page they follow the search line (tokens §6). */
+  .entry.entry--live { animation-delay: calc(var(--stagger-step) * var(--i)); }
 </style>

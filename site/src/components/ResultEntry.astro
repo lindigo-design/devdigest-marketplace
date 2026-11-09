@@ -52,7 +52,8 @@ const isPlugin = e.kind === "plugin";
   </div>
 </article>
 
-<style>
+<style is:global>
+  /* Global: src/client/render.mjs builds the same markup for live results, without Astro's scope attributes. */
   .entry {
     position: relative;
     display: flex;
@@ -71,7 +72,7 @@ const isPlugin = e.kind === "plugin";
     animation-delay: calc(var(--duration-reveal) + var(--stagger-step) * var(--i));
   }
   .entry:hover, .entry:focus-within { background-size: 100% var(--rule-thin); }
-  .entry :global(.entry__kind) { flex: 0 0 var(--space-10); padding-top: var(--space-1); }
+  .entry .entry__kind { flex: 0 0 var(--space-10); padding-top: var(--space-1); }
   .entry__body { flex: 1 1 calc(var(--space-10) * 2); min-width: 0; display: flex; flex-direction: column; gap: var(--space-3); }
   .entry__title { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-4); }
   .entry__name { overflow-wrap: anywhere; }
@@ -82,10 +83,10 @@ const isPlugin = e.kind === "plugin";
   .entry__link:focus-visible { outline: none; }
   .entry:has(.entry__link:focus-visible) { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
   /* Everything else that is interactive sits above the stretched link. */
-  .entry :global(a:not(.entry__link)), .entry :global(button), .entry :global(code) { position: relative; z-index: 1; }
+  .entry a:not(.entry__link), .entry button, .entry code { position: relative; z-index: 1; }
   .entry__sub { color: var(--ink-secondary); text-decoration-color: var(--rule-hairline); }
   .entry__sub:hover { color: var(--accent-indigo); }
-  .entry__desc :global(mark) { background: var(--accent-indigo-soft); color: var(--accent-indigo); padding: 0 var(--space-1); }
+  .entry__desc mark { background: var(--accent-indigo-soft); color: var(--accent-indigo); padding: 0 var(--space-1); }
   .entry__rel { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-5); }
   .entry__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); }
   .entry__tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
