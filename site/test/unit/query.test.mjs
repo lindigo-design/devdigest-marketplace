@@ -80,6 +80,12 @@ describe("synonym expansion (R2/AC-7)", () => {
     assert.ok(expands(q("secur"), "secur", "security"));
   });
 
+  test("a Ukrainian word matches while it is being typed, from 2 letters", () => {
+    for (const w of ["ар", "арх", "архі"]) assert.ok(expands(q(w), w, "architecture"), w);
+    assert.equal(tokenMatches("а", "архітектур"), false); // 1 letter is too short
+    assert.equal(tokenMatches("ar", "architecture"), false); // English short prefixes stay with MiniSearch
+  });
+
   test("short entries do not prefix-match unrelated words", () => {
     assert.ok(!expands(q("pretty"), "pretty", "pull request"));
     assert.equal(tokenMatches("pretty", "pr"), false);
