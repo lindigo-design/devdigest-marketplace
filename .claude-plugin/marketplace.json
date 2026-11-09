@@ -16,9 +16,9 @@
     {
       "name": "research-tools",
       "source": "./plugins/research-tools",
-      "description": "Read-only researcher and brainstorm agents for codebase and external research before any change.",
+      "description": "Read-only researcher agent for codebase and external research, with evidence for every finding.",
       "category": "research",
-      "tags": ["research", "brainstorm", "read-only", "agents"]
+      "tags": ["research", "read-only", "agents", "evidence"]
     },
     {
       "name": "architecture-review",

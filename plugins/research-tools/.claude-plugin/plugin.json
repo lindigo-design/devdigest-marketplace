@@ -1,7 +1,7 @@
 {
   "name": "research-tools",
-  "version": "0.1.0",
-  "description": "Read-only researcher and brainstorm agents for codebase and external research before a change.",
+  "version": "0.1.1",
+  "description": "Read-only researcher agent: answers one concrete question from the repository or external docs, with file:line or URL evidence for every finding.",
   "author": {
     "name": "Yana Levchenko",
     "url": "https://github.com/lindigo-design"
@@ -11,14 +11,9 @@
   "license": "MIT",
   "keywords": [
     "research",
-    "brainstorm",
     "read-only",
-    "agents"
-  ],
-  "dependencies": [
-    {
-      "name": "engineering-paved-path",
-      "version": "^0.1"
-    }
+    "agents",
+    "codebase",
+    "documentation"
   ]
 }

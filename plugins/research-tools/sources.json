@@ -1,0 +1,11 @@
+{
+  "skills": {},
+  "agents": {
+    "researcher": {
+      "origin": "devdigest",
+      "license": "MIT",
+      "copyright": "2026 Ivan Lapa",
+      "source": "DevDigest, branch local/all-lessons @ b288d63: .claude/agents/researcher.md (generalized)"
+    }
+  }
+}
