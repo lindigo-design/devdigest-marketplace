@@ -107,6 +107,20 @@ Baseline: 8px. Vertical rhythm uses `space/*` only.
 | **EmptyState** | no results (echoes the query, "clear filters", "show all") · no components yet |
 | **Prose**: rendered README / SKILL.md | headings, lists, tables, code blocks on `surface/sunken` |
 
+Added 2026-11-09 for spec CAT-02 (plugin page: install and use). No new tokens.
+
+| Component | States |
+| :- | :- |
+| **InstallPanel**: scope choice, session/terminal tabs, commands, project settings JSON, dependencies, context cost; replaces InstallBlock on the plugin page | user · project · local × session · terminal · copied · no-JS (all combinations stacked under headings) |
+| **InstallBlock** (compact, cards and component pages): one-step command + link to the plugin page's install panel | default · copied |
+| **ScopeChoice**: three radio options in a row (stacked under 480 px), label in `type/body`, one-line hint in `type/caption` `ink/secondary` | unchecked · checked (`accent/indigo-soft` fill, `accent/indigo` text, like a checked filter) · focus-visible |
+| **SurfaceTabs**: two text tabs in `type/body`, on a `rule/hairline` baseline | default · selected (`rule/strong` underline in `accent/indigo`) · hover · focus-visible |
+| **SettingsSnippet**: JSON in `type/mono` on `surface/sunken`, with a copy action | default · copied |
+| **ComponentGroup**: group heading in `type/label` ("SKILLS · 2"); ruled index rows (`rule/hairline`): name in `type/heading-2`, description in `type/body` `ink/secondary` clamped to 2 lines, invocation in `type/mono`, relations line in `type/body` | default · hover (hairline draws in indigo, as ResultEntry) · focus-visible |
+| **TryItItem**: prompt in `type/mono` with copy action, result in `type/body` `ink/secondary` | default · copied |
+| **ManageBlock**: a disclosure; rows of action, session form and terminal form | closed · open · focus-visible |
+| **DownloadLink**: text link with a note in `type/caption` | default · hover |
+
 ## 6. Motion
 
 Things move like a page being typeset: deliberate, never bouncy, and never fade-in-from-bottom.

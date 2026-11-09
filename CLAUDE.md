@@ -42,7 +42,9 @@ Workflow: spec → plan → user approval → implement by task → verify again
 | Prototype (reference, not source of truth) | [docs/design/prototype/](docs/design/prototype/) | exported |
 | Implementation plan (decisions D1–D8, acceptance run in §12) | [docs/plans/catalog-site.md](docs/plans/catalog-site.md) | implemented (T0–T12) |
 | Site source, commands, configuration | [site/README.md](site/README.md) | implemented; first deploy after merge |
-| Public index schema | [docs/catalog-index.md](docs/catalog-index.md) | schemaVersion 1 |
+| Spec CAT-02: plugin page install and use, context-cost CI check | [docs/specs/install-and-use.md](docs/specs/install-and-use.md) | approved |
+| Plan CAT-02 (V1–V4 checks, acceptance run in §4) | [docs/plans/install-and-use.md](docs/plans/install-and-use.md) | implemented (T0–T8) |
+| Public index schema | [docs/catalog-index.md](docs/catalog-index.md) | schemaVersion 1 (+ `marketplace.source`) |
 
 Site constraints:
 - Astro + MiniSearch, no backend.
@@ -52,6 +54,7 @@ Site constraints:
 - Token change → `design-tokens.md` first, then code (`site/src/styles/tokens.css` is a verbatim copy; a test compares them).
 - `ResultEntry.astro` and `site/src/client/render.mjs` render the same card; change both.
 - UI text lives only in `site/src/i18n/en.json`; components use `t()` (a unit test rejects hard-coded text and unused keys).
+- Install, manage and download commands come only from `site/lib/install.mjs`; a plugin's `Context cost` row is checked in CI (`check-context-cost.mjs`).
 
 ## Layout
 

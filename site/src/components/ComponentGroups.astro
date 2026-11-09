@@ -1,0 +1,76 @@
+---
+// Components of a plugin, grouped by kind with counts (spec CAT-02 R1; tokens §5 ComponentGroup).
+// Each row: name → component page, first sentence clamped to 2 lines (the full description stays in the HTML for
+// screen readers), how to call it in mono, whether Claude also starts it, and the relations line.
+import { KIND_ORDER } from "../../lib/catalog.mjs";
+import { firstSentence } from "../../lib/usage.mjs";
+import { href } from "../data/site.mjs";
+import { t } from "../i18n/t.mjs";
+import Relations from "./Relations.astro";
+interface Props { plugin: string; components: any[] }
+const { plugin, components } = Astro.props;
+const groups = KIND_ORDER.filter((k) => k !== "plugin")
+  .map((kind) => ({ kind, items: components.filter((c) => c.kind === kind) }))
+  .filter((g) => g.items.length > 0);
+const title = (kind: string, count: number) =>
+  kind === "skill" ? t("usage.group.skill", { count })
+  : kind === "agent" ? t("usage.group.agent", { count })
+  : kind === "command" ? t("usage.group.command", { count })
+  : kind === "hook" ? t("usage.group.hook", { count })
+  : t("usage.group.mcp", { count });
+const note = (c: any) =>
+  c.kind === "skill" ? (c.page.invocation.auto ? t("usage.auto.skill") : t("usage.manual"))
+  : c.kind === "agent" ? t("usage.auto.agent")
+  : c.kind === "hook" ? t("usage.hook")
+  : null;
+---
+<div class="cg">
+  {groups.map((g) => (
+    <section class="cg__group" aria-labelledby={`cg-${g.kind}`}>
+      <h3 id={`cg-${g.kind}`} class="t-label cg__title">{title(g.kind, g.items.length)}</h3>
+      <ul class="cg__rows">
+        {g.items.map((c) => (
+          <li class="cg__row" data-component={c.id}>
+            <a class="t-heading-2 cg__name" href={href(c.path)}>{c.name}</a>
+            <p class="t-body t-secondary cg__desc" aria-hidden="true">{firstSentence(c.description)}</p>
+            <p class="visually-hidden">{c.description}</p>
+            <p class="cg__call">
+              <code class="t-mono cg__invocation">{c.page.invocation.text}</code>
+              {note(c) && <span class="t-caption t-secondary"> {note(c)}</span>}
+            </p>
+            <Relations plugin={plugin} preloads={c.page.preloads} preloadedBy={c.page.preloadedBy} />
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+</div>
+
+<style>
+  .cg { display: flex; flex-direction: column; gap: var(--space-6); }
+  .cg__group { display: flex; flex-direction: column; gap: var(--space-2); }
+  .cg__title { margin: 0; color: var(--ink-secondary); }
+  .cg__rows { margin: 0; padding: 0; list-style: none; }
+  .cg__row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 0;
+    padding-block: var(--space-4);
+    border-top: var(--rule-thin) solid var(--rule-hairline);
+    transition: border-color var(--duration-base) var(--ease-settle);
+  }
+  .cg__row:hover, .cg__row:focus-within { border-top-color: var(--accent-indigo); }
+  .cg__name { width: fit-content; max-width: 100%; overflow-wrap: anywhere; }
+  .cg__desc {
+    display: -webkit-box;
+    margin: 0;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+  .cg__call { margin: 0; overflow-wrap: anywhere; }
+  .cg__invocation { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink-primary); }
+  @media (prefers-reduced-motion: reduce) { .cg__row { transition: none; } }
+</style>

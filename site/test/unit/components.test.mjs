@@ -86,7 +86,10 @@ describe("agents: runs-commands marker (R3/AC-3)", () => {
 describe("MCP and commands", () => {
   test("MCP: name and transport only", () => {
     const m = get("sdd-engineering/mcp/devdigest");
-    assert.deepEqual(m.page, { mcp: { transport: "stdio" } });
+    // Read from .mcp.json: name and transport only (R1/AC-6). The catalog adds the derived invocation (CAT-02 R1/AC-4).
+    const { invocation, ...read } = m.page;
+    assert.deepEqual(read, { mcp: { transport: "stdio" } });
+    assert.deepEqual(invocation, { text: "devdigest · stdio", auto: null });
     assert.equal(get("sdd-engineering/mcp/docs-search").page.mcp.transport, "http");
   });
   test("command: description and argument hint", () => {

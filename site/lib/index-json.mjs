@@ -3,14 +3,15 @@
 // Schema: docs/catalog-index.md. A breaking change bumps SCHEMA_VERSION.
 import { encodeBodies } from "../src/client/body-index.mjs";
 import { absUrl, repoSlug } from "./config.mjs";
+import { oneStep } from "./install.mjs";
 
 export const SCHEMA_VERSION = 1;
 
-/** Install commands (R3/AC-4, R5/AC-3). */
-export function installCommands(config, marketplaceName, plugin) {
+/** Install commands (CAT-01 R3/AC-4, R5/AC-3 as amended by CAT-02 R2/AC-11: the one-step form). */
+export function installCommands(config, plugin) {
   return {
     marketplaceAdd: `/plugin marketplace add ${repoSlug(config)}`,
-    install: `/plugin install ${plugin}@${marketplaceName}`,
+    install: oneStep(repoSlug(config), plugin),
   };
 }
 
@@ -46,7 +47,8 @@ export function toIndexJson(catalog, config, { now = new Date() } = {}) {
       description: mk.description,
       owner: mk.owner,
       repository: config.repo,
-      addCommand: installCommands(config, mk.name, "").marketplaceAdd,
+      addCommand: installCommands(config, "").marketplaceAdd,
+      source: repoSlug(config), // CAT-02 D5: live results build the one-step command from it
       lastRelease: catalog.lastRelease,
     },
     synonyms: catalog.synonyms,

@@ -38,6 +38,9 @@ Thanks for improving the `lindigo-devdigest` marketplace. This file covers how t
 - Every `hooks/hooks.json` has a top-level `description` saying what the hooks do (it is the hook's text in the catalog search).
 - Every `SKILL.md` and agent file starts with YAML frontmatter that has `name` and `description`. The catalog site build fails without them and names the file. Names use only letters, digits, `.`, `_` and `-` (they become page URLs).
 - Optional frontmatter `tags` on a skill, agent or command rank above the plugin's tags in catalog search.
+- An agent's `skills:` list (`<plugin>:<skill>`, or a bare name for its own plugin) is what the catalog shows as "Preloads" / "Preloaded by".
+- The plugin README's `## How to use` section has a `| You type | You get |` table; the catalog's "Try it after install" shows its first two rows, so put the most useful prompts first.
+- `COMPATIBILITY.md` has a `Context cost` row in its first table: `~<n> tokens always-on`, the value `claude plugin details <plugin>` prints. Update it in every release that changes a skill or agent description; CI fails when it is more than 10 % off.
 - A `CLAUDE.md` inside a plugin is not loaded; put instructions in a skill.
 - Reference another plugin's skill as `<plugin>:<skill>` and declare that plugin in `dependencies` with a range such as `^1.0`.
 - Code taken from DevDigest keeps its MIT notice and a provenance line in `CHANGELOG.md`.
@@ -100,9 +103,9 @@ Changes to the site itself run the full suite; see [site/README.md](site/README.
 
 1. `claude plugin validate --strict` for the root and every plugin;
 2. `check-versions.mjs`: catalog and directory consistency, no `version` in the catalog, a version bump for every changed plugin; `check-components.mjs` on the changed plugins (sources and licences, `skills:` lists, cross-plugin references, denylist); hook self-tests;
-3. smoke install of every plugin in a temporary `HOME`, then a check that all dependencies are enabled.
+3. smoke install of every plugin in a temporary `HOME`, then a check that all dependencies are enabled and that each plugin's declared `Context cost` is within 10 % of `claude plugin details` (`check-context-cost.mjs`).
 
-[`pages.yml`](.github/workflows/pages.yml) builds and tests the catalog site on PRs that touch plugins, the catalog, the site or the design tokens, and deploys it from `main`:
+[`pages.yml`](.github/workflows/pages.yml) builds and tests the catalog site on every PR (its three jobs are required checks for `main`), and deploys it from `main`:
 
 1. `site: unit + build tests`: unit tests (including the token and UI-string lints), the catalog check of this repository, build tests on fixtures (including origin/base-path variants);
 2. `site: build`: the site build, uploaded as the Pages artifact on `main`;

@@ -12,7 +12,8 @@ const fixture = arg("fixture", "demo");
 const port = Number(arg("port", "4399"));
 const base = readConfig({}).base; // the harness builds with the default origin and base
 
-const built = buildSite({ repoRoot: join(FIXTURES, fixture) });
+// One tagged release, so the plugin page shows its Download source link (spec CAT-02 R5).
+const built = buildSite({ repoRoot: join(FIXTURES, fixture), env: { CATALOG_RELEASE_TAGS: "sdd-engineering--v0.1.0" } });
 const root = resolve(built.out);
 process.on("exit", () => built.cleanup());
 for (const sig of ["SIGINT", "SIGTERM"]) process.on(sig, () => process.exit(0));

@@ -26,8 +26,10 @@ const { command, label = command } = Astro.props;
     flex: 1;
     min-width: 0;
     padding: var(--space-2) var(--space-3);
-    overflow-x: auto;
-    white-space: nowrap;
+    /* Wrap, never scroll: a scrolling <code> would need its own tab stop (axe scrollable-region-focusable),
+       and the one-step commands (CAT-02 R2/AC-11) are longer than a card at 360 px. */
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
     color: var(--ink-primary);
   }
   .copy__button {

@@ -154,7 +154,7 @@ test.describe("cards (R3)", () => {
     const card = page.locator('article[data-entry="architecture-review/hook/gate"]');
     await card.getByRole("button", { name: /Copy: install command for architecture-review/ }).click();
     await expect(card.locator("[data-copy-button]")).toHaveText("Copied");
-    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("/plugin install architecture-review@lindigo-devdigest");
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("/plugin install architecture-review --marketplace lindigo-design/devdigest-marketplace");
     await expect(page).toHaveURL(/\?q=gate$/);
     await expect(card.locator("[data-copy-button]")).toHaveText("Copy", { timeout: 4000 });
   });

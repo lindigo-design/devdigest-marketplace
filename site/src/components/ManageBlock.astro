@@ -1,0 +1,84 @@
+---
+// Manage an installed plugin (spec CAT-02 R4; tokens §5 ManageBlock): update, update all, auto-update,
+// disable / enable, uninstall, pin a release, each for a Claude Code session and the terminal.
+// Terminal commands that depend on the scope are rendered per scope ([data-scope]); the install panel's scope
+// choice shows one of them (src/client/install-panel.mjs). Without JavaScript all three are listed.
+import { SCOPES } from "../../lib/install.mjs";
+import { t } from "../i18n/t.mjs";
+import CopyCommand from "./CopyCommand.astro";
+import SettingsSnippet from "./SettingsSnippet.astro";
+interface Props { plugin: string; marketplace: string; model: any; usedBy: string[] }
+const { plugin, marketplace, model, usedBy } = Astro.props;
+const ACTIONS = ["update", "updateAll", "autoUpdate", "disable", "enable", "uninstall", "pin"];
+const row = (scope: string, action: string) => model.manage[scope].find((r: any) => r.action === action);
+const title = (a: string) =>
+  a === "update" ? t("manage.update") : a === "updateAll" ? t("manage.updateAll") : a === "autoUpdate" ? t("manage.autoUpdate")
+  : a === "disable" ? t("manage.disable") : a === "enable" ? t("manage.enable") : a === "uninstall" ? t("manage.uninstall") : t("manage.pin");
+const sessionSteps = (a: string) =>
+  a === "update" ? t("manage.update.session", { plugin })
+  : a === "updateAll" ? t("manage.updateAll.session", { marketplace })
+  : a === "autoUpdate" ? t("manage.autoUpdate.session", { marketplace })
+  : null;
+const scopeName = (s: string) => (s === "user" ? t("install.scope.user") : s === "project" ? t("install.scope.project") : t("install.scope.local"));
+// Rows whose terminal form changes with the scope (R4/AC-2); the others are the same for every scope.
+const PER_SCOPE = new Set(["update", "disable", "enable", "uninstall", "pin"]);
+---
+<details class="mb" id="manage">
+  <summary class="t-heading-2 mb__summary">{t("manage.title")}</summary>
+  <div class="mb__rows">
+    {ACTIONS.map((action) => {
+      const base = row("user", action);
+      return (
+        <section class="mb__row" aria-labelledby={`manage-${action}`} data-action={action}>
+          <h3 id={`manage-${action}`} class="t-body mb__action">{title(action)}</h3>
+          <div class="mb__forms">
+            <div class="mb__form">
+              <p class="t-label mb__where">{t("install.tab.session")}</p>
+              {base.session === null ? <p class="t-secondary">{t("manage.session.none")}</p>
+                : base.session.commands ? base.session.commands.map((c: string) => <CopyCommand command={c} label={t("manage.label.session", { action: title(action) })} />)
+                : <p class="t-mono mb__steps">{sessionSteps(action)}</p>}
+            </div>
+            <div class="mb__form">
+              <p class="t-label mb__where">{t("install.tab.terminal")}</p>
+              {base.terminal === null ? <p class="t-secondary">{t("manage.terminal.none")}</p>
+                : base.terminal.json ? <><p class="t-secondary">{t("manage.autoUpdate.json")}</p><SettingsSnippet json={base.terminal.json} label={t("manage.autoUpdate.jsonLabel")} /></>
+                : PER_SCOPE.has(action) ? SCOPES.map((scope) => (
+                    <div class:list={["mb__scoped", scope === "user" && "is-active"]} data-scope={scope}>
+                      <p class="t-caption t-secondary mb__nojs">{scopeName(scope)}</p>
+                      {row(scope, action).terminal.commands.map((c: string) => <CopyCommand command={c} label={t("manage.label.terminal", { action: title(action) })} />)}
+                    </div>
+                  ))
+                : base.terminal.commands.map((c: string) => <CopyCommand command={c} label={t("manage.label.terminal", { action: title(action) })} />)}
+            </div>
+          </div>
+          {action === "update" && <p class="t-secondary">{t("manage.update.note")}</p>}
+          {action === "updateAll" && <p class="t-secondary">{t("manage.updateAll.note")}</p>}
+          {action === "autoUpdate" && <p class="t-secondary">{t("manage.autoUpdate.note")}</p>}
+          {action === "disable" && usedBy.length > 0 && <p class="t-secondary">{t("manage.disable.note", { plugins: usedBy.join(", ") })}</p>}
+          {action === "uninstall" && <p class="t-secondary">{t("manage.uninstall.note")}</p>}
+          {action === "uninstall" && <p class="t-secondary mb__scoped" data-scope="project">{t("manage.uninstall.project")}</p>}
+          {action === "pin" && <p class="t-secondary mb__warning">{t("manage.pin.note", { tag: model.tag, marketplace })}</p>}
+        </section>
+      );
+    })}
+  </div>
+</details>
+
+<style>
+  .mb { min-width: 0; padding-top: var(--space-5); border-top: var(--rule-thin) solid var(--rule-hairline); }
+  .mb__summary { cursor: pointer; width: fit-content; }
+  .mb__summary:hover { color: var(--accent-indigo); }
+  .mb p { margin: 0; }
+  .mb__rows { display: flex; flex-direction: column; margin-top: var(--space-4); }
+  .mb__row { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; padding-block: var(--space-4); border-top: var(--rule-thin) solid var(--rule-hairline); }
+  .mb__action { margin: 0; font-weight: var(--weight-semibold); }
+  .mb__forms { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4) var(--space-5); min-width: 0; }
+  .mb__form, .mb__scoped { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
+  .mb__where { color: var(--ink-secondary); }
+  .mb__steps { overflow-wrap: anywhere; }
+  .mb__warning { color: var(--signal-caution); }
+  @media (max-width: 767px) { .mb__forms { grid-template-columns: 1fr; } }
+
+  :global(html.js) .mb__scoped:not(.is-active) { display: none; }
+  :global(html.js) .mb__nojs { display: none; }
+</style>

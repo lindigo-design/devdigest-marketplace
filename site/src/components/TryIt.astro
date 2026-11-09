@@ -1,0 +1,69 @@
+---
+// "Try it after install" (spec CAT-02 R6; tokens §5 TryItItem): check that the plugin loaded, how to call each
+// kind it ships, and up to two example prompts from the README's How to use table.
+import { t } from "../i18n/t.mjs";
+import CopyCommand from "./CopyCommand.astro";
+interface Example { prompt: string; resultHtml: string }
+interface Props { plugin: string; components: any[]; examples: Example[]; model: any }
+const { plugin, components, examples, model } = Astro.props;
+const of = (kind: string) => components.filter((c) => c.kind === kind);
+const calls = (kind: string) => of(kind).map((c) => c.page.invocation.text.split(" ")[0]);
+const skills = calls("skill");
+const commands = calls("command");
+const agents = of("agent");
+const hooks = of("hook");
+const mcp = of("mcp");
+---
+<section class="ti" aria-labelledby="try-it">
+  <h2 id="try-it" class="t-heading-2">{t("try.title")}</h2>
+
+  <h3 class="t-label ti__sub">{t("try.check")}</h3>
+  <ul class="ti__list">
+    <li><p>{t("try.check.slash")} <code class="t-mono">/{plugin}:</code></p></li>
+    <li><p>{t("try.check.list")}</p><CopyCommand command={model.check.list} label={t("try.check.listLabel")} /></li>
+    <li><p>{t("try.check.details")}</p><CopyCommand command={model.check.details} label={t("try.check.detailsLabel", { plugin })} /></li>
+  </ul>
+
+  {components.length > 0 && (
+    <>
+      <h3 class="t-label ti__sub">{t("try.call")}</h3>
+      <ul class="ti__list">
+        {skills.length > 0 && <li><p>{t("try.call.skills")} {skills.map((s, i) => <>{i > 0 && ", "}<code class="t-mono">{s}</code></>)}</p></li>}
+        {commands.length > 0 && <li><p>{t("try.call.commands")} {commands.map((s, i) => <>{i > 0 && ", "}<code class="t-mono">{s}</code></>)}</p></li>}
+        {agents.length > 0 && (
+          <li>
+            <p>{t("try.call.agents")} {agents.map((a, i) => <>{i > 0 && ", "}<code class="t-mono">{a.page.invocation.text}</code></>)}</p>
+            <p class="t-secondary">{t("try.call.agents.more")} <code class="t-mono">{model.agentSession(agents[0].name)}</code></p>
+          </li>
+        )}
+        {hooks.length > 0 && <li><p>{t("try.call.hooks")}</p></li>}
+        {mcp.length > 0 && <li><p>{t("try.call.mcp")}</p></li>}
+      </ul>
+    </>
+  )}
+
+  {examples.length > 0 && (
+    <>
+      <h3 class="t-label ti__sub">{t("try.examples")}</h3>
+      <ul class="ti__list">
+        {examples.map((e) => (
+          <li class="ti__example">
+            <CopyCommand command={e.prompt} label={t("try.examples.label")} />
+            <div class="t-secondary ti__result" set:html={e.resultHtml} />
+          </li>
+        ))}
+      </ul>
+    </>
+  )}
+</section>
+
+<style>
+  .ti { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; padding-top: var(--space-5); border-top: var(--rule-thin) solid var(--rule-hairline); }
+  .ti h2 { margin: 0 0 var(--space-2); }
+  .ti p { margin: 0; overflow-wrap: anywhere; }
+  .ti__sub { margin: var(--space-3) 0 0; color: var(--ink-secondary); }
+  .ti__list { display: flex; flex-direction: column; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+  .ti__list li { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
+  .ti__result :global(p) { margin: 0; }
+  .ti__result :global(code) { font-family: var(--font-mono); font-size: var(--type-mono); }
+</style>

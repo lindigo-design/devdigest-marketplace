@@ -1,7 +1,7 @@
 # Catalog site
 
 Static catalog of the `lindigo-devdigest` marketplace: search, plugin and component pages, feeds. Spec:
-[CAT-01](../docs/specs/marketplace-catalog.md). Plan and decisions: [catalog-site.md](../docs/plans/catalog-site.md).
+[CAT-01](../docs/specs/marketplace-catalog.md) and [CAT-02](../docs/specs/install-and-use.md) (plugin page: install and use). Plans and decisions: [catalog-site.md](../docs/plans/catalog-site.md), [install-and-use.md](../docs/plans/install-and-use.md).
 Design: [design-tokens.md](../docs/design/design-tokens.md) is the only source of colors, type, spacing and motion.
 
 Astro (static output) + MiniSearch in the browser. No backend, no third-party requests, fonts bundled.
@@ -31,13 +31,15 @@ Node.js ≥ 22.23.4. Run from `site/`.
 | `SITE_REPO` | `https://github.com/lindigo-design/devdigest-marketplace` | "View source" links, install commands |
 | `SITE_REF` | `main` | git ref of "View source" links |
 | `CATALOG_REPO_ROOT` | the repository root | which repository to build the catalog from (tests use fixtures) |
+| `CATALOG_RELEASE_TAGS` | git tags `*--v*` of the repository | comma-separated release tags; a plugin page links its source zip only when `<plugin>--v<version>` is listed (tests and fixtures set it) |
 
 In CI, `SITE_ORIGIN` and `SITE_BASE` come from repository variables, so moving to a custom domain needs no code change.
 
 ## Layout
 
 ```
-lib/                build-time Node code: catalog builder, CHANGELOG/COMPATIBILITY parsers, markdown, feeds, index.json
+lib/                build-time Node code: catalog builder, CHANGELOG/COMPATIBILITY parsers, markdown, feeds, index.json;
+                    install.mjs (install / manage / download commands), usage.mjs, relations.mjs, tags.mjs
 src/client/         browser code, shared with Node tests: query parser, search engine, URL state, search UI
 src/i18n/           en.json (every UI string) and t(), used by pages, browser code and lib/
 src/components/     one Astro component per design-tokens.md §5 entry

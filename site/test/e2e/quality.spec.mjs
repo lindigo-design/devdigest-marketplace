@@ -10,6 +10,8 @@ const ROUTES = {
   "no results": "./?q=kubernetes%20helm&kind=skill",
   plugin: "./sdd-engineering/",
   "plugin with warning": "./research-tools/",
+  "plugin, project scope, terminal": "./sdd-engineering/?scope=project&in=terminal", // CAT-02 R2, R3
+  "plugin, local scope": "./research-tools/?scope=local",
   skill: "./engineering-paved-path/skill/security/",
   agent: "./architecture-review/agent/security-reviewer/",
   hook: "./architecture-review/hook/gate/",
@@ -21,7 +23,7 @@ const ROUTES = {
 async function ready(page, url) {
   await page.goto(url);
   // Search routes: wait until results or the empty state are rendered from index.json.
-  if (url.includes("?")) await expect(page.locator("[data-search-meta]")).not.toHaveText(/Loading/);
+  if (url.startsWith("./?")) await expect(page.locator("[data-search-meta]")).not.toHaveText(/Loading/);
   await page.evaluate(() => document.fonts.ready);
   // Let entrance animations finish so axe measures final colors.
   await page.evaluate(() => Promise.all(document.getAnimations().filter((a) => a.effect?.getComputedTiming().iterations !== Infinity).map((a) => a.finished.catch(() => {}))));

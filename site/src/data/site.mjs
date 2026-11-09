@@ -20,7 +20,7 @@ export function getCatalog() {
 export const href = (path = "") => url(config.base, path);
 export const absolute = (path = "") => absUrl(config, path);
 export const githubSource = (repoPath) => sourceUrl(config, repoPath);
-export const install = (plugin) => installCommands(config, getCatalog().marketplace.name, plugin);
+export const install = (plugin) => installCommands(config, plugin);
 
 /** Markdown of a repository file, rendered and sanitized, links resolved against its directory. */
 export const markdown = (text, repoFile) =>

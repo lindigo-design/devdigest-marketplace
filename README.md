@@ -45,12 +45,12 @@ The repository is public, so no git credentials are needed to add the marketplac
 
 ## Catalog site
 
-**<https://lindigo-design.github.io/devdigest-marketplace/>** lets you find any plugin, skill, agent, command, hook or MCP server by describing what you need, in English or Ukrainian (for example "I need a skill for security review"), and copy the install command. Each plugin and component has its own page: what it does, what it may run, its dependencies, compatibility and source.
+**<https://lindigo-design.github.io/devdigest-marketplace/>** lets you find any plugin, skill, agent, command, hook or MCP server by describing what you need, in English or Ukrainian (for example "I need a skill for security review"), and copy the install command. Each plugin and component has its own page: what it does, what it may run, its dependencies, compatibility and source. A plugin page also shows how to install it for you, for a whole repository or locally (in a session or a terminal, with the `.claude/settings.json` to commit), how to call each component, how to update, pin or remove it, and a download of the released source.
 
 - Built from this repository only, on every push to `main` ([`pages.yml`](.github/workflows/pages.yml)); no manual edits, no backend, no trackers.
 - Feeds of plugin releases: [Atom](https://lindigo-design.github.io/devdigest-marketplace/feed.xml) and [JSON Feed](https://lindigo-design.github.io/devdigest-marketplace/feed.json).
 - The whole catalog as data: [`index.json`](https://lindigo-design.github.io/devdigest-marketplace/index.json), schema in [docs/catalog-index.md](docs/catalog-index.md).
-- Source in [`site/`](site/README.md); spec [CAT-01](docs/specs/marketplace-catalog.md).
+- Source in [`site/`](site/README.md); specs [CAT-01](docs/specs/marketplace-catalog.md) (catalog) and [CAT-02](docs/specs/install-and-use.md) (install and use).
 
 ## Dependency graph
 

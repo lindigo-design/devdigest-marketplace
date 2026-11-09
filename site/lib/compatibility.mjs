@@ -3,6 +3,7 @@ import { t } from "../src/i18n/t.mjs";
 
 const VERSION = String.raw`(\d+\.\d+\.\d+)`;
 const MIN = new RegExp(String.raw`(?:≥|>=)\s*${VERSION}`);
+const COST = /~?\s*(\d[\d,]*)\s*tok/i;
 const VERIFIED = new RegExp(String.raw`verified on\s+${VERSION}`, "i");
 
 const OS_NAMES = [
@@ -43,15 +44,17 @@ export function osBadges(raw) {
 
 /**
  * @param {string|null} text COMPATIBILITY.md contents, or null when the file is missing
- * @returns {{ declared, claudeCode, verifiedOn, os, claudeCodeRaw, osRaw, reason }}
+ * @returns {{ declared, claudeCode, verifiedOn, os, claudeCodeRaw, osRaw, contextCost, contextCostRaw, reason }}
  */
 export function parseCompatibility(text) {
   if (text === null) {
-    return { declared: false, claudeCode: null, verifiedOn: null, os: [], claudeCodeRaw: null, osRaw: null, reason: "file is missing" };
+    return { declared: false, claudeCode: null, verifiedOn: null, os: [], claudeCodeRaw: null, osRaw: null, contextCost: null, contextCostRaw: null, reason: "file is missing" };
   }
   const rows = firstTable(text);
   const claudeCodeRaw = rows.get("claude code") ?? null;
   const osRaw = rows.get("os") ?? null;
+  const contextCostRaw = rows.get("context cost") ?? null;
+  const cost = contextCostRaw ? COST.exec(contextCostRaw)?.[1] ?? null : null;
   const claudeCode = claudeCodeRaw ? MIN.exec(claudeCodeRaw)?.[1] ?? null : null;
   return {
     declared: claudeCode !== null,
@@ -60,6 +63,9 @@ export function parseCompatibility(text) {
     os: osBadges(osRaw),
     claudeCodeRaw,
     osRaw,
+    // Always-on tokens declared in the "Context cost" row (spec CAT-02 R2/AC-8, R8); CI checks the value.
+    contextCost: cost === null ? null : Number(cost.replace(/,/g, "")),
+    contextCostRaw,
     reason: claudeCode ? null : claudeCodeRaw ? 'the "Claude Code" row has no "≥ X.Y.Z" version' : 'no "Claude Code" row in the first table',
   };
 }

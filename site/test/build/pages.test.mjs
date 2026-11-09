@@ -86,11 +86,10 @@ describe("R5/AC-2, AC-3: plugin page", () => {
     assert.match(text(demo.page("engineering-paved-path/")), /Used by research-tools architecture-review sdd-engineering/);
   });
 
-  test("install block: marketplace add, install, auto-installed dependencies", () => {
+  test("install panel: one-step install, auto-installed dependencies (CAT-02 R2; details in install-and-use.test.mjs)", () => {
     const t = text(demo.page("sdd-engineering/"));
-    assert.match(t, /\/plugin marketplace add lindigo-design\/devdigest-marketplace Copy/);
-    assert.match(t, /\/plugin install sdd-engineering@lindigo-devdigest Copy/);
-    assert.match(t, /Also installs: engineering-paved-path \^0\.2, research-tools \^0\.1, architecture-review \^0\.1/);
+    assert.match(t, /\/plugin install sdd-engineering --marketplace lindigo-design\/devdigest-marketplace Copy/);
+    assert.match(t, /Also installs, at the same scope: engineering-paved-path \^0\.2, research-tools \^0\.1, architecture-review \^0\.1/);
   });
 
   test("component list links to every component", () => {
@@ -139,7 +138,8 @@ describe("R5/AC-4–5: component pages", () => {
     const t = text(html);
     assert.match(t, /You review a change for security issues\./);
     assert.match(t, /in plugin architecture-review · v0\.1\.1/);
-    assert.match(t, /Install with architecture-review \/plugin marketplace add lindigo-design\/devdigest-marketplace Copy \/plugin install architecture-review@lindigo-devdigest Copy Also installs: engineering-paved-path \^0\.2/);
+    assert.match(t, /Install with architecture-review \/plugin install architecture-review --marketplace lindigo-design\/devdigest-marketplace Copy Also installs: engineering-paved-path \^0\.2 Other scopes and the terminal →/);
+    assert.match(html, /href="\/devdigest-marketplace\/architecture-review\/#install"/);
     assert.match(html, new RegExp(`href="${REPO}/blob/main/plugins/architecture-review/agents/security-reviewer\\.md"`));
     assert.match(t, /Claude Code ≥ 2\.1\.110 Windows macOS/); // R10/AC-1 on component pages
   });
