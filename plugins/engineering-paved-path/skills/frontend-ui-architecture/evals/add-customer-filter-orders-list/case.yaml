@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: add-customer-filter-orders-list
+expected_outcome: |
+  Filter state in URL search params; customer list and filtering as pure helpers; new UI as a route-local _components folder; reuses the existing useOrders data without copying it into state; texts via the i18n message catalog (next-intl).

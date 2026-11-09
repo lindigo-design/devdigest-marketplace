@@ -9,9 +9,9 @@
     {
       "name": "engineering-paved-path",
       "source": "./plugins/engineering-paved-path",
-      "description": "Base layer: shared team guardrails, security rubric, engineering insights, workflow retros and Mermaid diagrams.",
+      "description": "Base layer: onion backend architecture and frontend UI structure rules, shared by the review and SDD plugins.",
       "category": "engineering-standards",
-      "tags": ["guardrails", "security", "retro", "mermaid", "base"]
+      "tags": ["architecture", "onion", "frontend", "layering", "base"]
     },
     {
       "name": "research-tools",
