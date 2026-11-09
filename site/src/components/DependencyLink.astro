@@ -1,5 +1,6 @@
 ---
 // Dependency with its range (spec CAT-01 R5/AC-2; §7 unsatisfied range; tokens §5 DependencyLink).
+import { t } from "../i18n/t.mjs";
 interface Props {
   dep: { name: string; range: string | null; inCatalog: boolean; satisfied: boolean | null };
   href?: string;          // plugin page, when the dependency is in this marketplace
@@ -13,10 +14,10 @@ const warnId = `dep-warn-${dep.name}`;
   {dep.range && <span class="t-mono dep__range">{dep.range}</span>}
   {dep.satisfied === false && (
     <span class="dep__warn" id={warnId}>
-      Range not satisfied{version ? ` by ${version} in this repository` : ""}
+      {version ? t("dep.unsatisfied.by", { version }) : t("dep.unsatisfied")}
     </span>
   )}
-  {!dep.inCatalog && <span class="t-caption">not in this marketplace</span>}
+  {!dep.inCatalog && <span class="t-caption">{t("dep.external")}</span>}
 </span>
 
 <style>

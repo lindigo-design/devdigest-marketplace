@@ -84,9 +84,10 @@ Changes to the site itself run the full suite; see [site/README.md](site/README.
 
 [`pages.yml`](.github/workflows/pages.yml) builds and tests the catalog site on PRs that touch plugins, the catalog, the site or the design tokens, and deploys it from `main`:
 
-1. unit tests, the catalog check of this repository, build tests on fixtures (including origin/base-path variants), the site build;
-2. browser tests with Playwright and axe (WCAG 2.1 AA, keyboard, 360 px, reduced motion);
-3. on `main` only: deploy to GitHub Pages, the only job with `pages: write` and `id-token: write`.
+1. `site: unit + build tests`: unit tests (including the token and UI-string lints), the catalog check of this repository, build tests on fixtures (including origin/base-path variants);
+2. `site: build`: the site build, uploaded as the Pages artifact on `main`;
+3. `site: browser tests (Playwright + axe)`: WCAG 2.1 AA, keyboard, 360 px, reduced motion;
+4. on `main` only: deploy to GitHub Pages after all three pass, the only job with `pages: write` and `id-token: write`.
 
 `claude plugin eval` is not part of CI because it is paid; run it manually when a component's behaviour changes.
 

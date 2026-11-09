@@ -7,11 +7,12 @@ import "../styles/base.css";
 import SiteFooter from "../components/SiteFooter.astro";
 import SiteHeader from "../components/SiteHeader.astro";
 import { FEEDS, absolute, config, getCatalog, href } from "../data/site.mjs";
+import { t } from "../i18n/t.mjs";
 
 interface Props { title?: string; description?: string; path?: string }
 const catalog = getCatalog();
 const { title, description = catalog.marketplace.description ?? "", path = "" } = Astro.props;
-const fullTitle = title ? `${title} · ${catalog.marketplace.name}` : catalog.marketplace.name;
+const fullTitle = title ? t("doc.title", { title, site: catalog.marketplace.name }) : catalog.marketplace.name;
 ---
 <!doctype html>
 <html lang="en">
@@ -22,13 +23,13 @@ const fullTitle = title ? `${title} · ${catalog.marketplace.name}` : catalog.ma
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={absolute(path)} />
-    <link rel="alternate" type="application/atom+xml" title={`${catalog.marketplace.name} releases (Atom)`} href={absolute(FEEDS.atom)} />
-    <link rel="alternate" type="application/feed+json" title={`${catalog.marketplace.name} releases (JSON Feed)`} href={absolute(FEEDS.json)} />
+    <link rel="alternate" type="application/atom+xml" title={t("feed.link.atom", { marketplace: catalog.marketplace.name })} href={absolute(FEEDS.atom)} />
+    <link rel="alternate" type="application/feed+json" title={t("feed.link.json", { marketplace: catalog.marketplace.name })} href={absolute(FEEDS.json)} />
     <meta name="catalog-base" content={config.base} />
     <script is:inline>document.documentElement.classList.add("js");</script>
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to content</a>
+    <a class="skip-link" href="#main">{t("skip.link")}</a>
     <div class="shell">
       <SiteHeader />
       <main id="main" tabindex="-1">

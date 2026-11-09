@@ -2,12 +2,13 @@
 // Mono command + copy button (spec CAT-01 R3/AC-4; tokens §5 CopyCommand: default · hover · copied · error).
 // Behaviour lives in src/client/copy.mjs (event delegation). Without JavaScript the button is hidden
 // and the command stays selectable text.
+import { t } from "../i18n/t.mjs";
 interface Props { command: string; label?: string }
 const { command, label = command } = Astro.props;
 ---
 <div class="copy" data-copy>
   <code class="copy__text" data-copy-text>{command}</code>
-  <button type="button" class="copy__button t-label" data-copy-button aria-label={`Copy: ${label}`}>Copy</button>
+  <button type="button" class="copy__button t-label" data-copy-button aria-label={t("copy.aria", { label })}>{t("copy.button")}</button>
 </div>
 
 <style is:global>

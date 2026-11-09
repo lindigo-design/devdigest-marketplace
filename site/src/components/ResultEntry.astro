@@ -7,6 +7,7 @@ import CopyCommand from "./CopyCommand.astro";
 import KindLabel from "./KindLabel.astro";
 import RunsCommandsMarker from "./RunsCommandsMarker.astro";
 import { href, install } from "../data/site.mjs";
+import { t } from "../i18n/t.mjs";
 
 interface Props {
   entry: any;
@@ -25,30 +26,30 @@ const isPlugin = e.kind === "plugin";
         {isPlugin
           ? <a class="entry__sub" href={href(`?category=${encodeURIComponent(e.category ?? "")}`)}>{e.category}</a>
           : <a class="entry__sub" href={href(`${e.plugin}/`)}>{e.plugin}</a>}
-        {" · "}<span class="t-mono">v{e.version}</span>
+        {" · "}<span class="t-mono">{t("version", { version: e.version })}</span>
       </p>
     </div>
     <p class="entry__desc t-secondary measure" data-entry-desc>{e.description}</p>
     {relations && (relations.dependsOn.length > 0 || relations.usedBy.length > 0) && (
       <p class="entry__rel t-body">
         {relations.dependsOn.length > 0 && (
-          <span>Depends on {relations.dependsOn.map((d, i) => <>{i > 0 && ", "}<a class="entry__sub" href={href(`${d.name}/`)}>{d.name}</a>{d.range && <span class="t-mono"> {d.range}</span>}</>)}</span>
+          <span>{t("relations.dependsOn")} {relations.dependsOn.map((d, i) => <>{i > 0 && ", "}<a class="entry__sub" href={href(`${d.name}/`)}>{d.name}</a>{d.range && <span class="t-mono"> {d.range}</span>}</>)}</span>
         )}
         {relations.usedBy.length > 0 && (
-          <span>Used by {relations.usedBy.map((u, i) => <>{i > 0 && ", "}<a class="entry__sub" href={href(`${u}/`)}>{u}</a></>)}</span>
+          <span>{t("relations.usedBy")} {relations.usedBy.map((u, i) => <>{i > 0 && ", "}<a class="entry__sub" href={href(`${u}/`)}>{u}</a></>)}</span>
         )}
       </p>
     )}
     <div class="entry__meta">
       {e.tags.length > 0 && (
-        <ul class="entry__tags" aria-label="Tags">
+        <ul class="entry__tags" aria-label={t("tags")}>
           {e.tags.slice(0, 5).map((t: string) => <li class="t-mono entry__tag">{t}</li>)}
         </ul>
       )}
       <CompatBadge compat={e.compat} />
     </div>
     <RunsCommandsMarker runs={e.runs} />
-    <CopyCommand command={install(e.plugin).install} label={`install command for ${e.plugin}`} />
+    <CopyCommand command={install(e.plugin).install} label={t("install.label.install", { plugin: e.plugin })} />
   </div>
 </article>
 

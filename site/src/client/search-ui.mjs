@@ -1,16 +1,16 @@
 // Home page search UI (spec CAT-01 R2, R3, R4, R10/AC-5): live results as you type, filters with counts,
 // chips, URL state, empty state, mobile filter drawer. Data: index.json, loaded once (R2/AC-1).
+import { t } from "../i18n/t.mjs";
 import { createEngine } from "./engine.mjs";
 import { parseQuery } from "./query.mjs";
 import { KIND_LABELS, el, renderEntry } from "./render.mjs";
 import { FILTER_KEYS, clearFilters, hasFilters, hasQuery, isEmpty, parseState, toSearch, toggle } from "./url-state.mjs";
 
 const PAGE = 60; // rows rendered at a time; "Show more" adds the next page
-const GROUPS = { kind: "Kind", plugin: "Plugin", category: "Category", tag: "Tag", os: "OS" };
+const GROUPS = { kind: t("field.kind"), plugin: t("field.plugin"), category: t("field.category"), tag: t("field.tag"), os: t("field.os") };
 const TOP_TAGS = 8;
 
 const $ = (sel, root = document) => root.querySelector(sel);
-const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 const valueLabel = (key, v) => (key === "kind" ? KIND_LABELS[v] ?? v : v);
 
 export function initSearch() {
@@ -125,7 +125,7 @@ export function initSearch() {
     if (open) {
       ui.panel.setAttribute("role", "dialog");
       ui.panel.setAttribute("aria-modal", "true");
-      ui.panel.setAttribute("aria-label", "Filters");
+      ui.panel.setAttribute("aria-label", t("filters.title"));
       ui.panel.querySelector("input, button")?.focus();
     } else {
       ["role", "aria-modal", "aria-label"].forEach((a) => ui.panel.removeAttribute(a));
@@ -150,11 +150,11 @@ export function initSearch() {
     const chips = FILTER_KEYS.flatMap((k) => state[k].map((v) => ({ k, v })));
     ui.chips.hidden = chips.length === 0;
     ui.chips.replaceChildren(...chips.map(({ k, v }) => {
-      const remove = el("button", { type: "button", class: "chip__remove", "aria-label": `Remove filter ${GROUPS[k]}: ${valueLabel(k, v)}` }, "×");
+      const remove = el("button", { type: "button", class: "chip__remove", "aria-label": t("chip.remove.aria", { group: GROUPS[k], value: valueLabel(k, v) }) }, t("chip.remove"));
       remove.addEventListener("click", () => setState(toggle(state, k, v)));
-      return el("li", { class: "chip" }, `${GROUPS[k]}: ${valueLabel(k, v)}`, remove);
+      return el("li", { class: "chip" }, t("chip.label", { group: GROUPS[k], value: valueLabel(k, v) }), remove);
     }));
-    ui.toggle.textContent = chips.length ? `Filters · ${chips.length}` : "Filters";
+    ui.toggle.textContent = chips.length ? t("filters.toggle.count", { count: chips.length }) : t("filters.title");
   }
 
   function renderFilters(facets) {
@@ -176,7 +176,7 @@ export function initSearch() {
           box.addEventListener("change", () => setState(toggle(state, k, o.value)));
           return el("label", { class: `filter-option${checked ? " filter-option--checked" : ""}${disabled ? " filter-option--disabled" : ""}` },
             box, el("span", { class: "filter-option__label" }, valueLabel(k, o.value)),
-            el("span", { class: "filter-option__count", "aria-label": `${o.count} results` }, String(o.count)));
+            el("span", { class: "filter-option__count", "aria-label": t("filters.option.count.aria", { count: o.count }) }, String(o.count)));
         }));
     }).filter(Boolean);
     // Keep focus on the same checkbox after re-rendering.
@@ -189,22 +189,26 @@ export function initSearch() {
     const rows = lastResults.slice(0, shown).map((r, i) => renderEntry(r.entry, { href, install, terms: r.terms, index: i }));
     ui.list.replaceChildren(...rows);
     ui.more.hidden = lastResults.length <= shown;
-    ui.more.textContent = `Show ${Math.min(PAGE, lastResults.length - shown)} more`;
+    ui.more.textContent = t("results.more.count", { count: Math.min(PAGE, lastResults.length - shown) });
   }
 
   function renderEmpty() {
     const q = state.q.trim();
-    $("[data-empty-title]", ui.empty).textContent = q ? `Nothing matches “${q}”.` : "Nothing matches these filters.";
+    $("[data-empty-title]", ui.empty).textContent = q ? t("results.empty.title.query", { query: q }) : t("results.empty.title.filters");
     const text = $("[data-empty-text]", ui.empty) ?? ui.empty.insertBefore(el("p", { class: "empty__text t-secondary measure", "data-empty-text": true }), ui.empty.children[1]);
-    text.textContent = `No plugin, skill, agent, hook or command ${q ? "mentions these words" : "is left"}${hasFilters(state) ? " with the current filters" : ""}.`;
+    text.textContent = hasFilters(state)
+      ? (q ? t("results.empty.text.queryFiltered") : t("results.empty.text.leftFiltered"))
+      : (q ? t("results.empty.text.query") : t("results.empty.text.left"));
     ui.clear.hidden = !hasFilters(state);
-    let label = "Clear filters";
+    let label = t("results.clearFilters");
     if (hasFilters(state) && q) {
       // R2/AC-9 + owner's addition: say how many results the query has without the filters (count only, D6).
       const without = engine.search({ q: state.q }).total;
       if (without > 0) {
         const onlyKind = FILTER_KEYS.every((k) => k === "kind" || !state[k].length);
-        label = `Clear filters (${plural(without, "result")} ${onlyKind ? "in other kinds" : "without these filters"})`;
+        label = onlyKind
+          ? t("results.clearFilters.otherKinds", { count: without })
+          : t("results.clearFilters.withoutFilters", { count: without });
       }
     }
     ui.clear.textContent = label;
@@ -217,14 +221,14 @@ export function initSearch() {
     ui.filters.hidden = !active;
     ui.results.hidden = !active;
     renderChips();
-    document.title = active && hasQuery(state) ? `“${state.q.trim()}” · ${baseTitle}` : baseTitle;
+    document.title = active && hasQuery(state) ? t("doc.title.query", { query: state.q.trim(), title: baseTitle }) : baseTitle;
 
     if (!active) {
-      ui.meta.textContent = "Type what you need: results appear as you type, in English or Ukrainian.";
+      ui.meta.textContent = t("search.hint");
       return;
     }
-    if (failed) { ui.meta.textContent = "Search is unavailable: the catalog index could not be loaded."; return; }
-    if (!engine) { ui.meta.textContent = "Loading the catalog…"; return; }
+    if (failed) { ui.meta.textContent = t("search.failed"); return; }
+    if (!engine) { ui.meta.textContent = t("search.loading"); return; }
 
     const r = engine.search(state);
     lastResults = r.results;
@@ -235,11 +239,11 @@ export function initSearch() {
       renderEmpty();
       ui.list.replaceChildren();
       ui.more.hidden = true;
-      ui.meta.textContent = "No results";
+      ui.meta.textContent = t("search.noResults");
       return;
     }
     renderList();
-    ui.meta.textContent = hasQuery(state) ? plural(r.total, "result") : `Showing everything · ${plural(r.total, "entry", "entries")}`;
+    ui.meta.textContent = hasQuery(state) ? t("search.results", { count: r.total }) : t("search.showingAll", { count: r.total });
   }
 
   // ---------- data ----------

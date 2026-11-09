@@ -31,8 +31,8 @@ env:
   SITE_BASE: ${{ vars.SITE_BASE }}
 
 jobs:
-  build:
-    name: build + unit/build tests
+  test:
+    name: "site: unit + build tests"
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
@@ -51,12 +51,31 @@ jobs:
       - run: npm ci
       - name: Fonts are current
         run: node scripts/fonts-css.mjs --check
-      - name: Unit tests (index builder, search, feeds, token lint, budgets)
+      - name: Unit tests (index builder, search, feeds, token and UI-string lint, budgets)
         run: npm test
       - name: Catalog of this repository
         run: npm run check
       - name: Build tests (fixtures, pages, base-path matrix)
         run: npm run test:build
+
+  build:
+    name: "site: build"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0 # CHANGELOG history gives feed items their "updated" time (§7)
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
       - name: Build the site
         run: npm run build
       - name: Upload Pages artifact
@@ -66,7 +85,7 @@ jobs:
           path: site/dist
 
   e2e:
-    name: browser tests (Playwright + axe)
+    name: "site: browser tests (Playwright + axe)"
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
@@ -102,7 +121,7 @@ jobs:
   deploy:
     name: deploy to GitHub Pages
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    needs: [build, e2e]
+    needs: [test, build, e2e]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

@@ -9,6 +9,7 @@ import KindLabel from "../../components/KindLabel.astro";
 import MetaRail from "../../components/MetaRail.astro";
 import Prose from "../../components/Prose.astro";
 import { getCatalog, githubSource, href, install, markdown } from "../../data/site.mjs";
+import { t } from "../../i18n/t.mjs";
 import Base from "../../layouts/Base.astro";
 
 export function getStaticPaths() {
@@ -25,35 +26,35 @@ const compat = p.page.compatibility;
 ---
 <Base title={p.name} description={p.description} path={p.path}>
   <header class="page-head">
-    <a class="t-caption" href={href()}>← All plugins</a>
+    <a class="t-caption" href={href()}>{t("plugin.back")}</a>
     <KindLabel kind="plugin" class="page-head__kind" />
     <h1 class="t-display page-head__title">{p.name}</h1>
     <p class="t-body-lg t-secondary measure">{p.description}</p>
   </header>
 
   <div class="layout-rail">
-    <aside aria-label="Details" class="rail">
+    <aside aria-label={t("details.aria")} class="rail">
       <MetaRail rows={[
-        { k: "Version", v: p.version, mono: true },
-        { k: "Category", v: p.category },
-        { k: "License", v: p.page.license },
-        { k: "Released", v: latest?.date ?? null, mono: true },
+        { k: t("field.version"), v: p.version, mono: true },
+        { k: t("field.category"), v: p.category },
+        { k: t("field.license"), v: p.page.license },
+        { k: t("field.released"), v: latest?.date ?? null, mono: true },
       ]} />
       <section class="rail__block" aria-labelledby="deps">
-        <h2 id="deps" class="t-label">Depends on</h2>
+        <h2 id="deps" class="t-label">{t("relations.dependsOn")}</h2>
         {p.page.dependencies.length ? (
           <ul class="list t-body">
             {p.page.dependencies.map((d) => (
               <li><DependencyLink dep={d} href={href(`${d.name}/`)} version={versionOf(d.name)} /></li>
             ))}
           </ul>
-        ) : <p class="t-secondary">Nothing</p>}
+        ) : <p class="t-secondary">{t("plugin.dependsOn.none")}</p>}
       </section>
       <section class="rail__block rule-bottom" aria-labelledby="used-by">
-        <h2 id="used-by" class="t-label">Used by</h2>
+        <h2 id="used-by" class="t-label">{t("relations.usedBy")}</h2>
         {p.page.usedBy.length ? (
           <ul class="list t-body">{p.page.usedBy.map((u) => <li><a href={href(`${u}/`)}>{u}</a></li>)}</ul>
-        ) : <p class="t-secondary">None</p>}
+        ) : <p class="t-secondary">{t("plugin.usedBy.none")}</p>}
       </section>
     </aside>
 
@@ -61,12 +62,12 @@ const compat = p.page.compatibility;
       <div class="facts">
         {p.tags.length > 0 && (
           <div class="facts__group">
-            <h2 class="t-label">Tags</h2>
+            <h2 class="t-label">{t("tags")}</h2>
             <ul class="tags">{p.tags.map((t) => <li><a class="tag t-mono" href={href(`?tag=${encodeURIComponent(t)}`)}>{t}</a></li>)}</ul>
           </div>
         )}
         <div class="facts__group">
-          <h2 class="t-label">Compatibility</h2>
+          <h2 class="t-label">{t("compat.title")}</h2>
           <CompatBadge compat={p.compat} verified />
         </div>
       </div>
@@ -74,7 +75,7 @@ const compat = p.page.compatibility;
       <InstallBlock plugin={p.name} commands={install(p.name)} alsoInstalls={transitiveDependencies(catalog.plugins, p.name)} />
 
       <section class="block" aria-labelledby="components">
-        <h2 id="components" class="t-heading-2">Components</h2>
+        <h2 id="components" class="t-heading-2">{t("plugin.components")}</h2>
         {components.length ? (
           <ul class="components">
             {components.map((c) => (
@@ -85,37 +86,37 @@ const compat = p.page.compatibility;
             ))}
           </ul>
         ) : (
-          <EmptyState title="No components yet"
-            text="Skills, agents, hooks and commands appear here once this plugin is migrated to the catalog format." />
+          <EmptyState title={t("plugin.components.empty.title")}
+            text={t("plugin.components.empty.text")} />
         )}
       </section>
 
       <section class="block" aria-labelledby="latest">
-        <h2 id="latest" class="t-heading-2">Latest change</h2>
+        <h2 id="latest" class="t-heading-2">{t("plugin.latest")}</h2>
         {latest ? (
           <>
             <p class="release">
               <span class="t-mono release__version">{latest.version}</span>
               <span class="t-mono t-secondary">{latest.date}</span>
-              {latest.rollback && <span class="t-label release__rollback">Rollback</span>}
+              {latest.rollback && <span class="t-label release__rollback">{t("release.rollback")}</span>}
             </p>
             <Prose html={markdown(latest.notes, `${p.source}/CHANGELOG.md`)} />
-            <p class="t-caption"><a href={githubSource(`${p.source}/CHANGELOG.md`)}>Full changelog on GitHub</a></p>
+            <p class="t-caption"><a href={githubSource(`${p.source}/CHANGELOG.md`)}>{t("plugin.latest.changelog")}</a></p>
           </>
-        ) : <p class="t-secondary">No released version yet.</p>}
+        ) : <p class="t-secondary">{t("plugin.latest.none")}</p>}
       </section>
 
       <section class="block" aria-labelledby="compat-notes">
-        <h2 id="compat-notes" class="t-heading-2">Compatibility notes</h2>
+        <h2 id="compat-notes" class="t-heading-2">{t("plugin.compatNotes")}</h2>
         {compat.file ? (
           <>
             <dl class="compat">
-              {compat.claudeCodeRaw && <><dt class="t-label">Claude Code</dt><dd>{compat.claudeCodeRaw}</dd></>}
-              {compat.osRaw && <><dt class="t-label">OS</dt><dd>{compat.osRaw}</dd></>}
+              {compat.claudeCodeRaw && <><dt class="t-label">{t("plugin.compatNotes.claudeCode")}</dt><dd>{compat.claudeCodeRaw}</dd></>}
+              {compat.osRaw && <><dt class="t-label">{t("field.os")}</dt><dd>{compat.osRaw}</dd></>}
             </dl>
-            <p class="t-caption"><a href={githubSource(compat.file)}>COMPATIBILITY.md on GitHub</a></p>
+            <p class="t-caption"><a href={githubSource(compat.file)}>{t("plugin.compatNotes.source")}</a></p>
           </>
-        ) : <p class="t-secondary">Compatibility not declared.</p>}
+        ) : <p class="t-secondary">{t("plugin.compatNotes.none")}</p>}
       </section>
 
       {p.page.readme && (

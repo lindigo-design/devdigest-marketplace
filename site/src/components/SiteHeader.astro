@@ -1,14 +1,15 @@
 ---
 // Site header: brand, search shortcut hint, catalog and GitHub links. No theme toggle (plan D1).
 import { config, getCatalog, href } from "../data/site.mjs";
+import { t } from "../i18n/t.mjs";
 const name = getCatalog().marketplace.name;
 ---
 <header class="site-header rule-bottom">
   <a class="site-header__brand" href={href()}>{name}</a>
-  <nav aria-label="Site" class="site-header__nav t-caption">
-    <span class="site-header__hint" data-js-only><kbd>/</kbd> to search</span>
-    <a href={href()}>Catalog</a>
-    <a href={config.repo}>GitHub</a>
+  <nav aria-label={t("header.nav.aria")} class="site-header__nav t-caption">
+    <span class="site-header__hint" data-js-only><kbd>/</kbd> {t("header.searchHint")}</span>
+    <a href={href()}>{t("header.catalog")}</a>
+    <a href={config.repo}>{t("nav.github")}</a>
   </nav>
 </header>
 

@@ -2,9 +2,17 @@
 // are global for that reason). Built with createElement/textContent only, never innerHTML, so nothing from
 // index.json can inject markup.
 import { badgeLabels } from "../../lib/compatibility.mjs";
+import { t } from "../i18n/t.mjs";
 import { highlightSegments } from "./highlight.mjs";
 
-export const KIND_LABELS = { plugin: "Plugin", skill: "Skill", agent: "Agent", command: "Command", hook: "Hook", mcp: "MCP" };
+export const KIND_LABELS = {
+  plugin: t("kind.plugin"),
+  skill: t("kind.skill"),
+  agent: t("kind.agent"),
+  command: t("kind.command"),
+  hook: t("kind.hook"),
+  mcp: t("kind.mcp"),
+};
 
 function el(tag, attrs = {}, ...children) {
   const node = document.createElement(tag);
@@ -41,17 +49,17 @@ export function renderEntry(e, { href, install, terms = [], index = 0 }) {
         el("div", { class: "entry__title" },
           el("h3", { class: "t-heading-2 entry__name" },
             el("a", { class: "entry__link", href: href(e.path), "data-entry-link": true }, ...marked(e.name, terms))),
-          el("p", { class: "t-caption entry__caption" }, sub, " · ", el("span", { class: "t-mono" }, `v${e.version}`))),
+          el("p", { class: "t-caption entry__caption" }, sub, " · ", el("span", { class: "t-mono" }, t("version", { version: e.version })))),
         el("p", { class: "entry__desc t-secondary measure", "data-entry-desc": true }, ...marked(e.description, terms)),
         el("div", { class: "entry__meta" },
-          tags.length ? el("ul", { class: "entry__tags", "aria-label": "Tags" }, tags.map((t) => el("li", { class: "t-mono entry__tag" }, t))) : null,
-          el("ul", { class: "badges", "aria-label": "Compatibility" },
+          tags.length ? el("ul", { class: "entry__tags", "aria-label": t("tags") }, tags.map((t) => el("li", { class: "t-mono entry__tag" }, t))) : null,
+          el("ul", { class: "badges", "aria-label": t("compat.title") },
             el("li", { class: e.compat?.declared ? "badge" : "badge badge--undeclared" }, first),
             os.map((o) => el("li", { class: "badge" }, o)))),
         e.runs ? el("p", { class: "runs" }, el("span", { class: "t-label runs__label" }, e.runs.label), el("span", { class: "runs__detail" }, e.runs.detail)) : null,
         el("div", { class: "copy", "data-copy": true },
           el("code", { class: "copy__text", "data-copy-text": true }, install(e.plugin)),
-          el("button", { type: "button", class: "copy__button t-label", "data-copy-button": true, "aria-label": `Copy: install command for ${e.plugin}` }, "Copy")))));
+          el("button", { type: "button", class: "copy__button t-label", "data-copy-button": true, "aria-label": t("copy.aria", { label: t("install.label.install", { plugin: e.plugin }) }) }, t("copy.button"))))));
 }
 
 export { el };

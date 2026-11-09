@@ -2,6 +2,7 @@
 // Built from the same sorted release list as "What's new" (R8/AC-3), at most 50 items.
 import { absUrl, repoSlug } from "./config.mjs";
 import { renderMarkdown } from "./markdown.mjs";
+import { t } from "../src/i18n/t.mjs";
 
 export const MAX_ITEMS = 50;
 
@@ -52,7 +53,7 @@ export function buildAtom(catalog, config, { now = new Date() } = {}) {
     `    <link rel="alternate" type="text/html" href="${xml(i.url)}"/>`,
     `    <published>${i.published}</published>`,
     `    <updated>${i.updated}</updated>`,
-    i.rollback ? '    <category term="rollback" label="Rollback"/>' : null,
+    i.rollback ? `    <category term="rollback" label="${xml(t("release.rollback"))}"/>` : null,
     `    <summary>${xml(i.summary)}</summary>`,
     `    <content type="html">${xml(i.html)}</content>`,
     "  </entry>",
@@ -61,13 +62,13 @@ export function buildAtom(catalog, config, { now = new Date() } = {}) {
     '<?xml version="1.0" encoding="utf-8"?>',
     '<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">',
     `  <id>${xml(atomId(config, "releases"))}</id>`,
-    `  <title>${xml(`${mk.name} releases`)}</title>`,
+    `  <title>${xml(t("feed.title", { marketplace: mk.name }))}</title>`,
     mk.description ? `  <subtitle>${xml(mk.description)}</subtitle>` : null,
     `  <updated>${feedUpdated(items, now)}</updated>`,
     `  <link rel="self" type="application/atom+xml" href="${xml(self)}"/>`,
     `  <link rel="alternate" type="text/html" href="${xml(absUrl(config, ""))}"/>`,
     `  <author><name>${xml(mk.owner?.name ?? mk.name)}</name>${mk.owner?.url ? `<uri>${xml(mk.owner.url)}</uri>` : ""}</author>`,
-    `  <generator>${xml(mk.name)} catalog</generator>`,
+    `  <generator>${xml(t("feed.generator", { marketplace: mk.name }))}</generator>`,
     ...entries,
     "</feed>",
     "",
@@ -79,7 +80,7 @@ export function buildJsonFeed(catalog, config) {
   const mk = catalog.marketplace;
   return {
     version: "https://jsonfeed.org/version/1.1",
-    title: `${mk.name} releases`,
+    title: t("feed.title", { marketplace: mk.name }),
     home_page_url: absUrl(config, ""),
     feed_url: absUrl(config, "feed.json"),
     description: mk.description ?? undefined,

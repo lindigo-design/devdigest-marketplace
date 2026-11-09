@@ -9,19 +9,19 @@ import SearchLine from "../components/SearchLine.astro";
 import StatNumeral from "../components/StatNumeral.astro";
 import WhatsNewItem from "../components/WhatsNewItem.astro";
 import { FEEDS, getCatalog, href } from "../data/site.mjs";
+import { t } from "../i18n/t.mjs";
 import Base from "../layouts/Base.astro";
 
 const catalog = getCatalog();
 const counts = countByKind(catalog.entries);
 const components = catalog.entries.length - counts.plugin;
-const plural = (n: number, one: string, many = `${one}s`) => `${n === 1 ? one : many}`;
 const stats = [
-  { kind: "plugin", n: counts.plugin, label: plural(counts.plugin, "plugin") },
-  { kind: "skill", n: counts.skill, label: plural(counts.skill, "skill") },
-  { kind: "agent", n: counts.agent, label: plural(counts.agent, "agent") },
-  { kind: "command", n: counts.command, label: plural(counts.command, "command") },
-  { kind: "hook", n: counts.hook, label: plural(counts.hook, "hook") },
-  { kind: "mcp", n: counts.mcp, label: plural(counts.mcp, "MCP server") },
+  { kind: "plugin", n: counts.plugin, label: t("home.stats.plugin", { count: counts.plugin }) },
+  { kind: "skill", n: counts.skill, label: t("home.stats.skill", { count: counts.skill }) },
+  { kind: "agent", n: counts.agent, label: t("home.stats.agent", { count: counts.agent }) },
+  { kind: "command", n: counts.command, label: t("home.stats.command", { count: counts.command }) },
+  { kind: "hook", n: counts.hook, label: t("home.stats.hook", { count: counts.hook }) },
+  { kind: "mcp", n: counts.mcp, label: t("home.stats.mcp", { count: counts.mcp }) },
 ];
 const news = catalog.releases.slice(0, 10); // R8/AC-3: the 10 most recent releases, newest first
 const relations = (p: any) => ({
@@ -30,42 +30,42 @@ const relations = (p: any) => ({
 });
 ---
 <Base path="">
-  <h1 class="visually-hidden">{catalog.marketplace.name}: plugin catalog</h1>
+  <h1 class="visually-hidden">{t("home.heading", { marketplace: catalog.marketplace.name })}</h1>
   <SearchLine />
 
   <div class="layout-rail home" data-home>
     <aside class="rail rail-sticky" aria-labelledby="stats-title" data-rail-summary>
       <section>
-        <h2 id="stats-title" class="t-label rail__title">In the catalog</h2>
+        <h2 id="stats-title" class="t-label rail__title">{t("home.stats.title")}</h2>
         <ul class="stats">
           {stats.map((s) => <li><StatNumeral n={s.n} label={s.label} href={href(`?kind=${s.kind}`)} /></li>)}
         </ul>
         {components === 0 && (
-          <p class="t-caption rail__note">No components yet — plugins are being migrated.</p>
+          <p class="t-caption rail__note">{t("home.stats.noComponents")}</p>
         )}
       </section>
       <div class="rail__facts">
         <div class="rail__fact">
-          <h2 class="t-label">Last release</h2>
+          <h2 class="t-label">{t("home.lastRelease")}</h2>
           {catalog.lastRelease
             ? <time class="t-mono" datetime={catalog.lastRelease}>{catalog.lastRelease}</time>
-            : <span class="t-secondary">None yet</span>}
+            : <span class="t-secondary">{t("home.lastRelease.none")}</span>}
         </div>
         <div class="rail__fact">
-          <h2 class="t-label">Feeds</h2>
-          <span class="rail__feeds t-caption"><a href={href(FEEDS.atom)}>Atom feed</a><a href={href(FEEDS.json)}>JSON feed</a></span>
+          <h2 class="t-label">{t("home.feeds")}</h2>
+          <span class="rail__feeds t-caption"><a href={href(FEEDS.atom)}>{t("feed.atom")}</a><a href={href(FEEDS.json)}>{t("feed.json")}</a></span>
         </div>
       </div>
     </aside>
 
-    <aside class="rail rail-sticky filters" aria-label="Filters" data-rail-filters hidden>
-      <button type="button" class="button filters__toggle t-label" aria-expanded="false" aria-controls="filters-panel" data-filters-toggle>Filters</button>
+    <aside class="rail rail-sticky filters" aria-label={t("filters.title")} data-rail-filters hidden>
+      <button type="button" class="button filters__toggle t-label" aria-expanded="false" aria-controls="filters-panel" data-filters-toggle>{t("filters.title")}</button>
       <div id="filters-panel" class="filters__panel" data-filters-panel>
         <div class="filters__head">
-          <h2 class="t-label">Filters</h2>
+          <h2 class="t-label">{t("filters.title")}</h2>
           <span class="filters__actions">
-            <button type="button" class="link-button t-caption" data-filters-clear>Clear</button>
-            <button type="button" class="link-button t-caption filters__done" data-filters-done>Done</button>
+            <button type="button" class="link-button t-caption" data-filters-clear>{t("filters.clear")}</button>
+            <button type="button" class="link-button t-caption filters__done" data-filters-done>{t("filters.done")}</button>
           </span>
         </div>
         <div class="filters__groups" data-filter-groups></div>
@@ -74,31 +74,31 @@ const relations = (p: any) => ({
 
     <div class="main">
       <section class="results" aria-labelledby="results-title" data-results hidden>
-        <h2 id="results-title" class="visually-hidden">Search results</h2>
+        <h2 id="results-title" class="visually-hidden">{t("results.title")}</h2>
         <div class="entries" role="list" data-results-list></div>
-        <button type="button" class="button results__more" data-results-more hidden>Show more</button>
-        <EmptyState variant="page" id="no-results" title="Nothing matches." hidden>
-          <button type="button" class="button" data-clear-filters>Clear filters</button>
-          <a class="button button--primary" href={href("?view=all")} data-show-all>Show everything</a>
+        <button type="button" class="button results__more" data-results-more hidden>{t("results.more")}</button>
+        <EmptyState variant="page" id="no-results" title={t("results.empty.title")} hidden>
+          <button type="button" class="button" data-clear-filters>{t("results.clearFilters")}</button>
+          <a class="button button--primary" href={href("?view=all")} data-show-all>{t("results.showAll")}</a>
         </EmptyState>
       </section>
 
       <section class="news-block" aria-labelledby="whatsnew" data-home-section>
         <div class="section-head">
-          <h2 id="whatsnew" class="t-heading-1">What’s new</h2>
+          <h2 id="whatsnew" class="t-heading-1">{t("home.whatsNew")}</h2>
           {catalog.lastRelease && <span class="t-mono t-secondary">{catalog.lastRelease}</span>}
         </div>
         {news.length ? (
           <ol class="news-list">
             {news.map((r) => <WhatsNewItem release={r} href={href(`${r.plugin}/`)} />)}
           </ol>
-        ) : <p class="t-secondary">No released versions yet.</p>}
+        ) : <p class="t-secondary">{t("home.whatsNew.none")}</p>}
       </section>
 
       <section aria-labelledby="plugins" data-home-section>
         <div class="section-head">
-          <h2 id="plugins" class="t-heading-1">Plugins</h2>
-          <span class="t-caption">{counts.plugin} {plural(counts.plugin, "entry", "entries")}, in dependency order</span>
+          <h2 id="plugins" class="t-heading-1">{t("home.plugins")}</h2>
+          <span class="t-caption">{t("home.plugins.count", { count: counts.plugin })}</span>
         </div>
         <div class="entries" role="list">
           {catalog.plugins.map((p, i) => (

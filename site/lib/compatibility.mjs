@@ -1,4 +1,6 @@
 // Compatibility badges from the table at the top of COMPATIBILITY.md (spec CAT-01 R10).
+import { t } from "../src/i18n/t.mjs";
+
 const VERSION = String.raw`(\d+\.\d+\.\d+)`;
 const MIN = new RegExp(String.raw`(?:≥|>=)\s*${VERSION}`);
 const VERIFIED = new RegExp(String.raw`verified on\s+${VERSION}`, "i");
@@ -64,5 +66,5 @@ export function parseCompatibility(text) {
 
 /** Badge labels for cards and pages (R10/AC-1, AC-3). */
 export function badgeLabels(compat) {
-  return [compat.declared ? `Claude Code ≥ ${compat.claudeCode}` : "Compatibility not declared", ...compat.os];
+  return [compat.declared ? t("compat.min", { version: compat.claudeCode }) : t("compat.undeclared"), ...compat.os];
 }
