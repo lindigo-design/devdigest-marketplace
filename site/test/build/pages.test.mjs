@@ -32,6 +32,17 @@ describe("R5/AC-1: a stable URL for every plugin and component", () => {
   });
 });
 
+describe("R9: feeds and index.json are published", () => {
+  test("feed.xml, feed.json and index.json exist and parse", () => {
+    assert.match(demo.page("feed.xml"), /^<\?xml version="1\.0" encoding="utf-8"\?>\n<feed xmlns="http:\/\/www\.w3\.org\/2005\/Atom"/);
+    const feed = JSON.parse(demo.page("feed.json"));
+    assert.equal(feed.items.length, catalog.releases.length);
+    const index = JSON.parse(demo.page("index.json"));
+    assert.equal(index.schemaVersion, 1);
+    assert.equal(index.entries.length, catalog.entries.length);
+  });
+});
+
 describe("every page", () => {
   test("advertises both feeds with absolute URLs (R9/AC-4) and has exactly one h1", () => {
     for (const p of demo.pages().filter((x) => x.endsWith(".html"))) {

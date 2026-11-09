@@ -14,7 +14,7 @@
     "test": "node --test \"test/unit/**/*.test.mjs\"",
     "fonts": "node scripts/fonts-css.mjs",
     "check": "node scripts/check-catalog.mjs",
-    "test:build": "node --test \"test/build/**/*.test.mjs\""
+    "test:build": "node --test --test-concurrency=1 \"test/build/**/*.test.mjs\""
   },
   "dependencies": {
     "@fontsource-variable/source-serif-4": "5.3.1",
@@ -31,5 +31,8 @@
     "unified": "11.0.5",
     "unist-util-visit": "5.0.0",
     "yaml": "2.9.1"
+  },
+  "devDependencies": {
+    "fast-xml-parser": "5.11.2"
   }
 }
