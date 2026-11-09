@@ -1,0 +1,95 @@
+---
+// One index row, the spec's "card" (spec CAT-01 R3; tokens §5 ResultEntry). Server-rendered for the home
+// plugin list; src/client/render.mjs produces the same markup for live results (keep the two in sync).
+// The whole row opens the page (stretched link, R3/AC-5); the copy button sits above it.
+import CompatBadge from "./CompatBadge.astro";
+import CopyCommand from "./CopyCommand.astro";
+import KindLabel from "./KindLabel.astro";
+import RunsCommandsMarker from "./RunsCommandsMarker.astro";
+import { href, install } from "../data/site.mjs";
+
+interface Props {
+  entry: any;
+  index?: number;
+  relations?: { dependsOn: { name: string; range: string | null }[]; usedBy: string[] };
+}
+const { entry: e, index = 0, relations } = Astro.props;
+const isPlugin = e.kind === "plugin";
+---
+<article class="entry" style={`--i: ${index}`} data-entry={e.id}>
+  <KindLabel kind={e.kind} class="entry__kind" />
+  <div class="entry__body">
+    <div class="entry__title">
+      <h3 class="t-heading-2 entry__name"><a class="entry__link" href={href(e.path)} data-entry-link>{e.name}</a></h3>
+      <p class="t-caption entry__caption">
+        {isPlugin
+          ? <a class="entry__sub" href={href(`?category=${encodeURIComponent(e.category ?? "")}`)}>{e.category}</a>
+          : <a class="entry__sub" href={href(`${e.plugin}/`)}>{e.plugin}</a>}
+        {" · "}<span class="t-mono">v{e.version}</span>
+      </p>
+    </div>
+    <p class="entry__desc t-secondary measure" data-entry-desc>{e.description}</p>
+    {relations && (relations.dependsOn.length > 0 || relations.usedBy.length > 0) && (
+      <p class="entry__rel t-body">
+        {relations.dependsOn.length > 0 && (
+          <span>Depends on {relations.dependsOn.map((d, i) => <>{i > 0 && ", "}<a class="entry__sub" href={href(`${d.name}/`)}>{d.name}</a>{d.range && <span class="t-mono"> {d.range}</span>}</>)}</span>
+        )}
+        {relations.usedBy.length > 0 && (
+          <span>Used by {relations.usedBy.map((u, i) => <>{i > 0 && ", "}<a class="entry__sub" href={href(`${u}/`)}>{u}</a></>)}</span>
+        )}
+      </p>
+    )}
+    <div class="entry__meta">
+      {e.tags.length > 0 && (
+        <ul class="entry__tags" aria-label="Tags">
+          {e.tags.slice(0, 5).map((t: string) => <li class="t-mono entry__tag">{t}</li>)}
+        </ul>
+      )}
+      <CompatBadge compat={e.compat} />
+    </div>
+    <RunsCommandsMarker runs={e.runs} />
+    <CopyCommand command={install(e.plugin).install} label={`install command for ${e.plugin}`} />
+  </div>
+</article>
+
+<style is:global>
+  /* Global: src/client/render.mjs builds the same markup for live results, without Astro's scope attributes. */
+  .entry {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-5);
+    padding: var(--space-5) 0 var(--space-6);
+    border-top: var(--rule-thin) solid var(--rule-hairline);
+    /* Hover/focus: the top hairline redraws left to right in indigo (tokens §6, layer 2). */
+    background-image: linear-gradient(var(--accent-indigo), var(--accent-indigo));
+    background-repeat: no-repeat;
+    background-position: 0 calc(-1 * var(--rule-thin));
+    background-size: 0% var(--rule-thin);
+    background-origin: border-box;
+    transition: background-size var(--duration-base) var(--ease-settle);
+    animation: wipe-in var(--duration-reveal) var(--ease-settle) both;
+    animation-delay: calc(var(--duration-reveal) + var(--stagger-step) * var(--i));
+  }
+  .entry:hover, .entry:focus-within { background-size: 100% var(--rule-thin); }
+  .entry .entry__kind { flex: 0 0 var(--space-10); padding-top: var(--space-1); }
+  .entry__body { flex: 1 1 calc(var(--space-10) * 2); min-width: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+  .entry__title { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-4); }
+  .entry__name { overflow-wrap: anywhere; }
+  .entry__link { color: var(--ink-primary); text-decoration: none; transition: color var(--duration-quick) var(--ease-settle); }
+  .entry__link:hover, .entry:hover .entry__link { color: var(--accent-indigo); }
+  /* Stretched link: the whole row is the click target (R3/AC-5). */
+  .entry__link::after { content: ""; position: absolute; inset: 0; z-index: 0; }
+  .entry__link:focus-visible { outline: none; }
+  .entry:has(.entry__link:focus-visible) { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
+  /* Everything else that is interactive sits above the stretched link. */
+  .entry a:not(.entry__link), .entry button, .entry code { position: relative; z-index: 1; }
+  .entry__sub { color: var(--ink-secondary); text-decoration-color: var(--rule-hairline); }
+  .entry__sub:hover { color: var(--accent-indigo); }
+  /* Name and description (R3/AC-2); without this, names get the browser's default yellow. */
+  .entry mark { background: var(--accent-indigo-soft); color: var(--accent-indigo); padding: 0 var(--space-1); }
+  .entry__rel { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-5); }
+  .entry__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); }
+  .entry__tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+  .entry__tag { padding: 0 var(--space-2); background: var(--surface-sunken); border-radius: var(--radius-s); font-size: var(--type-label); color: var(--ink-secondary); }
+</style>

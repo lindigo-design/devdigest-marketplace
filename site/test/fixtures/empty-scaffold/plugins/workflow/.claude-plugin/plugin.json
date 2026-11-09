@@ -1,0 +1,12 @@
+{
+  "name": "workflow",
+  "version": "0.1.0",
+  "description": "Workflow.",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "base",
+      "version": "^0.1"
+    }
+  ]
+}

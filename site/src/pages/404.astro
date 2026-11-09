@@ -1,0 +1,19 @@
+---
+// GitHub Pages serves this for unknown paths.
+import EmptyState from "../components/EmptyState.astro";
+import { href } from "../data/site.mjs";
+import Base from "../layouts/Base.astro";
+---
+<Base title="Not found" path="404.html">
+  <div class="nf">
+    <h1 class="t-display">Page not found</h1>
+    <EmptyState variant="page" title="This address is not in the catalog."
+      text="The plugin or component may have been renamed or removed.">
+      <a class="button button--primary" href={href()}>Go to the catalog</a>
+    </EmptyState>
+  </div>
+</Base>
+
+<style>
+  .nf { display: flex; flex-direction: column; gap: var(--space-6); padding-block: var(--space-8); }
+</style>

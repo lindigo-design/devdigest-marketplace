@@ -1,0 +1,26 @@
+---
+// Site footer with visible feed links (spec CAT-01 R9/AC-4).
+import { FEEDS, config, getCatalog, href } from "../data/site.mjs";
+const name = getCatalog().marketplace.name;
+---
+<footer class="site-footer rule-top t-caption">
+  <p>{name}: a static index of the Lindigo Claude Code marketplace, rebuilt on every change to the repository.</p>
+  <ul class="site-footer__links" aria-label="Feeds and source">
+    <li><a href={href(FEEDS.atom)}>Atom feed</a></li>
+    <li><a href={href(FEEDS.json)}>JSON feed</a></li>
+    <li><a href={href("index.json")}>index.json</a></li>
+    <li><a href={config.repo}>GitHub</a></li>
+  </ul>
+</footer>
+
+<style>
+  .site-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-3) var(--space-5);
+    margin-top: var(--space-10);
+    padding-block: var(--space-5) var(--space-7);
+  }
+  .site-footer__links { display: flex; flex-wrap: wrap; gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
+</style>

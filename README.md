@@ -43,6 +43,15 @@ The repository is public, so no git credentials are needed to add the marketplac
 
 **Auto-update** is off by default: `/plugin` → *Marketplaces* → `lindigo-devdigest` → *Enable auto-update*, or update manually with `/plugin marketplace update lindigo-devdigest`.
 
+## Catalog site
+
+**<https://lindigo-design.github.io/devdigest-marketplace/>** lets you find any plugin, skill, agent, command, hook or MCP server by describing what you need, in English or Ukrainian (for example "I need a skill for security review"), and copy the install command. Each plugin and component has its own page: what it does, what it may run, its dependencies, compatibility and source.
+
+- Built from this repository only, on every push to `main` ([`pages.yml`](.github/workflows/pages.yml)); no manual edits, no backend, no trackers.
+- Feeds of plugin releases: [Atom](https://lindigo-design.github.io/devdigest-marketplace/feed.xml) and [JSON Feed](https://lindigo-design.github.io/devdigest-marketplace/feed.json).
+- The whole catalog as data: [`index.json`](https://lindigo-design.github.io/devdigest-marketplace/index.json), schema in [docs/catalog-index.md](docs/catalog-index.md).
+- Source in [`site/`](site/README.md); spec [CAT-01](docs/specs/marketplace-catalog.md).
+
 ## Dependency graph
 
 ```mermaid
@@ -74,11 +83,15 @@ plugins/<name>/
   skills/ agents/ hooks/ evals/      components (only what the plugin uses)
   README.md CHANGELOG.md COMPATIBILITY.md
 scripts/                             release.mjs, tag-release.mjs, rollback.mjs (+ lib/ with unit tests)
+site/                                catalog site: Astro + MiniSearch, built from the files above (see site/README.md)
 .github/workflows/validate.yml       validate --strict, unit tests, version bump check, smoke install
+.github/workflows/pages.yml          catalog site: build and test on PRs, deploy to GitHub Pages from main
 .github/scripts/                     CI checks: check-versions.mjs, assert-enabled.mjs
 docs/SECURITY.md                     security policy and vulnerability reporting
 docs/specs/                          feature specs (catalog site)
+docs/plans/                          implementation plans
 docs/design/                         catalog site design: concept brief, tokens, Claude Design prompt
+docs/catalog-index.md                public schema of the site's index.json
 docs/temp/                           temporary working notes, deleted once plugins are migrated
 ```
 
@@ -162,6 +175,14 @@ claude plugin list
 ```
 
 A marketplace added from a local path loads plugins in place, so edits apply on `/reload-plugins` without a version bump. Remove with `claude plugin marketplace remove lindigo-devdigest`.
+
+To see how a change looks in the catalog site (Node.js ≥ 22.23.4):
+
+```bash
+npm --prefix site ci
+npm --prefix site run check          # build the catalog only: counts, warnings, or the broken files
+npm --prefix site run dev            # live site at http://localhost:4321/devdigest-marketplace/
+```
 
 ## Provenance and license
 

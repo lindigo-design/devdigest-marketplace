@@ -35,6 +35,9 @@ Thanks for improving the `lindigo-devdigest` marketplace. This file covers how t
 - Quote `"${CLAUDE_PLUGIN_ROOT}"` in shell-form hook commands, because paths with spaces are common on Windows.
 - Executables live in `scripts/`, not a top-level `bin/`.
 - Plugin agents ignore `hooks`, `mcpServers` and `permissionMode` in frontmatter; declare hooks in `hooks/hooks.json`.
+- Every `hooks/hooks.json` has a top-level `description` saying what the hooks do (it is the hook's text in the catalog search).
+- Every `SKILL.md` and agent file starts with YAML frontmatter that has `name` and `description`. The catalog site build fails without them and names the file. Names use only letters, digits, `.`, `_` and `-` (they become page URLs).
+- Optional frontmatter `tags` on a skill, agent or command rank above the plugin's tags in catalog search.
 - A `CLAUDE.md` inside a plugin is not loaded; put instructions in a skill.
 - Reference another plugin's skill as `<plugin>:<skill>` and declare that plugin in `dependencies` with a range such as `^0.1`.
 - Code taken from DevDigest keeps its MIT notice and a provenance line in `CHANGELOG.md`.
@@ -54,6 +57,23 @@ claude plugin list
 
 `validate` does not catch missing directories or broken remote sources, so the install step matters.
 
+Check that the catalog site still builds from your change (Node.js ≥ 22.23.4):
+
+```bash
+npm --prefix site ci
+npm --prefix site run check     # counts per kind and warnings, or every broken file with the reason
+```
+
+Changes to the site itself run the full suite; see [site/README.md](site/README.md).
+
+## Search synonyms
+
+[`site/synonyms.json`](site/synonyms.json) groups words the catalog search treats as equal, across English and Ukrainian (for example `review` and its Ukrainian forms). Anyone may propose a group in a PR; @lindigo-design owns the file (CODEOWNERS).
+
+- One group per concept, at least 2 terms; a term may appear in only one group. The build fails otherwise and names the term.
+- Ukrainian entries are **stems**, matched as prefixes, so one stem covers every case ending.
+- Kind words (skill, agent, hook, command, plugin) are not synonyms; the search turns them into filters.
+
 ## What CI runs
 
 [`validate.yml`](.github/workflows/validate.yml) runs on every PR, with `contents: read` and no secrets:
@@ -61,6 +81,12 @@ claude plugin list
 1. `claude plugin validate --strict` for the root and every plugin;
 2. `check-versions.mjs`: catalog and directory consistency, no `version` in the catalog, a version bump for every changed plugin;
 3. smoke install of every plugin in a temporary `HOME`, then a check that all dependencies are enabled.
+
+[`pages.yml`](.github/workflows/pages.yml) builds and tests the catalog site on PRs that touch plugins, the catalog, the site or the design tokens, and deploys it from `main`:
+
+1. unit tests, the catalog check of this repository, build tests on fixtures (including origin/base-path variants), the site build;
+2. browser tests with Playwright and axe (WCAG 2.1 AA, keyboard, 360 px, reduced motion);
+3. on `main` only: deploy to GitHub Pages, the only job with `pages: write` and `id-token: write`.
 
 `claude plugin eval` is not part of CI because it is paid; run it manually when a component's behaviour changes.
 

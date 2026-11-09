@@ -1,0 +1,42 @@
+---
+// Site header: brand, search shortcut hint, catalog and GitHub links. No theme toggle (plan D1).
+import { config, getCatalog, href } from "../data/site.mjs";
+const name = getCatalog().marketplace.name;
+---
+<header class="site-header rule-bottom">
+  <a class="site-header__brand" href={href()}>{name}</a>
+  <nav aria-label="Site" class="site-header__nav t-caption">
+    <span class="site-header__hint" data-js-only><kbd>/</kbd> to search</span>
+    <a href={href()}>Catalog</a>
+    <a href={config.repo}>GitHub</a>
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3) var(--space-5);
+    padding-block: var(--space-5);
+  }
+  .site-header__brand {
+    font-family: var(--font-display);
+    font-size: var(--type-heading-2);
+    font-weight: var(--weight-semibold);
+    color: var(--ink-primary);
+    text-decoration: none;
+  }
+  .site-header__brand:hover { color: var(--accent-indigo); }
+  .site-header__nav { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); }
+  .site-header__hint { display: inline-flex; align-items: center; gap: var(--space-2); }
+  kbd {
+    padding: 0 var(--space-2);
+    border: var(--rule-thin) solid var(--rule-hairline);
+    border-radius: var(--radius-s);
+    font-size: var(--type-label);
+    color: var(--ink-primary);
+  }
+  :global(html:not(.js)) [data-js-only] { display: none; }
+</style>

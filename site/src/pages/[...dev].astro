@@ -1,0 +1,104 @@
+---
+// Dev-only page (/_primitives/ under `astro dev`): every design primitive in its states, with data from the
+// demo fixture. getStaticPaths returns nothing in production builds, so this page never ships.
+import { join } from "node:path";
+import { buildCatalog } from "../../lib/catalog.mjs";
+import { transitiveDependencies } from "../../lib/graph.mjs";
+import CompatBadge from "../components/CompatBadge.astro";
+import CopyCommand from "../components/CopyCommand.astro";
+import DependencyLink from "../components/DependencyLink.astro";
+import EmptyState from "../components/EmptyState.astro";
+import InstallBlock from "../components/InstallBlock.astro";
+import KindLabel from "../components/KindLabel.astro";
+import Prose from "../components/Prose.astro";
+import RunsCommandsMarker from "../components/RunsCommandsMarker.astro";
+import { href, install, markdown } from "../data/site.mjs";
+import Base from "../layouts/Base.astro";
+
+export function getStaticPaths() {
+  return import.meta.env.DEV ? [{ params: { dev: "_primitives" } }] : [];
+}
+
+const demoRoot = join(process.env.CATALOG_SITE_DIR ?? ".", "test", "fixtures", "demo");
+const demo = buildCatalog({ repoRoot: demoRoot, history: false });
+const sdd = demo.plugins.find((p) => p.name === "sdd-engineering");
+const research = demo.plugins.find((p) => p.name === "research-tools");
+const reviewer = demo.entries.find((e) => e.id === "architecture-review/agent/security-reviewer");
+const gate = demo.entries.find((e) => e.id === "architecture-review/hook/gate");
+const xss = [
+  "## Sanitizer check",
+  "<script>alert(1)</script><img src=x onerror=alert(1)> [js](javascript:alert(1)) <a href=\"data:text/html,x\">data</a>",
+  "",
+  "| Field | Value |", "| :- | :- |", "| tools | `Read, Grep` |",
+  "",
+  "```bash\n/plugin install sdd-engineering@lindigo-devdigest\n```",
+  "",
+  "> Quote with a [relative link](skills/write-spec/SKILL.md).",
+].join("\n");
+const kinds = ["plugin", "skill", "agent", "command", "hook", "mcp"] as const;
+---
+<Base title="Primitives (dev)">
+  <div class="sheet">
+    <h1 class="t-display">Primitives</h1>
+
+    <section><h2 class="t-label">Type roles</h2>
+      <p class="t-display-xl">I need a скіл для рев'ю безпеки</p>
+      <p class="t-numeral">12 <span class="t-caption">skills</span></p>
+      <p class="t-heading-1">What’s new</p>
+      <p class="t-heading-2">security-reviewer</p>
+      <p class="t-body-lg t-secondary measure">Body large: descriptions on pages and the rendered README use this size.</p>
+      <p class="t-caption">Caption · 2026-11-09 · ≥ → ← ʼ ’ — №</p>
+      <p class="t-mono">/plugin install sdd-engineering@lindigo-devdigest</p>
+    </section>
+
+    <section><h2 class="t-label">KindLabel</h2>
+      <p class="row">{kinds.map((k) => <KindLabel kind={k} />)}</p>
+    </section>
+
+    <section><h2 class="t-label">CompatBadge</h2>
+      <CompatBadge compat={sdd.compat} verified />
+      <CompatBadge compat={{ declared: false, claudeCode: null, verifiedOn: null, os: ["macOS"] }} />
+    </section>
+
+    <section><h2 class="t-label">RunsCommandsMarker</h2>
+      <RunsCommandsMarker runs={reviewer.runs} />
+      <RunsCommandsMarker runs={gate.runs} />
+    </section>
+
+    <section><h2 class="t-label">CopyCommand</h2>
+      <CopyCommand command="/plugin install architecture-review@lindigo-devdigest" />
+    </section>
+
+    <section><h2 class="t-label">InstallBlock</h2>
+      <InstallBlock plugin={sdd.name} commands={install(sdd.name)} alsoInstalls={transitiveDependencies(demo.plugins, sdd.name)} />
+    </section>
+
+    <section><h2 class="t-label">DependencyLink</h2>
+      <ul class="stack">
+        {research.page.dependencies.map((d) => <li><DependencyLink dep={d} href={href(`${d.name}/`)} version="0.2.0" /></li>)}
+        {sdd.page.dependencies.map((d) => <li><DependencyLink dep={d} href={href(`${d.name}/`)} /></li>)}
+        <li><DependencyLink dep={{ name: "external-plugin", range: "^1.0", inCatalog: false, satisfied: null }} /></li>
+      </ul>
+    </section>
+
+    <section><h2 class="t-label">EmptyState</h2>
+      <EmptyState title="No components yet" text="Skills, agents, hooks and commands appear here once this plugin is migrated to the catalog format." />
+      <EmptyState variant="page" title="Nothing matches “kubernetes helm”." text="No plugin, skill, agent, hook or command mentions these words.">
+        <button class="button" type="button">Clear filters (3 results in other kinds)</button>
+        <a class="button button--primary" href={href()}>Show everything</a>
+      </EmptyState>
+    </section>
+
+    <section><h2 class="t-label">Prose</h2>
+      <Prose html={markdown(sdd.page.readme ?? "", sdd.page.readmePath)} source="README.md" />
+      <Prose html={markdown(xss, "plugins/sdd-engineering/README.md")} />
+    </section>
+  </div>
+</Base>
+
+<style>
+  .sheet { display: flex; flex-direction: column; gap: var(--space-7); padding-block: var(--space-8); }
+  section { display: flex; flex-direction: column; gap: var(--space-4); }
+  .row { display: flex; flex-wrap: wrap; gap: var(--space-5); }
+  .stack { display: flex; flex-direction: column; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+</style>

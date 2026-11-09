@@ -1,0 +1,46 @@
+---
+// Page shell: head metadata, feed discovery (R9/AC-4), self-hosted fonts and tokens (R7/AC-5, AC-6),
+// skip link, header, footer. Theme follows the OS (R7/AC-2, plan D1).
+import "../styles/fonts.css";
+import "../styles/tokens.css";
+import "../styles/base.css";
+import SiteFooter from "../components/SiteFooter.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import { FEEDS, absolute, config, getCatalog, href } from "../data/site.mjs";
+
+interface Props { title?: string; description?: string; path?: string }
+const catalog = getCatalog();
+const { title, description = catalog.marketplace.description ?? "", path = "" } = Astro.props;
+const fullTitle = title ? `${title} · ${catalog.marketplace.name}` : catalog.marketplace.name;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={absolute(path)} />
+    <link rel="alternate" type="application/atom+xml" title={`${catalog.marketplace.name} releases (Atom)`} href={absolute(FEEDS.atom)} />
+    <link rel="alternate" type="application/feed+json" title={`${catalog.marketplace.name} releases (JSON Feed)`} href={absolute(FEEDS.json)} />
+    <meta name="catalog-base" content={config.base} />
+    <script is:inline>document.documentElement.classList.add("js");</script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="shell">
+      <SiteHeader />
+      <main id="main" tabindex="-1">
+        <slot />
+      </main>
+      <SiteFooter />
+    </div>
+    <script>
+      import { initCopy } from "../client/copy.mjs";
+      import { initShortcuts } from "../client/shortcuts.mjs";
+      initCopy();
+      initShortcuts({ base: document.querySelector('meta[name="catalog-base"]')?.getAttribute("content") ?? "/" });
+    </script>
+  </body>
+</html>

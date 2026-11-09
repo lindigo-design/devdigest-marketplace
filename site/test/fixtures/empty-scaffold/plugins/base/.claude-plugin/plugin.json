@@ -1,0 +1,9 @@
+{
+  "name": "base",
+  "version": "0.1.0",
+  "description": "Base.",
+  "license": "MIT",
+  "keywords": [
+    "guardrails"
+  ]
+}

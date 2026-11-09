@@ -21,11 +21,16 @@ claude plugin validate --strict .
 for d in plugins/*/; do claude plugin validate --strict "$d"; done
 node .github/scripts/check-versions.mjs origin/main
 node --test "scripts/**/*.test.mjs"
+npm --prefix site run check
 ```
+
+When `site/` changes, also run (from `site/`): `npm test`, `npm run test:build`, `npm run e2e`.
+Build tests write to `site/.test-dist/` (same drive as the repo: Astro renames its output, which fails across drives).
+E2E uses port 4398 and always builds fresh; `node site/test/e2e/serve.mjs` serves the demo on 4399 for manual review.
 
 Test installs in a throwaway config, never in the user's real `~/.claude`.
 
-## Catalog site (in progress)
+## Catalog site
 
 Workflow: spec → plan → user approval → implement by task → verify against the acceptance criteria → commit after OK.
 
@@ -35,20 +40,24 @@ Workflow: spec → plan → user approval → implement by task → verify again
 | Concept brief (Lindigo, Editorial/Swiss) | [docs/design/concept-brief.md](docs/design/concept-brief.md) | approved |
 | Design tokens: the only source of colors, type, spacing, motion | [docs/design/design-tokens.md](docs/design/design-tokens.md) | approved |
 | Prototype (reference, not source of truth) | [docs/design/prototype/](docs/design/prototype/) | exported |
-| Implementation plan | `docs/plans/catalog-site.md` | next |
+| Implementation plan (decisions D1–D8, acceptance run in §12) | [docs/plans/catalog-site.md](docs/plans/catalog-site.md) | implemented (T0–T12) |
+| Site source, commands, configuration | [site/README.md](site/README.md) | implemented; first deploy after merge |
+| Public index schema | [docs/catalog-index.md](docs/catalog-index.md) | schemaVersion 1 |
 
 Site constraints:
 - Astro + MiniSearch, no backend.
 - Site source outside `plugins/`.
 - Fonts self-hosted, no third-party scripts.
 - Origin and base path come from config.
-- Token change → `design-tokens.md` first, then code.
+- Token change → `design-tokens.md` first, then code (`site/src/styles/tokens.css` is a verbatim copy; a test compares them).
+- `ResultEntry.astro` and `site/src/client/render.mjs` render the same card; change both.
 
 ## Layout
 
 - `.claude-plugin/marketplace.json`: the catalog.
 - `plugins/<p>/`: one plugin.
 - `scripts/`: release tooling + `lib/` with unit tests.
-- `.github/`: CI (`validate.yml`), CI scripts, CODEOWNERS, PR template.
-- `docs/`: specs, design, security policy.
+- `site/`: catalog site (Astro + MiniSearch), its tests and fixtures.
+- `.github/`: CI (`validate.yml`, `pages.yml`), CI scripts, CODEOWNERS, PR template.
+- `docs/`: specs, plans, design, security policy, `catalog-index.md`.
 - `docs/temp/`: notes to delete after migration.

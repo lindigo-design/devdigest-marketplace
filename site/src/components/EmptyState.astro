@@ -1,0 +1,25 @@
+---
+// Empty states (tokens §5 EmptyState): "no components yet" on plugin pages (R1/AC-4) and home (R8/AC-5),
+// and the shell of the no-results state that the search UI fills in (R2/AC-9). Actions go in the slot.
+interface Props { title: string; text?: string; variant?: "panel" | "page"; id?: string; hidden?: boolean }
+const { title, text, variant = "panel", id, hidden = false } = Astro.props;
+---
+<div class:list={["empty", `empty--${variant}`]} id={id} hidden={hidden}>
+  <p class="empty__title" data-empty-title>{title}</p>
+  {text && <p class="empty__text t-secondary measure" data-empty-text>{text}</p>}
+  {Astro.slots.has("default") && <div class="empty__actions"><slot /></div>}
+</div>
+
+<style>
+  .empty--panel { padding: var(--space-6) var(--space-5); background: var(--surface-sunken); }
+  .empty--page { padding-top: var(--space-6); border-top: var(--rule-thin) solid var(--rule-hairline); max-width: var(--measure); }
+  .empty__title {
+    font-family: var(--font-display);
+    font-size: var(--type-heading-2);
+    line-height: var(--leading-heading-2);
+    overflow-wrap: anywhere;
+  }
+  .empty--page .empty__title { font-size: var(--type-heading-1); line-height: var(--leading-heading-1); font-weight: var(--weight-medium); }
+  .empty__text { margin-top: var(--space-2); }
+  .empty__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-6); }
+</style>

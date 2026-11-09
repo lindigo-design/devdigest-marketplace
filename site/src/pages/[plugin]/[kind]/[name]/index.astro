@@ -1,0 +1,115 @@
+---
+// Component page /<plugin>/<kind>/<name>/ (spec CAT-01 R5/AC-1, AC-4–6; R3/AC-3; R10/AC-1).
+// Variants: skill / agent / command (frontmatter + body), hook (R5/AC-5), MCP server.
+import { transitiveDependencies } from "../../../../../lib/graph.mjs";
+import CompatBadge from "../../../../components/CompatBadge.astro";
+import FrontmatterTable from "../../../../components/FrontmatterTable.astro";
+import InstallBlock from "../../../../components/InstallBlock.astro";
+import KindLabel from "../../../../components/KindLabel.astro";
+import MetaRail from "../../../../components/MetaRail.astro";
+import Prose from "../../../../components/Prose.astro";
+import RunsCommandsMarker from "../../../../components/RunsCommandsMarker.astro";
+import { getCatalog, githubSource, href, install, markdown } from "../../../../data/site.mjs";
+import Base from "../../../../layouts/Base.astro";
+
+export function getStaticPaths() {
+  return getCatalog()
+    .entries.filter((e) => e.kind !== "plugin")
+    .map((entry) => ({ params: { plugin: entry.plugin, kind: entry.kind, name: entry.slug }, props: { entry } }));
+}
+
+const { entry: c } = Astro.props;
+const catalog = getCatalog();
+const page = c.page;
+const hook = page.hook;
+const mcp = page.mcp;
+const AGENT_FIRST = ["tools", "model", "skills"];
+const hasBody = typeof page.body === "string" && page.body.trim().length > 0;
+---
+<Base title={`${c.name} (${c.kind})`} description={c.description} path={c.path}>
+  <header class="page-head">
+    <a class="t-caption" href={href(`${c.plugin}/`)}>← {c.plugin}</a>
+    <KindLabel kind={c.kind} class="page-head__kind" />
+    <h1 class="t-display page-head__title">{c.name}</h1>
+    <p class="t-body-lg t-secondary page-head__in">
+      in plugin <a href={href(`${c.plugin}/`)}>{c.plugin}</a> <span class="t-mono">· v{c.version}</span>
+    </p>
+    <p class="t-body-lg measure">{c.description}</p>
+    <CompatBadge compat={c.compat} />
+  </header>
+
+  <div class="layout-rail">
+    <aside aria-label="Details" class="rail">
+      <MetaRail rows={[
+        { k: "Kind", v: c.kind },
+        { k: "Plugin", v: c.plugin, href: href(`${c.plugin}/`) },
+        { k: "Version", v: c.version, mono: true },
+      ]} />
+      <p class="rail__source rule-top rule-bottom t-caption"><a href={githubSource(c.source)}>View source on GitHub →</a></p>
+    </aside>
+
+    <div class="main">
+      {hook && (
+        <section class="block" aria-labelledby="hook">
+          <h2 id="hook" class="t-heading-2">Hook</h2>
+          <p class="t-secondary">{hook.summary}</p>
+          <dl class="kv">
+            <dt class="t-label">Event</dt><dd class="t-mono">{hook.event}</dd>
+            <dt class="t-label">Matcher</dt><dd class="t-mono">{hook.matcher ?? "(all)"}</dd>
+            <dt class="t-label">Type</dt><dd class="t-mono">{hook.type}</dd>
+            {hook.command && <><dt class="t-label">Command</dt><dd><code class="kv__code">{hook.command}</code></dd></>}
+            {hook.url && <><dt class="t-label">URL</dt><dd class="t-mono">{hook.url}</dd></>}
+            {hook.script && <><dt class="t-label">Script</dt><dd class="t-mono"><a href={githubSource(c.source)}>{hook.script}</a></dd></>}
+            {hook.timeout !== null && <><dt class="t-label">Timeout</dt><dd class="t-mono">{hook.timeout} s</dd></>}
+            <dt class="t-label">Declared in</dt><dd class="t-mono"><a href={githubSource(hook.config)}>{hook.config}</a></dd>
+          </dl>
+          <RunsCommandsMarker runs={c.runs} />
+        </section>
+      )}
+
+      {mcp && (
+        <section class="block" aria-labelledby="mcp">
+          <h2 id="mcp" class="t-heading-2">MCP server</h2>
+          <dl class="kv">
+            <dt class="t-label">Server</dt><dd class="t-mono">{c.name}</dd>
+            <dt class="t-label">Transport</dt><dd class="t-mono">{mcp.transport}</dd>
+            <dt class="t-label">Declared in</dt><dd class="t-mono"><a href={githubSource(c.source)}>{c.source}</a></dd>
+          </dl>
+        </section>
+      )}
+
+      {page.frontmatter && (
+        <section class="block" aria-label="Frontmatter">
+          <FrontmatterTable data={page.frontmatter} first={c.kind === "agent" ? AGENT_FIRST : ["name", "description"]} />
+          <RunsCommandsMarker runs={c.runs} />
+        </section>
+      )}
+
+      {hasBody && (
+        <div class="block">
+          <Prose html={markdown(page.body, c.source)} source={c.source} sourceHref={githubSource(c.source)} />
+        </div>
+      )}
+
+      <InstallBlock title={`Install with ${c.plugin}`} plugin={c.plugin} commands={install(c.plugin)}
+        alsoInstalls={transitiveDependencies(catalog.plugins, c.plugin)} />
+
+      <p><a href={githubSource(c.source)}>View source on GitHub →</a></p>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .page-head { display: flex; flex-direction: column; gap: var(--space-3); padding-block: var(--space-8) var(--space-7); }
+  .page-head :global(.page-head__kind) { margin-top: var(--space-6); }
+  .page-head__title { animation: wipe-in var(--duration-reveal) var(--ease-settle) both; }
+  .page-head__in { display: flex; flex-wrap: wrap; gap: 0 var(--space-2); align-items: baseline; }
+  .rail { display: flex; flex-direction: column; min-width: 0; }
+  .rail__source { padding-block: var(--space-4); }
+  .main { display: flex; flex-direction: column; gap: var(--space-7); min-width: 0; }
+  .block { display: flex; flex-direction: column; gap: var(--space-4); }
+  .block + .block { padding-top: var(--space-5); border-top: var(--rule-thin) solid var(--rule-hairline); }
+  .kv { display: grid; grid-template-columns: minmax(0, auto) minmax(0, 1fr); gap: var(--space-2) var(--space-5); margin: 0; }
+  .kv dd { margin: 0; overflow-wrap: anywhere; }
+  .kv__code { white-space: pre-wrap; overflow-wrap: anywhere; }
+</style>

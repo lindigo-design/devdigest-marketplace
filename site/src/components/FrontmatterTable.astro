@@ -1,0 +1,46 @@
+---
+// Frontmatter as a key/value table (spec CAT-01 R5/AC-4; agents list tools, model, skills first).
+// Values are strings, lists (joined) or nested objects (shown as YAML). `env` is already removed upstream.
+import { stringify } from "yaml";
+interface Props { data: Record<string, unknown>; first?: string[]; caption?: string }
+const { data, first = [], caption = "Frontmatter" } = Astro.props;
+const keys = [...first.filter((k) => k in data), ...Object.keys(data).filter((k) => !first.includes(k))];
+const show = (v: unknown) =>
+  Array.isArray(v) && v.every((x) => typeof x !== "object") ? v.join(", ")
+  : v !== null && typeof v === "object" ? stringify(v).trimEnd()
+  : String(v);
+---
+{keys.length > 0 && (
+  <table class="fm">
+    <caption class="t-label">{caption}</caption>
+    <tbody>
+      {keys.map((k) => {
+        const v = show(data[k]);
+        return (
+          <tr>
+            <th scope="row" class="t-mono">{k}</th>
+            <td class="t-mono">{v.includes("\n") ? <pre>{v}</pre> : v}</td>
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>
+)}
+
+<style>
+  .fm { width: 100%; border-collapse: collapse; }
+  caption { text-align: left; padding-bottom: var(--space-3); }
+  tr { border-top: var(--rule-thin) solid var(--rule-hairline); }
+  tr:last-child { border-bottom: var(--rule-thin) solid var(--rule-hairline); }
+  th {
+    width: 30%;
+    padding: var(--space-2) var(--space-5) var(--space-2) 0;
+    text-align: left;
+    vertical-align: top;
+    font-weight: var(--weight-regular);
+    color: var(--ink-secondary);
+    overflow-wrap: anywhere;
+  }
+  td { padding: var(--space-2) 0; overflow-wrap: anywhere; }
+  pre { margin: 0; white-space: pre-wrap; }
+</style>

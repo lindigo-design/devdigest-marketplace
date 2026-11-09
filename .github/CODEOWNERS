@@ -6,3 +6,7 @@
 
 # CI and ownership rules
 /.github/          @lindigo-design
+
+# Catalog site; search synonyms are owned explicitly (spec CAT-01 §3)
+/site/               @lindigo-design
+/site/synonyms.json  @lindigo-design

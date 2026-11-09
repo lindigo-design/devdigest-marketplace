@@ -1,0 +1,25 @@
+---
+// "Runs commands" marker for agents and command hooks (spec CAT-01 R3/AC-3; tokens §5).
+// The tool list is always visible, not hover-only, so it works on touch and with screen readers.
+interface Props { runs: { label: string; detail: string } | null }
+const { runs } = Astro.props;
+---
+{runs && (
+  <p class="runs">
+    <span class="t-label runs__label">{runs.label}</span>
+    <span class="runs__detail">{runs.detail}</span>
+  </p>
+)}
+
+<style is:global>
+  /* Global: src/client/render.mjs builds the same markup for live results, without Astro's scope attributes. */
+  .runs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-3);
+    color: var(--signal-caution);
+  }
+  .runs__label { color: var(--signal-caution); }
+  .runs__detail { font-size: var(--type-caption); line-height: var(--leading-caption); overflow-wrap: anywhere; }
+</style>

@@ -1,0 +1,122 @@
+/*
+ * Lindigo design tokens, Editorial / Swiss direction (vendored).
+ * Source: docs/design/design-tokens.md, section 8 (approved 2026-11-09). Copied verbatim on 2026-11-09.
+ * Do not edit here: change design-tokens.md first, then re-copy. test/unit/tokens.test.mjs checks they match.
+ */
+
+:root {
+  /* type */
+  --font-display: "Source Serif 4", "Source Serif Pro", Georgia, serif;
+  --font-sans: "IBM Plex Sans", "Helvetica Neue", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", monospace;
+  --type-display-xl: clamp(2rem, 4vw, 3.25rem);
+  --type-display: clamp(1.75rem, 3.5vw, 2.5rem);
+  --type-numeral: clamp(1.75rem, 3vw, 2.5rem);
+  --type-heading-1: 2rem;
+  --type-heading-2: 1.375rem;
+  --type-body-lg: 1.125rem;
+  --type-body: 1rem;
+  --type-label: 0.75rem;
+  --type-caption: 0.8125rem;
+  --type-mono: 0.875rem;
+  --measure: 68ch;
+
+  /* color: light */
+  --surface-page: #F5F3EE;
+  --surface-raised: #FFFFFF;
+  --surface-sunken: #ECE9E2;
+  --ink-primary: #17171B;
+  --ink-secondary: #54545C;
+  --ink-whisper: #8A8892;
+  --rule-hairline: #D9D5CB;
+  --accent-indigo: #3340B5;
+  --accent-indigo-soft: #E4E6F6;
+  --signal-caution: #A84E17;
+  --signal-positive: #2D7A4D;
+  --signal-rollback: #7A3FA0;
+
+  /* space */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px; --space-5: 24px;
+  --space-6: 32px; --space-7: 48px; --space-8: 64px; --space-9: 96px; --space-10: 144px;
+
+  /* shape */
+  --radius-none: 0;
+  --radius-s: 2px;
+  --radius-pill: 999px;
+  --rule-thin: 1px;
+  --rule-strong: 2px;
+  --focus-ring: 2px solid var(--accent-indigo);
+  --focus-offset: 3px;
+
+  /* motion */
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-snap: cubic-bezier(0.87, 0, 0.13, 1);
+  --duration-quick: 120ms;
+  --duration-base: 240ms;
+  --duration-reveal: 560ms;
+  --stagger-step: 70ms;
+
+  /* type details from §1 (added 2026-11-09, plan T5: values unchanged, now addressable) */
+  --leading-display-xl: 1.05;
+  --leading-display: 1.08;
+  --leading-numeral: 1;
+  --leading-heading-1: 1.1;
+  --leading-heading-2: 1.2;
+  --leading-body: 1.55;
+  --leading-label: 1.3;
+  --leading-caption: 1.4;
+  --leading-mono: 1.5;
+  --weight-light: 300;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --tracking-display-xl: -0.015em;
+  --tracking-label: 0.08em;
+
+  /* grid from §4 (added 2026-11-09, plan T5); ≥ 1200px values, overridden below */
+  --grid-columns: 8;
+  --grid-gutter: 24px;
+  --grid-margin: 64px;
+}
+
+@media (max-width: 1199px) {
+  :root {
+    --grid-columns: 6;
+    --grid-gutter: 20px;
+    --grid-margin: 40px;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --grid-columns: 4;
+    --grid-gutter: 16px;
+    --grid-margin: 16px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface-page: #111115;
+    --surface-raised: #1A1A20;
+    --surface-sunken: #0B0B0E;
+    --ink-primary: #EDEBE6;
+    --ink-secondary: #A9A7B1;
+    --ink-whisper: #6E6C77;
+    --rule-hairline: #2B2A32;
+    --accent-indigo: #8F9AFF;
+    --accent-indigo-soft: #22254A;
+    --signal-caution: #E38B57;
+    --signal-positive: #6CC594;
+    --signal-rollback: #C79BEB;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-quick: 0ms;
+    --duration-base: 0ms;
+    --duration-reveal: 0ms;
+    --stagger-step: 0ms;
+  }
+}

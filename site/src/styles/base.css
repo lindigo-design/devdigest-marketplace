@@ -1,0 +1,247 @@
+/*
+ * Base styles: reset, type roles, grid shell, focus, prose. Every value is a token from tokens.css
+ * (spec CAT-01 R7/AC-6); test/unit/lint-tokens.test.mjs rejects raw colors and pixel values here.
+ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  color-scheme: light dark;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--surface-page);
+  color: var(--ink-primary);
+  font-family: var(--font-sans);
+  font-size: var(--type-body);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-body);
+  overflow-x: clip; /* R7/AC-3: no horizontal page scroll at 360px */
+  font-kerning: normal;
+}
+
+img, svg { max-width: 100%; height: auto; }
+button, input, textarea, select { font: inherit; color: inherit; }
+h1, h2, h3, h4, h5, h6, p, ul, ol, dl, figure, blockquote { margin: 0; }
+
+a {
+  color: var(--accent-indigo);
+  text-decoration-thickness: var(--rule-thin);
+  text-underline-offset: 0.2em;
+  transition: color var(--duration-quick) var(--ease-settle);
+}
+a:hover { color: var(--ink-primary); }
+
+:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+::selection { background: var(--accent-indigo-soft); color: var(--ink-primary); }
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; /* lint-allow: standard visually-hidden pattern, not spacing */
+  height: 1px; /* lint-allow */
+  margin: -1px; /* lint-allow */
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--space-4);
+  top: calc(-1 * var(--space-9));
+  padding: var(--space-2) var(--space-4);
+  background: var(--surface-raised);
+  border: var(--rule-thin) solid var(--rule-hairline);
+  z-index: 50;
+}
+.skip-link:focus { top: var(--space-4); }
+
+/* ---------- type roles (design-tokens.md §1) ---------- */
+
+.t-display-xl {
+  font-family: var(--font-display);
+  font-size: var(--type-display-xl);
+  line-height: var(--leading-display-xl);
+  font-weight: var(--weight-regular);
+  letter-spacing: var(--tracking-display-xl);
+}
+.t-display {
+  font-family: var(--font-display);
+  font-size: var(--type-display);
+  line-height: var(--leading-display);
+  font-weight: var(--weight-regular);
+  letter-spacing: var(--tracking-display-xl);
+  overflow-wrap: anywhere;
+}
+.t-numeral {
+  font-family: var(--font-display);
+  font-size: var(--type-numeral);
+  line-height: var(--leading-numeral);
+  font-weight: var(--weight-light);
+  font-variant-numeric: tabular-nums;
+}
+.t-heading-1 {
+  font-family: var(--font-display);
+  font-size: var(--type-heading-1);
+  line-height: var(--leading-heading-1);
+  font-weight: var(--weight-medium);
+}
+.t-heading-2 {
+  font-family: var(--font-sans);
+  font-size: var(--type-heading-2);
+  line-height: var(--leading-heading-2);
+  font-weight: var(--weight-semibold);
+}
+.t-body-lg { font-size: var(--type-body-lg); line-height: var(--leading-body); }
+.t-body { font-size: var(--type-body); line-height: var(--leading-body); }
+.t-label {
+  font-family: var(--font-sans);
+  font-size: var(--type-label);
+  line-height: var(--leading-label);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--ink-secondary);
+}
+.t-caption { font-size: var(--type-caption); line-height: var(--leading-caption); color: var(--ink-secondary); }
+.t-mono, code, kbd, pre {
+  font-family: var(--font-mono);
+  font-size: var(--type-mono);
+  line-height: var(--leading-mono);
+}
+.t-secondary { color: var(--ink-secondary); }
+.measure { max-width: var(--measure); }
+
+/* ---------- grid shell (design-tokens.md §4) ---------- */
+
+.shell {
+  padding-inline: var(--grid-margin);
+  margin-inline: auto;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+  column-gap: var(--grid-gutter);
+}
+
+/* Rail (cols 1–2) + main (cols 3–8) at ≥ 1200px; single column below. */
+.layout-rail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: var(--space-7);
+  column-gap: var(--grid-gutter);
+  align-items: start;
+}
+@media (min-width: 1200px) {
+  .layout-rail { grid-template-columns: minmax(0, 2fr) minmax(0, 6fr); }
+  .layout-rail > .rail-sticky { position: sticky; top: var(--space-5); }
+}
+
+.rule-top { border-top: var(--rule-thin) solid var(--rule-hairline); }
+.rule-bottom { border-bottom: var(--rule-thin) solid var(--rule-hairline); }
+
+/* ---------- buttons ---------- */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--space-7);
+  padding: 0 var(--space-5);
+  border: var(--rule-thin) solid var(--ink-primary);
+  border-radius: var(--radius-s);
+  background: none;
+  color: var(--ink-primary);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color var(--duration-quick) var(--ease-settle), color var(--duration-quick) var(--ease-settle);
+}
+.button:hover { color: var(--accent-indigo); border-color: var(--accent-indigo); }
+.button--primary { background: var(--ink-primary); color: var(--surface-page); }
+.button--primary:hover { background: var(--accent-indigo); color: var(--surface-page); }
+
+.link-button {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--accent-indigo);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-thickness: var(--rule-thin);
+  text-underline-offset: 0.2em;
+}
+.link-button:hover { color: var(--ink-primary); }
+
+/* ---------- prose: rendered README / SKILL.md / agent bodies (tokens §5 Prose) ---------- */
+
+.prose { max-width: var(--measure); overflow-wrap: break-word; }
+.prose > * + * { margin-top: var(--space-4); }
+.prose h2, .prose h3, .prose h4, .prose h5, .prose h6 { margin-top: var(--space-6); }
+.prose h2 {
+  font-family: var(--font-display);
+  font-size: var(--type-heading-1);
+  line-height: var(--leading-heading-1);
+  font-weight: var(--weight-medium);
+}
+.prose h3 { font-size: var(--type-heading-2); line-height: var(--leading-heading-2); font-weight: var(--weight-semibold); }
+.prose h4, .prose h5, .prose h6 { font-size: var(--type-body); font-weight: var(--weight-semibold); }
+.prose ul, .prose ol { padding-left: var(--space-5); }
+.prose li + li { margin-top: var(--space-1); }
+.prose blockquote {
+  padding-left: var(--space-4);
+  border-left: var(--rule-strong) solid var(--rule-hairline);
+  color: var(--ink-secondary);
+}
+.prose code {
+  padding: 0 var(--space-1);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-s);
+  overflow-wrap: anywhere;
+}
+.prose pre {
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-none);
+  overflow-x: auto;
+}
+.prose pre code { padding: 0; background: none; overflow-wrap: normal; }
+.prose table { display: block; overflow-x: auto; border-collapse: collapse; font-size: var(--type-caption); }
+.prose th, .prose td {
+  padding: var(--space-2) var(--space-4) var(--space-2) 0;
+  border-bottom: var(--rule-thin) solid var(--rule-hairline);
+  text-align: left;
+  vertical-align: top;
+}
+.prose th { font-weight: var(--weight-semibold); }
+.prose hr { border: 0; border-top: var(--rule-thin) solid var(--rule-hairline); }
+.prose img { max-width: 100%; }
+
+/* ---------- motion (tokens §6); durations are 0ms under reduced motion via tokens.css ---------- */
+
+@keyframes wipe-in {
+  from { clip-path: inset(-0.2em 100% -0.2em 0); }
+  to { clip-path: inset(-0.2em 0 -0.2em 0); }
+}
+
+/* R7/AC-7: tokens.css sets every duration to 0ms under reduced motion; this also stops loops and delays. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: var(--duration-quick) !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: var(--duration-quick) !important;
+    transition-duration: var(--duration-quick) !important;
+    scroll-behavior: auto !important;
+  }
+}
