@@ -4,6 +4,7 @@
 | :- | :- |
 | Claude Code | ≥ 2.1.318 (declared minimum; verified on 2.1.318, the CI pin) |
 | OS | Windows 10/11, macOS |
+| Context cost | ~160 tokens always-on (measured with claude plugin details on 2.1.318; CI fails beyond 10 %) |
 | Runtime | Node.js on `PATH` for hook scripts (`.mjs`) |
 | Surfaces | Claude Code CLI / IDE extensions. Not tested in claude.ai or Cowork |
 

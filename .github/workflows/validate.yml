@@ -112,3 +112,5 @@ jobs:
           done
           claude plugin list
           claude plugin list --json | node .github/scripts/assert-enabled.mjs
+          # Declared always-on context cost vs claude plugin details, within 10 % (spec CAT-02 R8)
+          node .github/scripts/check-context-cost.mjs

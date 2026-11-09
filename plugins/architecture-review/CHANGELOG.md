@@ -4,6 +4,11 @@ All notable changes to this plugin. Versions follow [SemVer](https://semver.org/
 
 ## [Unreleased]
 
+## [1.0.1] — 2026-11-09
+
+### Changed
+- Declare the always-on context cost in COMPATIBILITY.md; CI checks it against claude plugin details.
+
 ## [1.0.0] — 2026-11-09
 
 ### Added
