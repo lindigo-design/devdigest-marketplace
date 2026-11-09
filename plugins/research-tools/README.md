@@ -4,12 +4,22 @@ A read-only `researcher` agent that answers one concrete question from your repo
 
 ## Install
 
+One command adds the marketplace and installs the plugin (Claude Code 2.1.292 or later):
+
 ```
-/plugin marketplace add lindigo-design/devdigest-marketplace
-/plugin install research-tools@lindigo-devdigest
+claude plugin install research-tools --marketplace lindigo-design/devdigest-marketplace
 ```
 
+Inside a session, `/plugin install research-tools --marketplace lindigo-design/devdigest-marketplace` does the same and lets you pick the scope. If the marketplace is already added, `/plugin install research-tools@lindigo-devdigest` is enough.
+
 No dependencies. `sdd-engineering` installs it automatically.
+
+**Check it works:** run `claude plugin list` (it shows `research-tools@lindigo-devdigest` as enabled), or type `@agent-research-tools:researcher` in a session.
+
+## Update
+
+- Now: `claude plugin update research-tools@lindigo-devdigest`, then restart Claude Code.
+- Automatically: auto-update is off for third-party marketplaces. Turn it on in `/plugin` → **Marketplaces** → `lindigo-devdigest` → **Enable auto-update**. New versions then arrive in the background a few minutes after your first message, with `Plugin updated: research-tools · Run /reload-plugins to apply`.
 
 ## How to use
 
