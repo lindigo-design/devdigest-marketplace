@@ -1,12 +1,104 @@
 ---
-// Placeholder home on the real layout; replaced by the home page and search in T7–T8.
+// Home (spec CAT-01 R8): search line first, then stats, "What's new" and the plugins with their relations.
+// Everything here is static HTML, so the page works without JavaScript; T8's search UI takes over the
+// main column and the rail when a query or filter is active (R2, R4).
+import { countByKind } from "../../lib/catalog.mjs";
+import ResultEntry from "../components/ResultEntry.astro";
+import SearchLine from "../components/SearchLine.astro";
+import StatNumeral from "../components/StatNumeral.astro";
+import WhatsNewItem from "../components/WhatsNewItem.astro";
+import { FEEDS, getCatalog, href } from "../data/site.mjs";
 import Base from "../layouts/Base.astro";
+
+const catalog = getCatalog();
+const counts = countByKind(catalog.entries);
+const components = catalog.entries.length - counts.plugin;
+const plural = (n: number, one: string, many = `${one}s`) => `${n === 1 ? one : many}`;
+const stats = [
+  { kind: "plugin", n: counts.plugin, label: plural(counts.plugin, "plugin") },
+  { kind: "skill", n: counts.skill, label: plural(counts.skill, "skill") },
+  { kind: "agent", n: counts.agent, label: plural(counts.agent, "agent") },
+  { kind: "command", n: counts.command, label: plural(counts.command, "command") },
+  { kind: "hook", n: counts.hook, label: plural(counts.hook, "hook") },
+  { kind: "mcp", n: counts.mcp, label: plural(counts.mcp, "MCP server") },
+];
+const news = catalog.releases.slice(0, 10); // R8/AC-3: the 10 most recent releases, newest first
+const relations = (p: any) => ({
+  dependsOn: p.page.dependencies.map((d: any) => ({ name: d.name, range: d.range })),
+  usedBy: p.page.usedBy,
+});
 ---
-<Base>
-  <h1 class="visually-hidden">Plugin catalog</h1>
-  <p class="t-display-xl placeholder">I need a ___</p>
+<Base path="">
+  <h1 class="visually-hidden">{catalog.marketplace.name}: plugin catalog</h1>
+  <SearchLine />
+
+  <div class="layout-rail home" data-home>
+    <aside class="rail rail-sticky" aria-labelledby="stats-title" data-rail-summary>
+      <section>
+        <h2 id="stats-title" class="t-label rail__title">In the catalog</h2>
+        <ul class="stats">
+          {stats.map((s) => <li><StatNumeral n={s.n} label={s.label} href={href(`?kind=${s.kind}`)} /></li>)}
+        </ul>
+        {components === 0 && (
+          <p class="t-caption rail__note">No components yet — plugins are being migrated.</p>
+        )}
+      </section>
+      <div class="rail__facts">
+        <div class="rail__fact">
+          <h2 class="t-label">Last release</h2>
+          {catalog.lastRelease
+            ? <time class="t-mono" datetime={catalog.lastRelease}>{catalog.lastRelease}</time>
+            : <span class="t-secondary">None yet</span>}
+        </div>
+        <div class="rail__fact">
+          <h2 class="t-label">Feeds</h2>
+          <span class="rail__feeds t-caption"><a href={href(FEEDS.atom)}>Atom feed</a><a href={href(FEEDS.json)}>JSON feed</a></span>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <section class="news-block" aria-labelledby="whatsnew" data-home-section>
+        <div class="section-head">
+          <h2 id="whatsnew" class="t-heading-1">What’s new</h2>
+          {catalog.lastRelease && <span class="t-mono t-secondary">{catalog.lastRelease}</span>}
+        </div>
+        {news.length ? (
+          <ol class="news-list">
+            {news.map((r) => <WhatsNewItem release={r} href={href(`${r.plugin}/`)} />)}
+          </ol>
+        ) : <p class="t-secondary">No released versions yet.</p>}
+      </section>
+
+      <section aria-labelledby="plugins" data-home-section>
+        <div class="section-head">
+          <h2 id="plugins" class="t-heading-1">Plugins</h2>
+          <span class="t-caption">{counts.plugin} {plural(counts.plugin, "entry", "entries")}, in dependency order</span>
+        </div>
+        <div class="entries" role="list">
+          {catalog.plugins.map((p, i) => (
+            <div role="listitem"><ResultEntry entry={p} index={i} relations={relations(p)} /></div>
+          ))}
+        </div>
+      </section>
+    </div>
+  </div>
 </Base>
 
 <style>
-  .placeholder { padding-top: var(--space-8); }
+  .home { padding-top: var(--space-8); }
+  .rail { display: flex; flex-direction: column; gap: var(--space-7); min-width: 0; }
+  .rail__title { padding-bottom: var(--space-3); border-bottom: var(--rule-thin) solid var(--rule-hairline); }
+  .stats { display: grid; grid-template-columns: minmax(0, 1fr); column-gap: var(--grid-gutter); margin: 0; padding: 0; list-style: none; }
+  @media (max-width: 1199px) {
+    .stats { grid-template-columns: repeat(auto-fill, minmax(var(--space-10), 1fr)); }
+  }
+  .rail__note { margin-top: var(--space-4); max-width: 36ch; }
+  .rail__facts { display: flex; flex-wrap: wrap; gap: var(--space-6) var(--space-7); }
+  .rail__fact { display: flex; flex-direction: column; gap: var(--space-2); }
+  .rail__feeds { display: flex; gap: var(--space-4); }
+  .main { display: flex; flex-direction: column; gap: var(--space-9); min-width: 0; }
+  .section-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: var(--space-2) var(--space-4); padding-bottom: var(--space-4); }
+  .news-list { margin: 0; padding: 0; list-style: none; border-bottom: var(--rule-thin) solid var(--rule-hairline); }
+  .entries { border-bottom: var(--rule-thin) solid var(--rule-hairline); }
 </style>

@@ -1,0 +1,34 @@
+---
+// One release in "What's new" (spec CAT-01 R8/AC-3, AC-4; §7 rollback label; tokens §5 WhatsNewItem).
+interface Props { release: { plugin: string; version: string; date: string; excerpt: string[]; rollback: boolean }; href: string }
+const { release: r, href } = Astro.props;
+---
+<li class="news">
+  <div class="news__head">
+    <a class="news__plugin" href={href}>{r.plugin}</a>
+    <p class="t-mono t-caption news__version">
+      v{r.version} · <time datetime={r.date}>{r.date}</time>
+      {r.rollback && <span class="t-label news__rollback">Rollback</span>}
+    </p>
+  </div>
+  <p class="news__notes t-secondary measure">
+    {r.excerpt.map((line) => <span class="news__line">{line}</span>)}
+  </p>
+</li>
+
+<style>
+  .news {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+    padding-block: var(--space-4);
+    border-top: var(--rule-thin) solid var(--rule-hairline);
+  }
+  .news__head { flex: 0 1 calc(var(--space-10) * 2); min-width: 0; }
+  .news__plugin { font-weight: var(--weight-semibold); color: var(--ink-primary); text-decoration: none; }
+  .news__plugin:hover { color: var(--accent-indigo); text-decoration: underline; }
+  .news__version { display: flex; flex-wrap: wrap; gap: 0 var(--space-2); align-items: baseline; }
+  .news__rollback { color: var(--signal-rollback); }
+  .news__notes { flex: 1 1 calc(var(--space-10) * 2); }
+  .news__line { display: block; }
+</style>

@@ -1,0 +1,29 @@
+---
+// Home stat: number + label, linking to the search filtered by that kind (spec CAT-01 R8/AC-1, AC-2, AC-5;
+// tokens §5 StatNumeral default · hover · zero). Zero counts stay links (R8/AC-2) but use the quiet numeral.
+interface Props { n: number; label: string; href: string }
+const { n, label, href } = Astro.props;
+---
+<a class:list={["stat", { "stat--zero": n === 0 }]} href={href}>
+  <span class="t-numeral stat__n">{n}</span>
+  <span class="t-caption stat__label">{label}</span>
+</a>
+
+<style>
+  .stat {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-3);
+    padding-block: var(--space-3);
+    border-bottom: var(--rule-thin) solid var(--rule-hairline);
+    color: var(--accent-indigo);
+    text-decoration: none;
+  }
+  .stat__label { color: inherit; text-decoration: underline; text-decoration-thickness: var(--rule-thin); text-underline-offset: 0.2em; }
+  .stat:hover { color: var(--ink-primary); }
+  .stat--zero .stat__n { color: var(--ink-whisper); } /* numeral ≥ 18px: whisper allowed (tokens §2) */
+  .stat--zero .stat__label { color: var(--ink-secondary); }
+  @media (max-width: 1199px) {
+    .stat { flex-direction: column; align-items: flex-start; padding-block: var(--space-4); }
+  }
+</style>

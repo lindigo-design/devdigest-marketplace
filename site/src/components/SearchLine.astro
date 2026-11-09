@@ -1,0 +1,84 @@
+---
+// The search line "I need a ___" set in display type (concept brief; tokens §5 SearchLine).
+// Markup only; src/client/search-ui.mjs wires it up (T8). Without JavaScript a notice replaces the hint (§7).
+import { href } from "../data/site.mjs";
+const words = ["I", "need", "a"];
+---
+<section class="search" aria-label="Search">
+  <form class="search__form" role="search" action={href()} method="get" data-search-form>
+    <label for="q" class="search__line t-display-xl">
+      {words.map((w, i) => <span class="search__word" style={`--i: ${i}`}>{w}</span>)}
+      <span class="search__field" style={`--i: ${words.length}`}>
+        <textarea id="q" name="q" rows="1" class="search__input" placeholder="___"
+          spellcheck="false" autocomplete="off" autocapitalize="off" enterkeyhint="search"
+          aria-describedby="search-meta" data-search-input></textarea>
+        <span class="search__caret" aria-hidden="true" data-search-caret></span>
+      </span>
+    </label>
+  </form>
+  <div class="search__meta">
+    <p id="search-meta" class="t-caption" aria-live="polite" data-search-meta>
+      <span data-js-only>Type what you need: results appear as you type, in English or Ukrainian.</span>
+    </p>
+    <ul class="search__chips" aria-label="Active filters" data-search-chips hidden></ul>
+  </div>
+  <noscript>
+    <p class="search__noscript t-caption">Search needs JavaScript. Every plugin is listed below, and each plugin page lists its components.</p>
+  </noscript>
+</section>
+
+<style>
+  .search { padding-top: var(--space-8); }
+  @media (min-width: 1200px) { .search { max-width: 87.5%; } }
+  .search__form { margin: 0; }
+  .search__line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 0.26em;
+    padding-bottom: var(--space-4);
+    border-bottom: var(--rule-strong) solid var(--ink-primary);
+    cursor: text;
+    transition: border-color var(--duration-base) var(--ease-settle);
+  }
+  .search__line:focus-within { border-bottom-color: var(--accent-indigo); }
+  .search__word, .search__field {
+    display: inline-block;
+    animation: wipe-in var(--duration-reveal) var(--ease-settle) both;
+    animation-delay: calc(var(--stagger-step) * 2 * var(--i));
+  }
+  .search__field { position: relative; display: block; flex: 1 1 4ch; min-width: 0; }
+  .search__input {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    resize: none;
+    overflow: hidden;
+    font: inherit;
+    letter-spacing: inherit;
+    line-height: inherit;
+    color: var(--ink-primary);
+    caret-color: var(--accent-indigo);
+    outline: none;
+  }
+  .search__input::placeholder { color: var(--ink-whisper); opacity: 1; } /* ≥ 18px: whisper allowed (tokens §2) */
+  /* The label's rule turns indigo on focus; the textarea itself has no separate ring. */
+  .search__line:has(.search__input:focus-visible) { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
+  .search__caret {
+    position: absolute;
+    left: 0;
+    top: 0.06em;
+    width: 0.05em;
+    height: 0.82em;
+    background: var(--accent-indigo);
+    animation: caret-blink calc(var(--duration-reveal) * 2) steps(1) infinite;
+  }
+  .search__input:focus + .search__caret, .search__input:not(:placeholder-shown) + .search__caret { display: none; }
+  @keyframes caret-blink { 50% { opacity: 0; } }
+  .search__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); min-height: var(--space-7); padding-top: var(--space-4); }
+  .search__chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+  .search__noscript { padding-top: var(--space-2); }
+</style>
