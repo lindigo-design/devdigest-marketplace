@@ -99,10 +99,11 @@ Baseline: 8px. Vertical rhythm uses `space/*` only.
 | **RunsCommandsMarker** | default (`signal/caution` text + tool list on hover/focus) |
 | **CopyCommand**: mono command + button | default · hover · copied (2s, `signal/positive`) · error (clipboard blocked: select the text instead) |
 | **FilterGroup**: checkboxes per kind / plugin / category / tag / OS | unchecked · checked · disabled (zero results) · focus |
-| **StatNumeral**: number + label, links to a filtered search | default · hover · zero ("0 skills", with the migration note) |
+| **StatNumeral**: number (`type/numeral`) + label (`type/body-lg`; was `type/caption`, changed 2026-11-09 at checkpoint 2), links to a filtered search | default · hover · zero ("0 skills", with the migration note) |
 | **WhatsNewItem**: plugin, version, date, 2 lines of notes | default · rollback (`signal/rollback` label) |
 | **InstallBlock**: marketplace add + install commands + auto-installed dependencies | default · copied |
 | **DependencyLink**: name + range | satisfied · unsatisfied (`signal/caution` warning) |
+| **Relations line**: "Depends on … / Used by …" on plugin entries and the plugin page, in `type/body` (was `type/caption` on entries, changed 2026-11-09 at checkpoint 2) | default · links hover in indigo |
 | **EmptyState** | no results (echoes the query, "clear filters", "show all") · no components yet |
 | **Prose**: rendered README / SKILL.md | headings, lists, tables, code blocks on `surface/sunken` |
 

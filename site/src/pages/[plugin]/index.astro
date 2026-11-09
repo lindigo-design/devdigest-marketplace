@@ -42,7 +42,7 @@ const compat = p.page.compatibility;
       <section class="rail__block" aria-labelledby="deps">
         <h2 id="deps" class="t-label">Depends on</h2>
         {p.page.dependencies.length ? (
-          <ul class="list">
+          <ul class="list t-body">
             {p.page.dependencies.map((d) => (
               <li><DependencyLink dep={d} href={href(`${d.name}/`)} version={versionOf(d.name)} /></li>
             ))}
@@ -52,7 +52,7 @@ const compat = p.page.compatibility;
       <section class="rail__block rule-bottom" aria-labelledby="used-by">
         <h2 id="used-by" class="t-label">Used by</h2>
         {p.page.usedBy.length ? (
-          <ul class="list">{p.page.usedBy.map((u) => <li><a href={href(`${u}/`)}>{u}</a></li>)}</ul>
+          <ul class="list t-body">{p.page.usedBy.map((u) => <li><a href={href(`${u}/`)}>{u}</a></li>)}</ul>
         ) : <p class="t-secondary">None</p>}
       </section>
     </aside>

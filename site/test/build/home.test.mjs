@@ -48,6 +48,16 @@ describe("R8/AC-1, AC-2: search first, then stats linking to filtered search", (
   });
 });
 
+describe("type roles from design-tokens.md §5", () => {
+  test("stat labels use body-lg, relations lines use body", () => {
+    const html = demo.page("");
+    assert.equal((html.match(/class="t-body-lg stat__label"/g) ?? []).length, 6);
+    assert.doesNotMatch(html, /t-caption stat__label/);
+    assert.equal((html.match(/class="entry__rel t-body"/g) ?? []).length, 4);
+    assert.match(demo.page("sdd-engineering/"), /<ul class="list t-body"/);
+  });
+});
+
 describe("R8/AC-3, AC-4: What's new", () => {
   test("releases newest first with version, date, two lines of notes and a plugin link", () => {
     const html = demo.page("");

@@ -73,6 +73,23 @@ test.describe("360 px wide, no horizontal page scroll (R7/AC-3)", () => {
   }
 });
 
+test.describe("type sizes from design-tokens.md §5 (checkpoint 2)", () => {
+  const px = (loc) => loc.evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+  for (const width of [1440, 360]) {
+    test(`stat labels are body-lg (18px), relations lines body (16px) at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(ROUTES.home);
+      for (const label of await page.locator(".stat__label").all()) expect(await px(label)).toBe(18);
+      const rel = page.locator(".entry__rel");
+      expect(await rel.count()).toBeGreaterThan(0);
+      for (const line of await rel.all()) expect(await px(line)).toBe(16);
+      await page.goto(ROUTES.plugin);
+      for (const list of await page.locator(".rail .list").all()) expect(await px(list)).toBe(16);
+      expect(await page.evaluate(() => { window.scrollTo(1000, 0); return window.scrollX; })).toBe(0);
+    });
+  }
+});
+
 test.describe("keyboard (R7/AC-1)", () => {
   test("search, filters, cards and copy buttons are reachable with Tab, with a visible focus ring", async ({ page }) => {
     await ready(page, ROUTES.results);

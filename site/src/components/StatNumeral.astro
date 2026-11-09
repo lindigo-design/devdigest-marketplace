@@ -6,7 +6,7 @@ const { n, label, href } = Astro.props;
 ---
 <a class:list={["stat", { "stat--zero": n === 0 }]} href={href}>
   <span class="t-numeral stat__n">{n}</span>
-  <span class="t-caption stat__label">{label}</span>
+  <span class="t-body-lg stat__label">{label}</span>
 </a>
 
 <style>

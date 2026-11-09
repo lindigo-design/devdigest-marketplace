@@ -30,7 +30,7 @@ const isPlugin = e.kind === "plugin";
     </div>
     <p class="entry__desc t-secondary measure" data-entry-desc>{e.description}</p>
     {relations && (relations.dependsOn.length > 0 || relations.usedBy.length > 0) && (
-      <p class="entry__rel t-caption">
+      <p class="entry__rel t-body">
         {relations.dependsOn.length > 0 && (
           <span>Depends on {relations.dependsOn.map((d, i) => <>{i > 0 && ", "}<a class="entry__sub" href={href(`${d.name}/`)}>{d.name}</a>{d.range && <span class="t-mono"> {d.range}</span>}</>)}</span>
         )}

@@ -103,6 +103,7 @@ a:hover { color: var(--ink-primary); }
   font-weight: var(--weight-semibold);
 }
 .t-body-lg { font-size: var(--type-body-lg); line-height: var(--leading-body); }
+.t-body { font-size: var(--type-body); line-height: var(--leading-body); }
 .t-label {
   font-family: var(--font-sans);
   font-size: var(--type-label);
