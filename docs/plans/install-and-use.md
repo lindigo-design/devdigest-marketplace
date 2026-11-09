@@ -97,6 +97,8 @@ Run on 2026-11-09 against a build of this repository (plugins at 1.0.1), with Cl
 
 Checks at T8: site `npm test` 285, `test:build` 68, `e2e` 94, `npm run check`, build; `node --test "scripts/**/*.test.mjs"` 34; `claude plugin validate --strict` root + 4 plugins; `check-versions.mjs origin/main` (4 × 1.0.0 → 1.0.1); `check-components.mjs origin/main`; hook self-tests.
 
+**Versions after merging `origin/main` (PR #4 had already released research-tools 1.0.1 with its tag):** engineering-paved-path, architecture-review and sdd-engineering 1.0.0 → 1.0.1; research-tools 1.0.1 → 1.0.2 (main's 1.0.1 section kept unchanged). New tags after merge: `engineering-paved-path--v1.0.1`, `architecture-review--v1.0.1`, `sdd-engineering--v1.0.1`, `research-tools--v1.0.2`.
+
 **After merge (owner):** `node scripts/tag-release.mjs --push` on `main` (the tag push rebuilds the site, R5/AC-4); allow tag deployments in Settings → Environments → github-pages ("*--v*"); steps 5 and 6 by hand.
 
 **Polish, not done:** at 360 px the Copy button keeps its 96 px minimum width, so long commands wrap into a narrow column (CopyCommand is shared by cards and pages; stacking the button under the command on narrow screens is a separate design change for `design-tokens.md` §5 first).
