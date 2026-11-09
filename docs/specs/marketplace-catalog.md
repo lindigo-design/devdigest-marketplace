@@ -85,7 +85,7 @@ Never read: `evals/results/`, `node_modules/`, `.claude/settings.local.json`, an
 
 - **AC-1:** The system SHALL run search entirely in the browser over the prebuilt index, with no network request per keystroke.
 - **AC-2:** WHEN the user types a query, the system SHALL update results within 100 ms of the last keystroke on a mid-range laptop for an index of up to 500 entries.
-- **AC-3:** The system SHALL rank matches in `name` above `tags`, `tags` above `description`, and `description` above body text.
+- **AC-3:** The system SHALL rank matches in `name` above `tags`, `tags` above `description`, and `description` above body text. Tags a component inherits from its plugin (R1/AC-3) rank at the `description` level; tags the component declares itself, and a plugin entry's own tags, rank at the `tags` level.
 - **AC-4:** The system SHALL support prefix and typo-tolerant matching (for example `secur` → security, `reveiw` → review).
 - **AC-5:** The system SHALL ignore common UA and EN stop words and filler phrases ("мені треба", "I need", "for", "для", …).
 - **AC-6:** WHEN the query contains a kind word in UA or EN (skill/скіл/скіла, agent/агент, hook/хук, command/команда, plugin/плагін), the system SHALL apply that kind as a filter and remove the word from the search terms.

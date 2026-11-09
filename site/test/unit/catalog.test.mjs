@@ -60,6 +60,23 @@ describe("R1/AC-3: required fields on every entry", () => {
     assert.equal(s.category, "engineering-standards");
   });
 
+  test("a component's own frontmatter tags come first and count as own", () => {
+    const r = tempRepo("empty-scaffold");
+    try {
+      r.write("plugins/base/skills/lint/SKILL.md", "---\nname: lint\ndescription: Lint.\ntags: [eslint, guardrails]\n---\n");
+      const e = buildCatalog({ repoRoot: r.root, history: false }).entries.find((x) => x.id === "base/skill/lint");
+      assert.deepEqual(e.tags, ["eslint", "guardrails", "base"]);
+      assert.equal(e.ownTagCount, 2);
+    } finally {
+      r.cleanup();
+    }
+  });
+
+  test("components without own tags have ownTagCount 0; plugins count all their tags", () => {
+    assert.equal(byId(demo, "engineering-paved-path/skill/security").ownTagCount, 0);
+    assert.equal(byId(demo, "engineering-paved-path").ownTagCount, 6);
+  });
+
   test("body text is searchable", () => {
     assert.match(byId(demo, "engineering-paved-path/skill/security").bodyTerms, /\bowasp\b/);
     assert.match(byId(demo, "sdd-engineering").bodyTerms, /\bfixture\b/);
@@ -95,6 +112,10 @@ describe("R1/AC-5: broken inputs fail the build and name the file", () => {
       "plugins/research-tools/skills/x/SKILL.md", /unterminated/],
     ["agent with duplicate YAML keys", (r) => r.write("plugins/research-tools/agents/x.md", "---\nname: x\nname: y\ndescription: d\n---\n"),
       "plugins/research-tools/agents/x.md", /unparseable frontmatter/],
+    ["SKILL.md without name: the message suggests the folder name", (r) => r.write("plugins/research-tools/skills/web-lookup/SKILL.md", "---\ndescription: d\n---\n"),
+      "plugins/research-tools/skills/web-lookup/SKILL.md", /"name" is missing or empty; add `name: web-lookup` to the frontmatter/],
+    ["agent without name: the message suggests the file name", (r) => r.write("plugins/research-tools/agents/digger.md", "---\ndescription: d\n---\n"),
+      "plugins/research-tools/agents/digger.md", /add `name: digger` to the frontmatter/],
     ["agent without description", (r) => r.write("plugins/research-tools/agents/x.md", "---\nname: x\n---\nBody\n"),
       "plugins/research-tools/agents/x.md", /"description" is missing/],
     ["agent with a list as frontmatter", (r) => r.write("plugins/research-tools/agents/x.md", "---\n- a\n- b\n---\n"),

@@ -28,7 +28,7 @@ describe("index.json", () => {
   test("one entry per catalog entry, with card and filter fields only", () => {
     assert.equal(index.entries.length, catalog.entries.length);
     for (const e of index.entries) {
-      assert.deepEqual(Object.keys(e), ["id", "kind", "name", "plugin", "description", "tags", "version", "category", "compat", "runs", "source", "path"]);
+      assert.deepEqual(Object.keys(e), ["id", "kind", "name", "plugin", "description", "tags", "ownTagCount", "version", "category", "compat", "runs", "source", "path"]);
     }
   });
 

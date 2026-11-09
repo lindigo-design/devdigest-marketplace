@@ -4,15 +4,26 @@
 // result the term contributes the weight of the best field it matched: name > tags > description > body.
 // Entries are ordered by the sum of those weights, then by MiniSearch's BM25 score. Weights are powers of
 // ten, so one name match always beats any number of weaker matches of a single term.
+// Tags a component inherits from its plugin rank at the description level; its own tags rank as tags.
 import MiniSearch from "minisearch";
 import { normalize } from "../../lib/search-text.mjs";
 import { decodeBodies } from "./body-index.mjs";
 import { parseQuery } from "./query.mjs";
 import { FILTER_KEYS, KINDS } from "./url-state.mjs";
 
-export const FIELDS = ["name", "tags", "description", "bodyTerms"];
-export const FIELD_WEIGHT = { name: 1000, tags: 100, description: 10, bodyTerms: 1 };
-export const BOOST = { name: 16, tags: 6, description: 3, bodyTerms: 1 };
+export const FIELDS = ["name", "tags", "inheritedTags", "description", "bodyTerms"];
+export const FIELD_WEIGHT = { name: 1000, tags: 100, inheritedTags: 10, description: 10, bodyTerms: 1 };
+// Inherited tags share the description tier but score lower inside it, so a component that actually
+// mentions the term wins over one that only carries its plugin's tag.
+// (0.25: a plugin tag list often holds several synonyms of one query, e.g. security + owasp, which add up.)
+export const BOOST = { name: 16, tags: 6, inheritedTags: 0.25, description: 3, bodyTerms: 1 };
+
+/** [own tags, inherited tags]: the first `ownTagCount` tags are the entry's own (all of them for plugins). */
+export function splitTags(entry) {
+  const tags = entry.tags ?? [];
+  const own = entry.ownTagCount ?? tags.length;
+  return [tags.slice(0, own), tags.slice(own)];
+}
 
 const WORD = /[\p{L}\p{N}](?:[\p{L}\p{N}_'-]*[\p{L}\p{N}])?/gu;
 
@@ -55,7 +66,12 @@ export function createEngine(index) {
     fields: FIELDS,
     tokenize,
     processTerm: (t) => t, // tokenize already normalizes
-    extractField: (doc, field) => (field === "tags" ? doc.tags.join(" ") : field === "bodyTerms" ? bodyOf.get(doc.id) : doc[field] ?? ""),
+    extractField: (doc, field) => {
+      if (field === "tags") return splitTags(doc)[0].join(" ");
+      if (field === "inheritedTags") return splitTags(doc)[1].join(" ");
+      if (field === "bodyTerms") return bodyOf.get(doc.id);
+      return doc[field] ?? "";
+    },
     searchOptions: { boost: BOOST, prefix: prefixFor, fuzzy: fuzzyFor, combineWith: "OR" },
   });
   ms.addAll(entries);
@@ -92,7 +108,8 @@ export function createEngine(index) {
   /**
    * @param {{ q: string, kind?: string[], plugin?: string[], category?: string[], tag?: string[], os?: string[] }} state
    *   Filters as applied (the UI merges auto-detected kinds into `kind`).
-   * @returns {{ parsed, results: { entry, terms: string[] }[], facets: Record<string, { value, count }[]>, total }}
+   * @returns {{ parsed, results: { entry, terms: string[], rank: number, score: number }[], facets: Record<string, { value, count }[]>, total }}
+   *   rank: sum of best-field weights per query term (primary sort); score: summed BM25 (tie-break)
    */
   function search(state) {
     const parsed = parseQuery(state.q ?? "", index.synonyms ?? []);
@@ -101,7 +118,9 @@ export function createEngine(index) {
       ? match(parsed.terms)
       : defaultOrder.map((entry) => ({ entry, terms: new Set() }));
 
-    const results = matched.filter((m) => passes(m.entry, filters)).map((m) => ({ entry: m.entry, terms: [...m.terms] }));
+    const results = matched
+      .filter((m) => passes(m.entry, filters))
+      .map((m) => ({ entry: m.entry, terms: [...m.terms], rank: m.rank ?? 0, score: m.score ?? 0 }));
 
     // Facet counts: for each group, matches passing every other group's filter (R4/AC-1).
     const facets = {};

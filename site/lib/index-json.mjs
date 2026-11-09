@@ -21,6 +21,7 @@ const entryFields = (e) => ({
   plugin: e.plugin,
   description: e.description,
   tags: e.tags,
+  ownTagCount: e.ownTagCount, // the first N tags are the entry's own; the rest are inherited from its plugin
   version: e.version,
   category: e.category,
   compat: e.compat,

@@ -108,11 +108,13 @@ export function buildCatalog({ repoRoot = defaultRepoRoot(), history = true, syn
 
     const ctx = { ...base, dir: p.source };
     const comps = READERS.flatMap((read) => read(ctx))
-      .map((c) => ({
+      .map(({ ownTags = [], ...c }) => ({
         id: `${p.name}/${c.kind}/${c.slug}`,
         ...c,
         plugin: p.name,
-        tags: p.tags,
+        // Own tags first, then the plugin's. Only own tags rank at the tag level (spec R2/AC-3).
+        tags: [...new Set([...ownTags, ...p.tags])],
+        ownTagCount: new Set(ownTags).size,
         version: p.version,
         category: p.category,
         compat: p.compat, // components inherit the plugin's badges (R10/AC-2)
@@ -128,6 +130,7 @@ export function buildCatalog({ repoRoot = defaultRepoRoot(), history = true, syn
     }
 
     p.id = p.name;
+    p.ownTagCount = p.tags.length;
     p.path = `${p.name}/`;
     p.page.components = comps.map((c) => c.id);
     entries.push(p, ...comps);

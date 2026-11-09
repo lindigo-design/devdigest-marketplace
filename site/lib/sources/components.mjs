@@ -27,11 +27,13 @@ function readMarkdown(ctx, rel, { required }) {
   return null;
 }
 
-function requireFields(ctx, rel, data, fields) {
+/** `folder`: the name to suggest when `name` is missing (skill folder or agent file name). */
+function requireFields(ctx, rel, data, fields, folder) {
   let ok = true;
   for (const f of fields) {
     if (!str(data[f])) {
-      ctx.problems.error(rel, `frontmatter "${f}" is missing or empty`);
+      const hint = f === "name" ? `; add \`name: ${folder}\` to the frontmatter` : "";
+      ctx.problems.error(rel, `frontmatter "${f}" is missing or empty${hint}`);
       ok = false;
     }
   }
@@ -55,12 +57,13 @@ export function readSkills(ctx) {
     const k = ctx.reader.kind(file);
     if (k !== "file") { skip(ctx, rel, k === "symlink" ? "SKILL.md is a symlink" : "no SKILL.md"); continue; }
     const md = readMarkdown(ctx, file, { required: true });
-    if (!md || !requireFields(ctx, file, md.data, ["name", "description"])) continue;
+    if (!md || !requireFields(ctx, file, md.data, ["name", "description"], e.name)) continue;
     out.push({
       kind: "skill",
       name: String(md.data.name),
       slug: String(md.data.name),
       description: str(md.data.description),
+      ownTags: toList(md.data.tags) ?? [],
       source: file,
       runs: null,
       bodyTerms: toTerms(md.body),
@@ -86,7 +89,7 @@ export function readAgents(ctx) {
     if (PLACEHOLDERS.has(e.name)) continue;
     if (e.type !== "file" || !e.name.endsWith(".md")) { skip(ctx, rel, "agents/ holds one .md file per agent"); continue; }
     const md = readMarkdown(ctx, rel, { required: true });
-    if (!md || !requireFields(ctx, rel, md.data, ["name", "description"])) continue;
+    if (!md || !requireFields(ctx, rel, md.data, ["name", "description"], e.name.slice(0, -3))) continue;
     const tools = toList(md.data.tools);
     const fm = withoutEnv(md.data);
     out.push({
@@ -94,6 +97,7 @@ export function readAgents(ctx) {
       name: String(md.data.name),
       slug: String(md.data.name),
       description: str(md.data.description),
+      ownTags: toList(md.data.tags) ?? [],
       source: rel,
       runs: agentRuns(tools),
       bodyTerms: toTerms(md.body),
@@ -129,6 +133,7 @@ export function readCommands(ctx) {
         name: parts.join(":"),
         slug: parts.join("-"),
         description: desc ?? `/${parts.join(":")} command`,
+        ownTags: toList(md.data.tags) ?? [],
         source: child,
         runs: null,
         bodyTerms: toTerms(md.body),

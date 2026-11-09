@@ -53,6 +53,40 @@ describe("R2/AC-3: field ranking name > tags > description > body", () => {
   test("prefix query keeps the order", () => {
     assert.deepEqual(ids(engine.search({ q: "zebr" })), ["zebra-in-name", "in-tags", "in-description", "in-body"]);
   });
+
+  test("tags inherited from the plugin rank at the description level, own tags at the tag level", () => {
+    const e = createEngine({
+      synonyms: [],
+      entries: [
+        entry("inherited", { tags: ["own1", "zebra"], ownTagCount: 1 }),
+        entry("in-body", { bodyTerms: "zebra" }),
+        entry("own", { tags: ["zebra", "other"], ownTagCount: 1 }),
+      ],
+    });
+    assert.deepEqual(ids(e.search({ q: "zebra" })), ["own", "inherited", "in-body"]);
+  });
+
+  test("a description match is not outranked by an inherited tag", () => {
+    const e = createEngine({
+      synonyms: [],
+      entries: [
+        entry("inherited", { tags: ["zebra", "x", "y"], ownTagCount: 0 }),
+        entry("described", { description: "Handles zebra crossings." }),
+      ],
+    });
+    const r = e.search({ q: "zebra" });
+    assert.equal(r.total, 2);
+    assert.equal(ids(r)[0], "described");
+  });
+});
+
+describe("demo: components no longer ride on plugin tags", () => {
+  test("'security': entries that mention it rank above ones that only inherit the tag", () => {
+    const order = ids(searchQuery(demo, "security"));
+    const at = (id) => order.indexOf(id);
+    assert.ok(at("architecture-review/skill/pr-self-review") < at("engineering-paved-path/skill/mermaid-diagrams"));
+    assert.ok(at("architecture-review/agent/security-reviewer") < at("architecture-review/agent/architecture-reviewer"));
+  });
 });
 
 describe("R2/AC-4: prefix and typo tolerance", () => {
