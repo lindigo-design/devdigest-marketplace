@@ -30,6 +30,7 @@ function setState(button, state, label) {
   button.dataset.state = state;
   button.textContent = label;
   button._copyTimer = setTimeout(() => {
+    if (!button.isConnected) return; // live results replaced the card meanwhile
     delete button.dataset.state;
     button.textContent = "Copy";
   }, COPIED_MS);
