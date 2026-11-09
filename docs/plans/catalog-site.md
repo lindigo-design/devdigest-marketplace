@@ -22,7 +22,7 @@ These are the places where the spec, tokens and prototype disagree or leave a ga
 | D4 | Where the PR build runs (R6/AC-2). | A `build` job in the new `pages.yml` that runs on `pull_request` too; the `deploy` job runs only on `push` to `main`. `validate.yml` stays untouched. |
 | D5 | Browser end-to-end tests (keyboard, URL state, 360 px, axe-core) need Playwright with a headless Chromium download in CI (~1–2 min). | **Yes**, as a separate `e2e` job in `pages.yml`. Dev dependency only: nothing from it ships to the site. |
 | D6 | The prototype shows an "Also related, outside the Skill filter" group under results. The spec does not mention it. | **Dropped from the MVP** (not in the spec). Results show only entries that pass every active filter. |
-| D7 | Body text for search vs. the 300 KB budget (R7/AC-4) at 500 entries. | `index.json` stores body as **deduplicated normalized terms** (`bodyTerms`), not raw markdown. Full text is still searchable (spec §7) and the budget is enforced by a test (T4). |
+| D7 | Body text for search vs. the 300 KB budget (R7/AC-4) at 500 entries. | Body text is reduced to **deduplicated normalized terms**, not raw markdown, and `index.json` stores them **once per corpus**: a sorted vocabulary plus, per term, the delta-encoded list of entries that contain it (complement list when a term is in over half the entries). Lossless, so full text stays searchable (spec §7). *Updated in T4 after measuring:* per-entry term lists were ≈310–440 KB gzipped on real README text at 500 entries; the postings form is ≈100 KB there and ≈240 KB on the pessimistic synthetic budget set. |
 
 ## 1. Target layout
 
@@ -75,6 +75,7 @@ site/
       query.mjs             tokenize, stop words, kind words, synonym expansion (shared with Node tests)
       engine.mjs            MiniSearch setup, ranking, filters, facet counts (shared with Node tests)
       url-state.mjs         read/write query + filters in the URL (shared with Node tests)
+      body-index.mjs        encode/decode the body vocabulary + postings in index.json (D7)
       search-ui.mjs         wires SearchLine, results, chips, filters, empty state, drawer
       render.mjs            fills <template> clones of ResultEntry; match highlighting
       copy.mjs              clipboard + "Copied" state + fallback selection
@@ -130,7 +131,7 @@ Errors are collected, not thrown at the first one, then thrown together as one m
   path: "architecture-review/agent/security-reviewer/",// site-relative URL, joined with base at render time
   compat: { claudeCode: "2.1.110" | null, verifiedOn: "2.1.318" | null, os: ["Windows", "macOS"], declared: true },
   runs: null | { label: "Runs commands", detail: "Bash, PowerShell" },
-  bodyTerms: "deduplicated normalized words",          // searchable body text (R1/AC-3)
+  bodyTerms: "deduplicated normalized words",          // searchable body text (R1/AC-3); in index.json as `body` postings (D7)
   // page-only fields (not in index.json): frontmatter, bodyHtml, hook { event, matcher, type, command, script }
 }
 ```
@@ -271,7 +272,7 @@ jobs:
 | Unit: synonyms | `node:test` | group < 2 terms fails, duplicate term fails, each with the term in the message |
 | Unit: query + engine | `node:test` (same `.mjs` as the browser) | stop words, kind words UA/EN, stem prefixes, mixed UA/EN, `secur`, `reveiw`, ranking order, filters + counts, empty query order, spec acceptance demo query `мені треба скіл для рев'ю безпеки` on the `demo` fixture returns skill filter + `security` + review skills |
 | Unit: url-state, feeds, index-json, markdown | `node:test` | round-trip URLs; feed ids, absolute links, zero-item validity; schemaVersion; XSS payloads (`<script>`, `onerror=`, `javascript:`, `data:` links, SVG) stripped |
-| Budget | `node:test` | 500 synthetic entries with realistic bodies: `index.json` gzip < 300 KB (R7/AC-4); MiniSearch build + 50 queries, p95 query < 20 ms in Node as a proxy for R2/AC-2 |
+| Budget | `node:test` | 500 synthetic entries, bodies of 200–1000 words with Zipf-distributed syllable-built vocabulary: `index.json` gzip < 300 KB (R7/AC-4); engine build < 1 s; p95 query < 20 ms in Node as a proxy for R2/AC-2 |
 | Token lint | `node:test` | no `#hex`, `rgb(`, or `\d+px` literals in `site/src/**` outside `tokens.css` (R7/AC-6) |
 | Base path | `node:test` over two builds | §6 scan (R6/AC-4–5) |
 | E2E | Playwright + `@axe-core/playwright` | type → results < 100 ms after last key; `/` and Ctrl/Cmd+K; URL restore; copy shows "Copied" and the clipboard holds the command; card click opens page, copy click doesn't; empty state echo + clear + show all; filter drawer at 360 px; no horizontal scroll at 360 px on every route; axe: zero WCAG 2.1 AA violations in light and dark; reduced motion: no running animations; no request to any host other than the site origin; JS disabled: pages render, notice shown |
@@ -371,7 +372,7 @@ Commits: one per task on `feat/catalog-site`, each only after your OK (CLAUDE.md
 | Risk | Mitigation |
 | :- | :- |
 | Boost-based ranking can't guarantee a strict field order for every query | Order test on crafted fixtures; if boosts alone fail, sort results by (best matched field, score). |
-| Body text pushes `index.json` over 300 KB as components grow | `bodyTerms` dedup (D7); budget test fails CI before it ships. |
+| Body text pushes `index.json` over 300 KB as components grow | Postings encoding (D7). Budget holds at 500 entries for bodies up to ≈1000 words; at 300–2000 words on every entry it is ≈325 KB. Next steps if real data gets there: drop digit/hash tokens from body terms, or cap terms per entry. The budget test fails CI before it ships. |
 | Fontsource subsets miss a glyph | **Confirmed in T0:** Cyrillic (incl. ґ є і ї), `ʼ`, `’`, `—`, `·`, `№` are covered in all three faces; `≥`, `→`, `←` are in none of the fontsource subsets (Google drops them), so they render in the system fallback face. **Accepted by the owner (2026-11-09)** for the MVP: no plain-text substitutes, no custom subsetting. Revisit if the fallback looks wrong in review. |
 | Display-size `<textarea>` vs. screen readers | Explicit label "I need a", Enter suppressed, axe + manual NVDA check in T11. |
 | Real plugins have no components until migration, so the demo can't fully run on prod data | `demo` fixture build for steps 1–2; real data covers the empty state (step 7). |

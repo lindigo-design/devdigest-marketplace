@@ -43,6 +43,13 @@ export function absUrl(config, path = "") {
   return `${config.origin}${url(config.base, path)}`;
 }
 
+/** "https://github.com/owner/repo" → "owner/repo", the form `/plugin marketplace add` takes. */
+export function repoSlug(config) {
+  const m = /^https:\/\/github\.com\/([^/]+\/[^/]+?)(?:\.git)?$/.exec(config.repo);
+  if (!m) throw new Error(`SITE_REPO must be a https://github.com/<owner>/<repo> URL, got "${config.repo}"`);
+  return m[1];
+}
+
 /** GitHub link to a repository file at the configured ref. */
 export function sourceUrl(config, repoPath) {
   const p = String(repoPath).replace(/^\/+/, "").split("/").map(encodeURIComponent).join("/");
