@@ -8,6 +8,10 @@ import { parseCompatibility } from "./compatibility.mjs";
 import { Problems } from "./errors.mjs";
 import { RepoReader } from "./fs.mjs";
 import { READERS } from "./sources/components.mjs";
+import { loadSynonyms } from "./synonyms.mjs";
+
+/** site/synonyms.json, next to this package (not inside the scanned repo, so fixtures share it). */
+export const DEFAULT_SYNONYMS = join(dirname(fileURLToPath(import.meta.url)), "..", "synonyms.json");
 import { readMarketplace, readPlugin } from "./sources/marketplace.mjs";
 
 /** Order of kinds within a plugin and in the empty-query listing (spec R2/AC-8). */
@@ -67,14 +71,17 @@ function readCompat(ctx, p) {
 }
 
 /**
- * @param {{ repoRoot?: string, history?: boolean }} [opts] history: read git log for feed `updated` times
- * @returns {{ marketplace, plugins, entries, releases, lastRelease, warnings }} throws CatalogError listing every problem
+ * @param {{ repoRoot?: string, history?: boolean, synonymsFile?: string }} [opts]
+ *   history: read git log for feed `updated` times; synonymsFile: path of synonyms.json
+ * @returns {{ marketplace, plugins, entries, releases, lastRelease, synonyms, warnings }}
+ *   throws CatalogError listing every problem
  */
-export function buildCatalog({ repoRoot = defaultRepoRoot(), history = true } = {}) {
+export function buildCatalog({ repoRoot = defaultRepoRoot(), history = true, synonymsFile = DEFAULT_SYNONYMS } = {}) {
   const problems = new Problems();
   const reader = new RepoReader(repoRoot);
   const base = { reader, problems };
 
+  const synonyms = loadSynonyms(synonymsFile, problems); // R2/AC-10
   const mk = readMarketplace(base);
   problems.throwIfAny();
 
@@ -130,6 +137,7 @@ export function buildCatalog({ repoRoot = defaultRepoRoot(), history = true } = 
   const sorted = sortReleases(releases);
   return {
     marketplace: mk.marketplace,
+    synonyms,
     plugins,
     entries,
     releases: sorted,
