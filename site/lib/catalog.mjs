@@ -3,6 +3,8 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { satisfies } from "../../scripts/lib/marketplace.mjs";
+import { parseChangelog, sectionUpdateTimes, sortReleases, updatedTime } from "./changelog.mjs";
+import { parseCompatibility } from "./compatibility.mjs";
 import { Problems } from "./errors.mjs";
 import { RepoReader } from "./fs.mjs";
 import { READERS } from "./sources/components.mjs";
@@ -40,11 +42,35 @@ function dependencyOrder(plugins, problems) {
   return out;
 }
 
+/** Releases of one plugin from its CHANGELOG (R8), with `updated` from git history when available (§7). */
+function readReleases(ctx, p, history) {
+  const file = `${p.source}/CHANGELOG.md`;
+  if (!ctx.reader.isFile(file)) {
+    ctx.problems.warn(file, "no CHANGELOG; the plugin has no releases in What's new or the feeds");
+    return [];
+  }
+  const times = history ? sectionUpdateTimes(ctx.reader.root, file) : new Map();
+  return parseChangelog(ctx.reader.text(file), file, ctx.problems).map((r) => ({
+    plugin: p.name,
+    ...r,
+    updated: updatedTime(r.date, times.get(r.version)),
+  }));
+}
+
+/** Compatibility badges (R10/AC-2–4); warns naming the file when not declared (R10/AC-3). */
+function readCompat(ctx, p) {
+  const file = `${p.source}/COMPATIBILITY.md`;
+  const c = parseCompatibility(ctx.reader.isFile(file) ? ctx.reader.text(file) : null);
+  if (!c.declared) ctx.problems.warn(file, `compatibility not declared: ${c.reason}`);
+  p.compat = { declared: c.declared, claudeCode: c.claudeCode, verifiedOn: c.verifiedOn, os: c.os };
+  p.page.compatibility = { file: ctx.reader.isFile(file) ? file : null, claudeCodeRaw: c.claudeCodeRaw, osRaw: c.osRaw };
+}
+
 /**
- * @param {{ repoRoot?: string }} [opts]
- * @returns {{ marketplace, plugins, entries, warnings }} throws CatalogError listing every problem
+ * @param {{ repoRoot?: string, history?: boolean }} [opts] history: read git log for feed `updated` times
+ * @returns {{ marketplace, plugins, entries, releases, lastRelease, warnings }} throws CatalogError listing every problem
  */
-export function buildCatalog({ repoRoot = defaultRepoRoot() } = {}) {
+export function buildCatalog({ repoRoot = defaultRepoRoot(), history = true } = {}) {
   const problems = new Problems();
   const reader = new RepoReader(repoRoot);
   const base = { reader, problems };
@@ -57,7 +83,13 @@ export function buildCatalog({ repoRoot = defaultRepoRoot() } = {}) {
   const byName = new Map(plugins.map((p) => [p.name, p]));
 
   const entries = [];
+  const releases = [];
   for (const p of plugins) {
+    readCompat(base, p);
+    const own = readReleases(base, p, history);
+    p.page.latestRelease = own[0] ?? null; // newest as written in the CHANGELOG
+    releases.push(...own);
+
     // Resolve dependencies against the catalog (spec §7: unsatisfied range → warning on the page).
     p.page.dependencies = p.page.dependencies.map((d) => {
       const target = byName.get(d.name);
@@ -76,6 +108,7 @@ export function buildCatalog({ repoRoot = defaultRepoRoot() } = {}) {
         tags: p.tags,
         version: p.version,
         category: p.category,
+        compat: p.compat, // components inherit the plugin's badges (R10/AC-2)
         path: `${p.name}/${c.kind}/${c.slug}/`,
       }))
       .sort((a, b) => KIND_ORDER.indexOf(a.kind) - KIND_ORDER.indexOf(b.kind) || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
@@ -94,7 +127,15 @@ export function buildCatalog({ repoRoot = defaultRepoRoot() } = {}) {
   }
 
   problems.throwIfAny();
-  return { marketplace: mk.marketplace, plugins, entries, warnings: problems.warnings };
+  const sorted = sortReleases(releases);
+  return {
+    marketplace: mk.marketplace,
+    plugins,
+    entries,
+    releases: sorted,
+    lastRelease: sorted[0]?.date ?? null,
+    warnings: problems.warnings,
+  };
 }
 
 /** Counts per kind for the home page stats (spec R8/AC-1). */
