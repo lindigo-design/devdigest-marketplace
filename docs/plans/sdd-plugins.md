@@ -62,6 +62,8 @@ In throwaway plugins under the scratchpad, on Claude Code 2.1.318, with a throwa
 
 A failed probe stops the plan and goes back to the owner.
 
+**Result 2026-11-09 (2.1.318, `--plugin-dir`): all three pass.** An agent in `probe-top` with `skills: [probe-base:probe-skill]` received the dependency's skill; the `PreToolUse` hook got `"agent_type": "probe-top:prober"`; `${CLAUDE_SKILL_DIR}` in `SKILL.md` was replaced by the installed skill's absolute path.
+
 ### T1. Baseline tags
 
 On a clean checkout of `main` (`tag-release.mjs` refuses a dirty tree, and the working copy has other branches' changes): `node scripts/tag-release.mjs --dry-run` must list exactly the four `<p>--v0.1.0` tags. The owner runs `node scripts/tag-release.mjs --push`.
@@ -81,7 +83,7 @@ On a clean checkout of `main` (`tag-release.mjs` refuses a dirty tree, and the w
    - every `bash-guard.mjs` copy is byte-identical (R2/AC-6);
    - **leak denylist** (R4/AC-1, AC-3) over `agents/`, `skills/`, `hooks/`, `scripts/`, `evals/` and `README.md` of every plugin, case-insensitive: `devdigest`, `dev-digest`, `devdigest-ai`, `server/src`, `client/src`, `reviewer-core`, `platform/container.ts`, `mcp__devdigest__`, `local/all-lessons`, `\bL0[1-8]\b`, `.claude/skills/`, `$CLAUDE_PROJECT_DIR/.claude`; exempt: `CHANGELOG.md` provenance lines, `LICENSE`, `THIRD_PARTY_NOTICES.md`, `sources.json`; reported with `file:line` and the term;
    - errors name the file and the reason. Unit tests on fixture plugins for each rule.
-3. **`validate.yml`:** run `check-components.mjs` in the `versions` job; run every `plugins/*/hooks/*self-test.mjs` with `node`.
+3. **`validate.yml`:** run `check-components.mjs` in the `versions` job on the plugins a change touches (PR: against the base branch; push: against `github.event.before`; manual run: all), so each plugin PR is held to the rules while the other plugins still have scaffold READMEs; run every `plugins/*/hooks/self-test.mjs` with `node`. The full run (`check-components.mjs` with no argument) must pass from PR-4 on.
 4. Docs: CONTRIBUTING (pairs mode, `sources.json`, the new checks), root README release table.
 
 `sources.json` shape:
@@ -121,11 +123,11 @@ Closes: R1/AC-8, R2/AC-1 (researcher), R5/AC-1, 6, 8 (research-tools).
 ### PR-3. `architecture-review` 0.1.0 → 0.1.1
 
 - `agents/architecture-reviewer.md`: generalized; `skills: [engineering-paved-path:onion-architecture, engineering-paved-path:frontend-ui-architecture]` plus `engineering-paved-path:security` only if it shipped in PR-1; read-only tools.
-- `hooks/hooks.json` (top-level `description`), `hooks/bash-guard.mjs` (profile chosen from `agent_type`: `architecture-review:architecture-reviewer` → `review`, `sdd-engineering:plan-verifier` → `verify`, anything else → allow unchanged), `hooks/self-test.mjs`. The command quotes `"${CLAUDE_PLUGIN_ROOT}"`.
+- `hooks/hooks.json` (top-level `description`), `hooks/bash-guard.mjs`, `hooks/self-test.mjs`. The script is generic: `hooks.json` passes the agent-to-profile map as arguments, `node "${CLAUDE_PLUGIN_ROOT}/hooks/bash-guard.mjs" architecture-review:architecture-reviewer=review`; any other `agent_type`, or none, is allowed unchanged. So the script never names another plugin's agent (R1/AC-9) and both copies stay byte-identical (R2/AC-6).
 - `LICENSE`, `sources.json`, README ("Later": `security-reviewer`, `pr-self-review`, push `gate`), `marketplace.json`, `COMPATIBILITY.md` 2.1.318.
 - Security checklist from `docs/SECURITY.md` in the PR (new hook).
 
-The `verify` mapping lives in both copies so the files stay byte-identical (R2/AC-6); in `architecture-review` it never matches unless `sdd-engineering` is installed, and it has no effect on that plugin's own agents.
+`sdd-engineering`'s `hooks.json` passes `sdd-engineering:plan-verifier=verify` to its own copy.
 
 Closes: R2/AC-1, 2, 4, 5, R1/AC-3, R6/AC-6 (architecture-reviewer), R5/AC-1, 6, 8.
 

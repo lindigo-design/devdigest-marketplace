@@ -113,6 +113,7 @@ Rules for every plugin:
 | Step | Command | Where |
 | :- | :- | :- |
 | Prepare a release | `node scripts/release.mjs <plugin> patch\|minor\|major` | feature branch |
+| Release several plugins together | `node scripts/release.mjs <plugin>=major <plugin>=major …` | feature branch |
 | Tag released versions | `node scripts/tag-release.mjs --push` | `main`, after merge |
 | Roll back | `node scripts/rollback.mjs <plugin> <good-version> --reason "<why>"` | feature branch, then tag after merge |
 

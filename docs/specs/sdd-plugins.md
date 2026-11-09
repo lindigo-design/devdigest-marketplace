@@ -251,7 +251,7 @@ The DevDigest `bash-guard.mjs` is one script with profiles (`review`, `verify`, 
 
 - **AC-1:** Component files SHALL NOT contain DevDigest product names, DevDigest paths (`server/src`, `client/src`, `platform/container.ts`, …), `mcp__devdigest__*` tools or course-lesson references. Provenance lines in `CHANGELOG.md` are the only exception.
 - **AC-2:** All component text SHALL be in English (repository rule).
-- **AC-3:** CI SHALL scan agents, skills (with their references, examples and scripts), hooks, scripts, evals and plugin READMEs against a denylist and fail with `file:line` and the matched term. The denylist contains at least (case-insensitive): `DevDigest`, `dev-digest`, `devdigest-ai`, `server/src`, `client/src`, `platform/container.ts`, `mcp__devdigest__`, `local/all-lessons`, lesson codes `L01`–`L08` (as whole words), `.claude/skills/`, `$CLAUDE_PROJECT_DIR/.claude`. Exempt: the provenance lines in `CHANGELOG.md`, `LICENSE`, `THIRD_PARTY_NOTICES.md` and `sources.json`.
+- **AC-3:** CI SHALL scan agents, skills (with their references, examples and scripts), hooks, scripts, evals and plugin READMEs against a denylist and fail with `file:line` and the matched term. The denylist contains at least (case-insensitive): `DevDigest`, `dev-digest`, `devdigest-ai`, `server/src`, `client/src`, `platform/container.ts`, `mcp__devdigest__`, `local/all-lessons`, lesson codes `L01`–`L08` (as whole words), `.claude/skills/`, `$CLAUDE_PROJECT_DIR/.claude`. Exempt: the provenance lines in `CHANGELOG.md`, `LICENSE`, `THIRD_PARTY_NOTICES.md` and `sources.json`, and this marketplace's own identifiers (`lindigo-devdigest`, `lindigo-design/devdigest-marketplace`), which appear in every install command.
 
 ### SDD-01/R5: Documentation and releases
 
