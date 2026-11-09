@@ -162,6 +162,9 @@ const relations = (p: any) => ({
   }
 
   .filters .filters__toggle { display: none; width: 100%; } /* beats .button's display */
+  /* The filter panel sits on surface/raised so it reads apart from the results (owner review 2026-11-09). */
+  .filters__panel { padding: var(--space-5); background: var(--surface-raised); }
+  @media (min-width: 1200px) { .filters { margin-right: var(--space-6); } }
   .filters__head {
     display: flex;
     justify-content: space-between;
@@ -172,9 +175,25 @@ const relations = (p: any) => ({
   }
   .filters__actions { display: flex; gap: var(--space-4); }
   .filters__done { display: none; }
-  .filters__groups { display: flex; flex-direction: column; gap: var(--space-6); padding-top: var(--space-5); }
-  .filter-group { margin: 0; padding: 0; border: 0; min-width: 0; }
-  .filter-group legend { padding: 0; margin-bottom: var(--space-2); }
+  .filters__groups { display: flex; flex-direction: column; padding-top: var(--space-3); }
+  /* Collapsible groups (tokens §5 FilterGroup): a hairline between groups, "+" closed, "−" open. */
+  .filter-group { min-width: 0; border-bottom: var(--rule-thin) solid var(--rule-hairline); }
+  .filter-group__summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--space-7);
+    padding-block: var(--space-2);
+    list-style: none;
+    cursor: pointer;
+    transition: color var(--duration-quick) var(--ease-settle);
+  }
+  .filter-group__summary::-webkit-details-marker { display: none; }
+  .filter-group__summary:hover { color: var(--accent-indigo); }
+  .filter-group__summary::after { content: "+"; margin-left: auto; font-family: var(--font-mono); color: var(--ink-secondary); }
+  .filter-group[open] > .filter-group__summary::after { content: "−"; }
+  .filter-group__active { font-family: var(--font-mono); color: var(--accent-indigo); }
+  .filter-group__options { margin: 0; padding: 0 0 var(--space-3); border: 0; min-width: 0; }
   .filter-option {
     display: flex;
     align-items: center;
@@ -192,7 +211,7 @@ const relations = (p: any) => ({
   .filter-option--disabled { color: var(--ink-secondary); cursor: default; }
 
   @media (min-width: 768px) and (max-width: 1199px) {
-    .filters__groups { flex-direction: row; flex-wrap: wrap; gap: var(--space-6) var(--space-7); }
+    .filters__groups { flex-direction: row; flex-wrap: wrap; align-items: flex-start; gap: 0 var(--space-7); }
     .filter-group { flex: 1 1 var(--space-10); }
   }
 
