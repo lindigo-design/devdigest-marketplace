@@ -92,7 +92,7 @@ Baseline: 8px. Vertical rhythm uses `space/*` only.
 
 | Component | States |
 | :- | :- |
-| **SearchLine**: the display-xl input with the prefix "I need a" | empty (placeholder `___` in `ink/whisper`, blinking indigo caret) · focus · typing · has-query · no-results |
+| **SearchLine**: the display-xl input with the prefix "I need a" | empty (placeholder `___` in `ink/whisper`, blinking indigo caret) · focus (the `rule/strong` underline turns `accent/indigo`; no box ring, owner review 2026-11-09) · typing · has-query · no-results |
 | **ResultEntry**: one index row (spec R3 "card"): kind label, name, plugin + version, description, tags, badges, copy action | default · hover (hairline draws in indigo) · focus-visible · active |
 | **KindLabel**: `SKILL` / `AGENT` / `HOOK` / `COMMAND` / `MCP` / `PLUGIN` in `type/label` | default only (text, no icon) |
 | **CompatBadge**: "Claude Code ≥ 2.1.110", "Windows", "macOS" | declared · not declared (`ink/secondary` text, dashed `ink/whisper` outline; whisper text would fail AA at badge size, see §2) |
