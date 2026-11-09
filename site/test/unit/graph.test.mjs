@@ -1,5 +1,6 @@
 // Auto-installed dependencies in install blocks (spec CAT-01 R5/AC-3; acceptance demo step 3).
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { buildCatalog } from "../../lib/catalog.mjs";
@@ -26,9 +27,16 @@ test("dependencies outside the marketplace are listed and marked", () => {
   assert.deepEqual(transitiveDependencies(ps, "a"), [{ name: "elsewhere", range: "^0.1", inCatalog: false }]);
 });
 
-test("the real sdd-engineering lists 3 dependencies with ^0.1 (demo step 3)", () => {
-  const cat = buildCatalog({ repoRoot: join(FIXTURES, "..", "..", ".."), history: false });
+test("the real sdd-engineering lists 3 dependencies with the ranges from its plugin.json (demo step 3)", () => {
+  const repoRoot = join(FIXTURES, "..", "..", "..");
+  const cat = buildCatalog({ repoRoot, history: false });
   const deps = transitiveDependencies(cat.plugins, "sdd-engineering");
+  // Ranges change with every major release: compare with the manifest, not a hard-coded value.
+  const manifest = JSON.parse(readFileSync(join(repoRoot, "plugins/sdd-engineering/.claude-plugin/plugin.json"), "utf8"));
+  const declared = new Map(manifest.dependencies.map((d) => [d.name, d.version]));
   assert.equal(deps.length, 3);
-  assert.ok(deps.every((d) => d.range === "^0.1"));
+  for (const d of deps) {
+    assert.ok(declared.has(d.name), `${d.name} is not declared in sdd-engineering's plugin.json`);
+    assert.equal(d.range, declared.get(d.name), `${d.name}: catalog range differs from plugin.json`);
+  }
 });

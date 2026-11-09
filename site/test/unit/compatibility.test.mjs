@@ -13,12 +13,16 @@ describe("parseCompatibility", () => {
   test("real COMPATIBILITY.md: minimum, verified-on and OS (demo step 6)", () => {
     const text = readFileSync(join(REPO, "plugins/sdd-engineering/COMPATIBILITY.md"), "utf8").replace(/\r\n/g, "\n");
     const c = parseCompatibility(text);
+    // Real data changes with every release: check the shape, not today's numbers.
+    const SEMVER = /^\d+\.\d+\.\d+$/;
+    const cmp = (a, b) => { const [x, y] = [a, b].map((v) => v.split(".").map(Number)); return x[0] - y[0] || x[1] - y[1] || x[2] - y[2]; };
     assert.equal(c.declared, true);
-    assert.equal(c.claudeCode, "2.1.110");
-    assert.equal(c.verifiedOn, "2.1.318");
+    assert.match(c.claudeCode, SEMVER);
+    assert.match(c.verifiedOn, SEMVER);
+    assert.ok(cmp(c.verifiedOn, c.claudeCode) >= 0, `verified-on ${c.verifiedOn} is below the minimum ${c.claudeCode}`);
     assert.deepEqual(c.os, ["Windows", "macOS"]);
     assert.equal(c.osRaw, "Windows 10/11, macOS");
-    assert.deepEqual(badgeLabels(c), ["Claude Code ≥ 2.1.110", "Windows", "macOS"]);
+    assert.deepEqual(badgeLabels(c), [`Claude Code ≥ ${c.claudeCode}`, "Windows", "macOS"]);
   });
 
   test(">= is accepted like ≥; verified-on is optional", () => {
