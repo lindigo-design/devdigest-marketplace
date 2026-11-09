@@ -208,6 +208,55 @@ export function checkTextReferences(plugin, byName, rel) {
   return errors;
 }
 
+/** Reads a scalar frontmatter value (`key: value`, quoted, or a `>-`/`|` block). */
+export function frontmatterValue(text, key) {
+  const lines = frontmatterLines(text);
+  if (!lines) return null;
+  const i = lines.findIndex((l) => l.startsWith(`${key}:`));
+  if (i === -1) return null;
+  const rest = lines[i].slice(key.length + 1).trim();
+  if (rest && !/^[>|][+-]?$/.test(rest)) return unquote(rest);
+  const block = [];
+  for (let j = i + 1; j < lines.length && (/^\s/.test(lines[j]) || lines[j] === ""); j++) block.push(lines[j].trim());
+  return block.join(" ").replace(/\s+/g, " ").trim();
+}
+
+/** First sentence: up to the first ". " / "! " / "? " followed by a capital or backtick, or the end. */
+export const firstSentence = (s) => (/^(.+?[.!?])(?=\s+[A-Z`"(])/.exec(s)?.[1] ?? s).trim();
+
+export const DESCRIPTION_LIMITS = { plugin: 140, component: 1024, sentence: 200 };
+const PLACEHOLDER = /\b(TODO|TBD|FIXME|XXX)\b/;
+
+function describe(desc, where, kind, max) {
+  const errors = [];
+  if (!desc) return [{ ...where, message: `${kind} has no description` }];
+  if (desc.length > max) errors.push({ ...where, message: `${kind} description is ${desc.length} chars (max ${max})` });
+  if (kind !== "plugin" && firstSentence(desc).length > DESCRIPTION_LIMITS.sentence) {
+    errors.push({ ...where, message: `${kind} description: first sentence is ${firstSentence(desc).length} chars (max ${DESCRIPTION_LIMITS.sentence})` });
+  }
+  if (PLACEHOLDER.test(desc)) errors.push({ ...where, message: `${kind} description contains a placeholder (${PLACEHOLDER.exec(desc)[1]})` });
+  return errors;
+}
+
+/** R5/AC-10, AC-11: descriptions of the plugin, its skills and agents. */
+export function checkDescriptions(plugin, catalogEntry, rel) {
+  const errors = [];
+  const manifest = rel(join(plugin.dir, ".claude-plugin", "plugin.json"));
+  errors.push(...describe(plugin.manifest.description, { file: manifest }, "plugin", DESCRIPTION_LIMITS.plugin));
+  if (catalogEntry && catalogEntry.description !== plugin.manifest.description) {
+    errors.push({ file: ".claude-plugin/marketplace.json", message: `${plugin.name}: description differs from ${manifest}` });
+  }
+  for (const s of plugin.skills) {
+    const path = join(plugin.dir, "skills", s, "SKILL.md");
+    errors.push(...describe(frontmatterValue(readFileSync(path, "utf8"), "description"), { file: rel(path) }, "skill", DESCRIPTION_LIMITS.component));
+  }
+  for (const a of plugin.agents) {
+    const path = join(plugin.dir, "agents", `${a}.md`);
+    errors.push(...describe(frontmatterValue(readFileSync(path, "utf8"), "description"), { file: rel(path) }, "agent", DESCRIPTION_LIMITS.component));
+  }
+  return errors;
+}
+
 /** R4/AC-3: denylist over component text and the plugin README. */
 export function checkLeaks(plugin, rel) {
   return componentFiles(plugin, { withReadme: true }).flatMap((f) => scanText(readFileSync(f, "utf8"), rel(f)));
@@ -229,11 +278,13 @@ export function checkBashGuardCopies(plugins, rel) {
 export function checkComponents(root, { only } = {}) {
   const plugins = loadPlugins(root);
   const byName = new Map(plugins.map((p) => [p.name, p]));
+  const catalog = new Map(readJson(join(root, ".claude-plugin/marketplace.json")).plugins.map((e) => [e.name, e]));
   const rel = (p) => toPosix(relative(root, p));
   const errors = [];
   for (const p of plugins) {
     if (only && !only.has(p.name)) continue;
-    errors.push(...checkSources(p, rel), ...checkAgentSkills(p, byName, rel), ...checkTextReferences(p, byName, rel), ...checkLeaks(p, rel));
+    errors.push(...checkSources(p, rel), ...checkAgentSkills(p, byName, rel), ...checkTextReferences(p, byName, rel),
+      ...checkDescriptions(p, catalog.get(p.name), rel), ...checkLeaks(p, rel));
   }
   errors.push(...checkBashGuardCopies(plugins, rel));
   return { plugins, errors };

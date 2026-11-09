@@ -1,16 +1,13 @@
 ---
 name: frontend-ui-architecture
 description: >-
-  Frontend UI architecture and code organization for React apps, with first-class rules for the
-  Next.js App Router (React 19, TanStack Query or a similar server-state library): where a new
-  component, hook, helper, constant, type or piece of business logic goes; how to split a component;
-  how routes, route-private `_components/`, shared `components/` and `lib/` depend on each other;
-  where state lives; where the `'use client'` boundary sits. Use this skill whenever you add or move
-  files in the frontend, build a new screen, route or feature, extract code out of a growing
-  component, review a PR for structure, or the user asks "where should this go?", "how to structure
-  this?", "split this component", "this page is too big", "frontend architecture", "folder
-  structure" — even if they don't say "architecture". Organization only: hook anti-patterns,
-  performance, framework file conventions and testing technique are out of scope.
+  Decides where frontend code lives in a React or Next.js App Router app: components, hooks, helpers,
+  constants, types, state and the client boundary. Use when adding or moving UI files, building a
+  screen, route or feature, splitting a growing component, extracting logic out of a component,
+  reviewing a change for structure, or when a user asks "where should this go?", "how do I structure
+  this?", "split this component" or "this page is too big". Organization only. Not for backend
+  layering (use engineering-paved-path:onion-architecture), hook anti-patterns, performance or
+  testing.
 ---
 
 # Frontend UI architecture

@@ -1,13 +1,13 @@
 ---
 name: researcher
 description: >-
-  Read-only research agent. Use it to answer a concrete question either from THIS repository (where/how
-  something is implemented, why a decision was made, what depends on what) or from EXTERNAL sources
-  (library/API docs, changelogs, standards, best practices, version compatibility). Returns a structured
-  report with findings, evidence, links and an explicit "not found" list. Interview mode: if the request is
-  vague, contradictory or contains no question at all, it first asks clarifying questions (interactively via
-  AskUserQuestion when available, otherwise returns them to the caller) and researches only once the question
-  is concrete. Does not modify files.
+  Answers one concrete research question from this repository or from external documentation,
+  read-only. Delegate when you need to know where or how something is implemented, why a decision was
+  made, what depends on what, or what a library's docs, changelog or a standard say. Returns a
+  structured report: TL;DR, numbered findings with file:line or URL evidence, confidence, and an
+  explicit not-found list. If the request has no concrete question, it first asks clarifying questions
+  (interactively when it can, otherwise returned to the caller). Never modifies files. Not for making
+  changes or reviewing a diff.
 model: sonnet
 tools: Read, Grep, Glob, Bash, WebSearch, WebFetch, AskUserQuestion
 disallowedTools: Write, Edit, NotebookEdit

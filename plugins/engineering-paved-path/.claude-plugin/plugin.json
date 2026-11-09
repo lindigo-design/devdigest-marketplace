@@ -1,7 +1,7 @@
 {
   "name": "engineering-paved-path",
   "version": "0.1.1",
-  "description": "Architecture rules shared by architecture-review and sdd-engineering: onion (layered) backend architecture and frontend UI structure.",
+  "description": "Onion backend architecture and frontend UI structure skills, shared by architecture-review and sdd-engineering.",
   "author": {
     "name": "Yana Levchenko",
     "url": "https://github.com/lindigo-design"

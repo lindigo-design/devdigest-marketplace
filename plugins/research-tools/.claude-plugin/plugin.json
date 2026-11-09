@@ -1,7 +1,7 @@
 {
   "name": "research-tools",
   "version": "0.1.1",
-  "description": "Read-only researcher agent: answers one concrete question from the repository or external docs, with file:line or URL evidence for every finding.",
+  "description": "Read-only researcher agent: answers one question from your repository or external docs, with evidence for every claim.",
   "author": {
     "name": "Yana Levchenko",
     "url": "https://github.com/lindigo-design"

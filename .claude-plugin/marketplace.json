@@ -9,14 +9,14 @@
     {
       "name": "engineering-paved-path",
       "source": "./plugins/engineering-paved-path",
-      "description": "Base layer: onion backend architecture and frontend UI structure rules, shared by the review and SDD plugins.",
+      "description": "Onion backend architecture and frontend UI structure skills, shared by architecture-review and sdd-engineering.",
       "category": "engineering-standards",
       "tags": ["architecture", "onion", "frontend", "layering", "base"]
     },
     {
       "name": "research-tools",
       "source": "./plugins/research-tools",
-      "description": "Read-only researcher agent for codebase and external research, with evidence for every finding.",
+      "description": "Read-only researcher agent: answers one question from your repository or external docs, with evidence for every claim.",
       "category": "research",
       "tags": ["research", "read-only", "agents", "evidence"]
     },

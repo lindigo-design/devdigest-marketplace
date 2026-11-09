@@ -1,6 +1,14 @@
 ---
 name: onion-architecture
-description: Enforces Onion Architecture (domain core → ports → application → infrastructure → presentation, dependencies point inward only) for modular TypeScript/Node backends (for example Fastify, Drizzle/Postgres, Zod, SDK adapters, background jobs and SSE). Use proactively whenever creating or changing a backend module, route, service, repository, adapter, job handler or DB query, when wiring something into the composition root (the container or bootstrap file that builds adapters and services), and when reviewing a backend PR for layering. Also use on "onion", "clean architecture", "hexagonal", "ports and adapters", "layers", "module architecture", "where should this backend code live", "is this route too fat".
+description: >-
+  Applies onion architecture to a modular TypeScript/Node backend: domain core, ports, application,
+  infrastructure and presentation rings, with dependencies pointing inward only. Use when creating or
+  changing a backend module, route, service, repository, adapter, job handler or database query, when
+  wiring code into the composition root, when reviewing a backend change for layering, or when a user
+  asks "where should this backend code live?", "is this route too fat?", or mentions onion, clean or
+  hexagonal architecture, ports and adapters, or layers. Covers Fastify, Drizzle, Zod, SDK adapters,
+  background jobs and server-sent events. Not for frontend structure (use
+  engineering-paved-path:frontend-ui-architecture).
 ---
 
 # Onion Architecture for a modular backend

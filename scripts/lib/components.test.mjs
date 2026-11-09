@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
-import { checkComponents, frontmatterList, scanText } from "./components.mjs";
+import { checkComponents, firstSentence, frontmatterList, frontmatterValue, scanText } from "./components.mjs";
 
 /** Builds a throwaway marketplace from { "path": content } and returns its root. */
 function repo(files) {
@@ -15,9 +15,9 @@ function repo(files) {
   return root;
 }
 const plugin = (name, deps = []) => ({
-  [`plugins/${name}/.claude-plugin/plugin.json`]: { name, version: "0.1.0", dependencies: deps.map((d) => ({ name: d, version: "^0.1" })) },
+  [`plugins/${name}/.claude-plugin/plugin.json`]: { name, version: "0.1.0", description: `Plugin ${name}.`, dependencies: deps.map((d) => ({ name: d, version: "^0.1" })) },
 });
-const marketplace = (...names) => ({ ".claude-plugin/marketplace.json": { name: "m", plugins: names.map((name) => ({ name, source: `./plugins/${name}` })) } });
+const marketplace = (...names) => ({ ".claude-plugin/marketplace.json": { name: "m", plugins: names.map((name) => ({ name, source: `./plugins/${name}`, description: `Plugin ${name}.` })) } });
 const skill = (p, s, body = "Rules.") => ({ [`plugins/${p}/skills/${s}/SKILL.md`]: `---\nname: ${s}\ndescription: d\n---\n${body}\n` });
 const agent = (p, a, fm = "", body = "Do it.") => ({ [`plugins/${p}/agents/${a}.md`]: `---\nname: ${a}\ndescription: d\n${fm}---\n${body}\n` });
 const own = (p, skills = [], agents = []) => ({
@@ -140,4 +140,30 @@ test("frontmatterList and scanText", () => {
   assert.deepEqual(frontmatterList("---\nskills: a, b\n---\n", "skills").map((s) => s.value), ["a", "b"]);
   assert.deepEqual(frontmatterList("no frontmatter", "skills"), []);
   assert.deepEqual(scanText("L10 and l09 are fine; L08 is not", "f").map((e) => e.line), [1]);
+});
+
+test("descriptions: present, limits, identical in catalog and plugin.json, no placeholders", () => {
+  const long = "A".repeat(141);
+  const sentence = `${"Word ".repeat(45)}ends here.`;
+  const errors = run({
+    ...marketplace("a"),
+    "plugins/a/.claude-plugin/plugin.json": { name: "a", version: "0.1.0", description: long },
+    "plugins/a/skills/s/SKILL.md": "---\nname: s\n---\nbody\n",
+    "plugins/a/agents/x.md": `---\nname: x\ndescription: >-\n  ${sentence} Then TODO more.\n---\nbody\n`,
+    ...own("a", ["s"], ["x"]),
+  });
+  assert.deepEqual(messages(errors), [
+    "plugins/a/.claude-plugin/plugin.json plugin description is 141 chars (max 140)",
+    ".claude-plugin/marketplace.json a: description differs from plugins/a/.claude-plugin/plugin.json",
+    "plugins/a/skills/s/SKILL.md skill has no description",
+    `plugins/a/agents/x.md agent description: first sentence is ${sentence.length} chars (max 200)`,
+    "plugins/a/agents/x.md agent description contains a placeholder (TODO)",
+  ]);
+});
+
+test("frontmatterValue and firstSentence", () => {
+  assert.equal(frontmatterValue('---\ndescription: "Says hi."\n---\n', "description"), "Says hi.");
+  assert.equal(frontmatterValue("---\ndescription: >-\n  One two.\n  Three.\nname: x\n---\n", "description"), "One two. Three.");
+  assert.equal(firstSentence("Reviews code (e.g. diffs). Use when asked."), "Reviews code (e.g. diffs).");
+  assert.equal(firstSentence("No period here"), "No period here");
 });

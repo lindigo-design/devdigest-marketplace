@@ -3,7 +3,7 @@
 | | |
 | :- | :- |
 | Spec ID | `SDD-01` |
-| Status | approved 2026-11-09 (rev. 4: + R1/AC-9, R4/AC-3, R5/AC-9, R5/AC-4 range form, R6/AC-6, AC-7) |
+| Status | approved 2026-11-09 (rev. 5: + R1/AC-9, R4/AC-3, R5/AC-9, AC-10, AC-11, R5/AC-4 range form, R6/AC-6, AC-7) |
 | Owner | @lindigo-design |
 | Created | 2026-11-09 |
 | Scope | `plugins/engineering-paved-path`, `plugins/research-tools`, `plugins/architecture-review`, `plugins/sdd-engineering` |
@@ -264,6 +264,12 @@ The DevDigest `bash-guard.mjs` is one script with profiles (`review`, `verify`, 
 - **AC-7:** The spec's section 3.5 SHALL be updated with `claude plugin details` figures measured on the migrated plugins.
 - **AC-8:** Every plugin's `COMPATIBILITY.md` SHALL declare Claude Code ≥ 2.1.318 as the minimum.
 - **AC-9:** Each plugin README SHALL have a **How to use** section with example prompts or invocations (`/<plugin>:<skill> …`, `@agent-<plugin>:<agent> …`) and what the user gets back, plus sections for components, permissions, dependencies, "Later" items and licence notes. Text from DevDigest READMEs (`.claude/agents/README.md`, `.claude/skills/README.md`, per-skill READMEs) MAY be reused only when adapted to pass R4/AC-3, never copied verbatim.
+- **AC-10:** Every plugin, skill and agent SHALL have an English description written for two readers, Claude (it decides when a skill is invoked or an agent is delegated to) and people (the catalog card shows the first sentence, `/plugin` the plugin line):
+  - *plugin:* one sentence, ≤ 140 characters, what the user gets and its key components, matching what the release ships; identical in `plugin.json` and the `marketplace.json` entry;
+  - *skill:* third person; a first sentence that says what it does and stands alone; then "Use when …" with concrete triggers (tasks, file types, phrases a user would type); optionally "Not for … (use `<plugin>:<skill>`)";
+  - *agent:* a first sentence that stands alone; when to delegate, what it returns, its limits (read-only, write scope, never commits), and "Not for … (use …)";
+  - no "helps with", "various" or marketing words, no Ukrainian trigger phrases, nothing project-specific (R4).
+- **AC-11:** CI SHALL fail, naming the file and the reason, WHEN a plugin, skill or agent has no description; a plugin description exceeds 140 characters or differs between `plugin.json` and `marketplace.json`; a skill or agent description exceeds 1024 characters or its first sentence exceeds 200; or a description contains `TODO`, `TBD`, `FIXME` or `XXX`.
 
 ### SDD-01/R6: Licensing and third-party sources
 
