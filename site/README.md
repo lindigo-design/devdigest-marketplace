@@ -16,7 +16,7 @@ Node.js ≥ 22.23.4. Run from `site/`.
 | `npm run check` | build the catalog of the repository only: counts, warnings, or every broken file with the reason |
 | `npm run dev` | live site at `http://localhost:4321/devdigest-marketplace/` (also `/_primitives/`, every component state) |
 | `npm run build` | static site in `dist/` |
-| `npm test` | unit tests: index builder, search, feeds, markdown sanitizer, token lint, size and speed budgets |
+| `npm test` | unit tests: index builder, search, feeds, markdown sanitizer, token and UI-string lints, size and speed budgets |
 | `npm run test:build` | builds the `demo` and `empty-scaffold` fixtures and checks pages, feeds and origin/base variants |
 | `npm run e2e` | Playwright + axe against the built demo fixture (first time: `npx playwright install chromium`) |
 | `npm run fonts` | regenerate `src/styles/fonts.css` after updating an `@fontsource` package |
@@ -39,6 +39,7 @@ In CI, `SITE_ORIGIN` and `SITE_BASE` come from repository variables, so moving t
 ```
 lib/                build-time Node code: catalog builder, CHANGELOG/COMPATIBILITY parsers, markdown, feeds, index.json
 src/client/         browser code, shared with Node tests: query parser, search engine, URL state, search UI
+src/i18n/           en.json (every UI string) and t(), used by pages, browser code and lib/
 src/components/     one Astro component per design-tokens.md §5 entry
 src/pages/          home, /<plugin>/, /<plugin>/<kind>/<name>/, feed.xml, feed.json, index.json, 404
 src/styles/         tokens.css (verbatim copy of design-tokens.md §8), fonts.css (generated), base.css
@@ -52,3 +53,6 @@ test/unit|build|e2e unit tests, fixture builds, browser tests
 - Every color, size, spacing, radius and duration is a token from `tokens.css`; `test/unit/lint-tokens.test.mjs` rejects raw values. A design change goes into `design-tokens.md` first, then `tokens.css` is re-copied (the tokens test compares them).
 - `src/components/ResultEntry.astro` and `src/client/render.mjs` produce the same markup (server and live results); change both.
 - Rendered markdown always goes through `lib/markdown.mjs` (sanitized). Live results are built without `innerHTML`.
+- Every user-visible string (text, `aria-label`, `title`, `placeholder`, `alt`, document titles, feed titles, status and empty-state messages, button feedback) lives in `src/i18n/en.json`, English only. Components, pages, browser code and `lib/` call `t(key, params)` from `src/i18n/t.mjs`: `{name}` placeholders, and `{ "one", "other" }` values pick a plural form by `params.count`. Keys are string literals, so `test/unit/ui-strings.test.mjs` can check that every key exists and none is unused; it also rejects hard-coded text in `.astro` files and `src/client/` (a small allowlist with reasons sits at the top of the test). Repository content (plugin names, descriptions, markdown) and search data (`synonyms.json`, the query parser's stop words) are not UI text.
+- The site is a static multi-page site: every navigation is a full page load, so `initSearch()` and `initCopy()` run once per page and their listeners, timers and the `index.json` fetch end with the page. If Astro client-side routing (`ClientRouter` / View Transitions) is ever enabled, make both init functions idempotent and return a cleanup, and abort the index fetch on navigation (catalog-site PR review).
+- Focus never goes to a disabled filter checkbox: `focus()` on one is silently ignored and focus falls out of the drawer. Use `focusables()` in `src/client/search-ui.mjs` (drawer's first focus, Tab trap, focus restore after re-rendering: an option unchecked with 0 results turns disabled).

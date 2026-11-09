@@ -2,14 +2,15 @@
 // The search line "I need a ___" set in display type (concept brief; tokens §5 SearchLine).
 // Markup only; src/client/search-ui.mjs wires it up (T8). Without JavaScript a notice replaces the hint (§7).
 import { href } from "../data/site.mjs";
-const words = ["I", "need", "a"];
+import { t } from "../i18n/t.mjs";
+const words = t("search.line").split(" ");
 ---
-<section class="search" aria-label="Search">
+<section class="search" aria-label={t("search.aria")}>
   <form class="search__form" role="search" action={href()} method="get" data-search-form>
     <label for="q" class="search__line t-display-xl">
       {words.map((w, i) => <span class="search__word" style={`--i: ${i}`}>{w}</span>)}
       <span class="search__field" style={`--i: ${words.length}`}>
-        <textarea id="q" name="q" rows="1" class="search__input" placeholder="___"
+        <textarea id="q" name="q" rows="1" class="search__input" placeholder={t("search.placeholder")}
           spellcheck="false" autocomplete="off" autocapitalize="off" enterkeyhint="search"
           aria-describedby="search-meta" data-search-input></textarea>
         <span class="search__caret" aria-hidden="true" data-search-caret></span>
@@ -18,12 +19,12 @@ const words = ["I", "need", "a"];
   </form>
   <div class="search__meta">
     <p id="search-meta" class="t-caption" aria-live="polite" data-search-meta>
-      <span data-js-only>Type what you need: results appear as you type, in English or Ukrainian.</span>
+      <span data-js-only>{t("search.hint")}</span>
     </p>
-    <ul class="search__chips" aria-label="Active filters" data-search-chips hidden></ul>
+    <ul class="search__chips" aria-label={t("search.chips.aria")} data-search-chips hidden></ul>
   </div>
   <!-- Not <noscript>: an element the inline "js" class hides also works where scripts are blocked after parsing. -->
-  <p class="search__noscript t-caption" data-no-js>Search needs JavaScript. Every plugin is listed below, and each plugin page lists its components.</p>
+  <p class="search__noscript t-caption" data-no-js>{t("search.noscript")}</p>
 </section>
 
 <style>

@@ -1,6 +1,7 @@
 ---
 // Kind label: text only, no icon (tokens §5 KindLabel; brief: no emoji type icons).
-export const KIND_LABELS = { plugin: "Plugin", skill: "Skill", agent: "Agent", command: "Command", hook: "Hook", mcp: "MCP" };
+// Labels come from src/client/render.mjs, which also renders them in live results.
+import { KIND_LABELS } from "../client/render.mjs";
 interface Props { kind: keyof typeof KIND_LABELS; class?: string }
 const { kind, class: cls } = Astro.props;
 ---

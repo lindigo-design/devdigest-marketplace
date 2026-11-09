@@ -10,6 +10,7 @@ import MetaRail from "../../../../components/MetaRail.astro";
 import Prose from "../../../../components/Prose.astro";
 import RunsCommandsMarker from "../../../../components/RunsCommandsMarker.astro";
 import { getCatalog, githubSource, href, install, markdown } from "../../../../data/site.mjs";
+import { t } from "../../../../i18n/t.mjs";
 import Base from "../../../../layouts/Base.astro";
 
 export function getStaticPaths() {
@@ -26,42 +27,42 @@ const mcp = page.mcp;
 const AGENT_FIRST = ["tools", "model", "skills"];
 const hasBody = typeof page.body === "string" && page.body.trim().length > 0;
 ---
-<Base title={`${c.name} (${c.kind})`} description={c.description} path={c.path}>
+<Base title={t("component.title", { name: c.name, kind: c.kind })} description={c.description} path={c.path}>
   <header class="page-head">
-    <a class="t-caption" href={href(`${c.plugin}/`)}>← {c.plugin}</a>
+    <a class="t-caption" href={href(`${c.plugin}/`)}>{t("component.back", { plugin: c.plugin })}</a>
     <KindLabel kind={c.kind} class="page-head__kind" />
     <h1 class="t-display page-head__title">{c.name}</h1>
     <p class="t-body-lg t-secondary page-head__in">
-      in plugin <a href={href(`${c.plugin}/`)}>{c.plugin}</a> <span class="t-mono">· v{c.version}</span>
+      {t("component.inPlugin")} <a href={href(`${c.plugin}/`)}>{c.plugin}</a> <span class="t-mono">· {t("version", { version: c.version })}</span>
     </p>
     <p class="t-body-lg measure">{c.description}</p>
     <CompatBadge compat={c.compat} />
   </header>
 
   <div class="layout-rail">
-    <aside aria-label="Details" class="rail">
+    <aside aria-label={t("details.aria")} class="rail">
       <MetaRail rows={[
-        { k: "Kind", v: c.kind },
-        { k: "Plugin", v: c.plugin, href: href(`${c.plugin}/`) },
-        { k: "Version", v: c.version, mono: true },
+        { k: t("field.kind"), v: c.kind },
+        { k: t("field.plugin"), v: c.plugin, href: href(`${c.plugin}/`) },
+        { k: t("field.version"), v: c.version, mono: true },
       ]} />
-      <p class="rail__source rule-top rule-bottom t-caption"><a href={githubSource(c.source)}>View source on GitHub →</a></p>
+      <p class="rail__source rule-top rule-bottom t-caption"><a href={githubSource(c.source)}>{t("component.viewSource")}</a></p>
     </aside>
 
     <div class="main">
       {hook && (
         <section class="block" aria-labelledby="hook">
-          <h2 id="hook" class="t-heading-2">Hook</h2>
+          <h2 id="hook" class="t-heading-2">{t("component.hook")}</h2>
           <p class="t-secondary">{hook.summary}</p>
           <dl class="kv">
-            <dt class="t-label">Event</dt><dd class="t-mono">{hook.event}</dd>
-            <dt class="t-label">Matcher</dt><dd class="t-mono">{hook.matcher ?? "(all)"}</dd>
-            <dt class="t-label">Type</dt><dd class="t-mono">{hook.type}</dd>
-            {hook.command && <><dt class="t-label">Command</dt><dd><code class="kv__code">{hook.command}</code></dd></>}
-            {hook.url && <><dt class="t-label">URL</dt><dd class="t-mono">{hook.url}</dd></>}
-            {hook.script && <><dt class="t-label">Script</dt><dd class="t-mono"><a href={githubSource(c.source)}>{hook.script}</a></dd></>}
-            {hook.timeout !== null && <><dt class="t-label">Timeout</dt><dd class="t-mono">{hook.timeout} s</dd></>}
-            <dt class="t-label">Declared in</dt><dd class="t-mono"><a href={githubSource(hook.config)}>{hook.config}</a></dd>
+            <dt class="t-label">{t("component.hook.event")}</dt><dd class="t-mono">{hook.event}</dd>
+            <dt class="t-label">{t("component.hook.matcher")}</dt><dd class="t-mono">{hook.matcher ?? t("component.hook.matcher.all")}</dd>
+            <dt class="t-label">{t("component.hook.type")}</dt><dd class="t-mono">{hook.type}</dd>
+            {hook.command && <><dt class="t-label">{t("component.hook.command")}</dt><dd><code class="kv__code">{hook.command}</code></dd></>}
+            {hook.url && <><dt class="t-label">{t("component.hook.url")}</dt><dd class="t-mono">{hook.url}</dd></>}
+            {hook.script && <><dt class="t-label">{t("component.hook.script")}</dt><dd class="t-mono"><a href={githubSource(c.source)}>{hook.script}</a></dd></>}
+            {hook.timeout !== null && <><dt class="t-label">{t("component.hook.timeout")}</dt><dd class="t-mono">{t("component.hook.timeout.value", { seconds: hook.timeout })}</dd></>}
+            <dt class="t-label">{t("field.declaredIn")}</dt><dd class="t-mono"><a href={githubSource(hook.config)}>{hook.config}</a></dd>
           </dl>
           <RunsCommandsMarker runs={c.runs} />
         </section>
@@ -69,17 +70,17 @@ const hasBody = typeof page.body === "string" && page.body.trim().length > 0;
 
       {mcp && (
         <section class="block" aria-labelledby="mcp">
-          <h2 id="mcp" class="t-heading-2">MCP server</h2>
+          <h2 id="mcp" class="t-heading-2">{t("component.mcp")}</h2>
           <dl class="kv">
-            <dt class="t-label">Server</dt><dd class="t-mono">{c.name}</dd>
-            <dt class="t-label">Transport</dt><dd class="t-mono">{mcp.transport}</dd>
-            <dt class="t-label">Declared in</dt><dd class="t-mono"><a href={githubSource(c.source)}>{c.source}</a></dd>
+            <dt class="t-label">{t("component.mcp.server")}</dt><dd class="t-mono">{c.name}</dd>
+            <dt class="t-label">{t("component.mcp.transport")}</dt><dd class="t-mono">{mcp.transport}</dd>
+            <dt class="t-label">{t("field.declaredIn")}</dt><dd class="t-mono"><a href={githubSource(c.source)}>{c.source}</a></dd>
           </dl>
         </section>
       )}
 
       {page.frontmatter && (
-        <section class="block" aria-label="Frontmatter">
+        <section class="block" aria-label={t("frontmatter.caption")}>
           <FrontmatterTable data={page.frontmatter} first={c.kind === "agent" ? AGENT_FIRST : ["name", "description"]} />
           <RunsCommandsMarker runs={c.runs} />
         </section>
@@ -91,10 +92,10 @@ const hasBody = typeof page.body === "string" && page.body.trim().length > 0;
         </div>
       )}
 
-      <InstallBlock title={`Install with ${c.plugin}`} plugin={c.plugin} commands={install(c.plugin)}
+      <InstallBlock title={t("install.titleWith", { plugin: c.plugin })} plugin={c.plugin} commands={install(c.plugin)}
         alsoInstalls={transitiveDependencies(catalog.plugins, c.plugin)} />
 
-      <p><a href={githubSource(c.source)}>View source on GitHub →</a></p>
+      <p><a href={githubSource(c.source)}>{t("component.viewSource")}</a></p>
     </div>
   </div>
 </Base>

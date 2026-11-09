@@ -193,6 +193,27 @@ test.describe("narrow screens and no JavaScript", () => {
     await expect(page.locator("[data-filters-toggle]")).toBeFocused();
   });
 
+  const focusInsidePanel = (page) => page.evaluate(() => {
+    const a = document.activeElement;
+    return Boolean(a && document.querySelector("[data-filters-panel]").contains(a) && !a.disabled);
+  });
+
+  test("unchecking an option that becomes disabled keeps focus in the drawer (PR review finding 3)", async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 740 });
+    // research-tools has no skills: with this plugin, "Skill" has 0 results once unchecked, so it turns disabled.
+    await page.goto("./?kind=skill&plugin=research-tools");
+    await page.locator("[data-filters-toggle]").click();
+    const skill = page.locator('[data-filter-groups] input[name="kind"][value="skill"]');
+    await skill.focus();
+    await page.keyboard.press("Space");
+    await expect(skill).toBeDisabled();
+    expect(await focusInsidePanel(page)).toBe(true);
+    for (let i = 0; i < 25; i++) {
+      await page.keyboard.press("Tab");
+      expect(await focusInsidePanel(page)).toBe(true);
+    }
+  });
+
   test.describe("JavaScript disabled (§7)", () => {
     test.use({ javaScriptEnabled: false });
     test("plugin list and pages render; search shows a notice", async ({ page }) => {

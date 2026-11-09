@@ -1,6 +1,8 @@
 // Copy-to-clipboard for every [data-copy] block (spec CAT-01 R3/AC-4; tokens §5 CopyCommand).
 // copied: label "Copied" for 2 s, announced; error (clipboard blocked): the command text is selected instead.
 
+import { t } from "../i18n/t.mjs";
+
 export const COPIED_MS = 2000;
 
 function announce(text) {
@@ -30,8 +32,9 @@ function setState(button, state, label) {
   button.dataset.state = state;
   button.textContent = label;
   button._copyTimer = setTimeout(() => {
+    if (!button.isConnected) return; // live results replaced the card meanwhile
     delete button.dataset.state;
-    button.textContent = "Copy";
+    button.textContent = t("copy.button");
   }, COPIED_MS);
 }
 
@@ -42,13 +45,13 @@ export async function copyFrom(button) {
   if (!text) return false;
   try {
     await navigator.clipboard.writeText(text.textContent.trim());
-    setState(button, "copied", "Copied");
-    announce(`Copied: ${text.textContent.trim()}`);
+    setState(button, "copied", t("copy.copied"));
+    announce(t("copy.announce.copied", { command: text.textContent.trim() }));
     return true;
   } catch {
     selectText(text);
-    setState(button, "error", "Selected");
-    announce("Clipboard is blocked. The command is selected; copy it with your keyboard.");
+    setState(button, "error", t("copy.selected"));
+    announce(t("copy.announce.blocked"));
     return false;
   }
 }

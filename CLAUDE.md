@@ -51,6 +51,7 @@ Site constraints:
 - Origin and base path come from config.
 - Token change → `design-tokens.md` first, then code (`site/src/styles/tokens.css` is a verbatim copy; a test compares them).
 - `ResultEntry.astro` and `site/src/client/render.mjs` render the same card; change both.
+- UI text lives only in `site/src/i18n/en.json`; components use `t()` (a unit test rejects hard-coded text and unused keys).
 
 ## Layout
 

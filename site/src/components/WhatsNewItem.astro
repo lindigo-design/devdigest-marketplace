@@ -1,5 +1,6 @@
 ---
 // One release in "What's new" (spec CAT-01 R8/AC-3, AC-4; §7 rollback label; tokens §5 WhatsNewItem).
+import { t } from "../i18n/t.mjs";
 interface Props { release: { plugin: string; version: string; date: string; excerpt: string[]; rollback: boolean }; href: string }
 const { release: r, href } = Astro.props;
 ---
@@ -7,8 +8,8 @@ const { release: r, href } = Astro.props;
   <div class="news__head">
     <a class="news__plugin" href={href}>{r.plugin}</a>
     <p class="t-mono t-caption news__version">
-      v{r.version} · <time datetime={r.date}>{r.date}</time>
-      {r.rollback && <span class="t-label news__rollback">Rollback</span>}
+      {t("version", { version: r.version })} · <time datetime={r.date}>{r.date}</time>
+      {r.rollback && <span class="t-label news__rollback">{t("release.rollback")}</span>}
     </p>
   </div>
   <p class="news__notes t-secondary measure">

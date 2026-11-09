@@ -4,6 +4,7 @@
 import { PLACEHOLDERS } from "../fs.mjs";
 import { toTerms } from "../search-text.mjs";
 import { parseFrontmatter, str, toList, withoutEnv } from "./frontmatter.mjs";
+import { t } from "../../src/i18n/t.mjs";
 
 /** Names become URL segments (`/<plugin>/<kind>/<name>/`), so they must be URL-safe. */
 export const NAME = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
@@ -76,9 +77,9 @@ export function readSkills(ctx) {
 // ---------- agents: agents/<a>.md ----------
 
 export function agentRuns(tools) {
-  if (tools === null) return { label: "Runs commands", detail: "All tools (inherits the session's tools)" };
+  if (tools === null) return { label: t("runs.label"), detail: t("runs.allTools") };
   const shell = tools.filter((t) => SHELL_TOOL.test(t));
-  return shell.length ? { label: "Runs commands", detail: tools.join(", ") } : null;
+  return shell.length ? { label: t("runs.label"), detail: tools.join(", ") } : null;
 }
 
 export function readAgents(ctx) {
@@ -217,17 +218,20 @@ export function readHooks(ctx) {
     const n = (used.get(base) ?? 0) + 1;
     used.set(base, n);
     const name = n === 1 ? base : `${base}-${n}`;
-    const on = d.matcher && d.matcher !== "*" ? ` on ${d.matcher}` : "";
-    const what = d.script ? `runs ${d.script}` : d.command ? "runs a shell command" : `${d.type} hook`;
+    const on = d.matcher && d.matcher !== "*" ? t("hook.summary.on", { matcher: d.matcher }) : "";
+    const what = d.script ? t("hook.summary.script", { script: d.script })
+      : d.command ? t("hook.summary.command")
+      : t("hook.summary.other", { type: d.type });
+    const summary = t("hook.summary", { event: d.event, on, what });
     return {
       kind: "hook",
       name,
       slug: name,
-      description: fileDescription ?? `${d.event} hook${on}: ${what}.`,
+      description: fileDescription ?? summary,
       source: d.script ? `${ctx.dir}/${d.script}` : rel,
-      runs: d.type === "command" ? { label: "Runs commands", detail: `${d.event}${on}` } : null,
+      runs: d.type === "command" ? { label: t("runs.label"), detail: `${d.event}${on}` } : null,
       bodyTerms: toTerms(`${d.event} ${d.matcher ?? ""} ${d.type} ${d.command ?? ""} ${d.script ?? ""}`),
-      page: { hook: { ...d, config: rel, summary: `${d.event} hook${on}: ${what}.` } },
+      page: { hook: { ...d, config: rel, summary } },
     };
   });
 }

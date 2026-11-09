@@ -1,6 +1,7 @@
 ---
 // Compatibility badges (spec CAT-01 R10/AC-1, AC-3, AC-4; tokens §5 CompatBadge).
 import { badgeLabels } from "../../lib/compatibility.mjs";
+import { t } from "../i18n/t.mjs";
 interface Props {
   compat: { declared: boolean; claudeCode: string | null; verifiedOn: string | null; os: string[] };
   verified?: boolean; // show "verified on X" (plugin page, R10/AC-4)
@@ -8,10 +9,10 @@ interface Props {
 const { compat, verified = false } = Astro.props;
 const [first, ...os] = badgeLabels(compat);
 ---
-<ul class="badges" aria-label="Compatibility">
+<ul class="badges" aria-label={t("compat.title")}>
   <li class:list={["badge", { "badge--undeclared": !compat.declared }]}>{first}</li>
   {os.map((o) => <li class="badge">{o}</li>)}
-  {verified && compat.verifiedOn && <li class="badge badge--note">verified on {compat.verifiedOn}</li>}
+  {verified && compat.verifiedOn && <li class="badge badge--note">{t("compat.verified", { version: compat.verifiedOn })}</li>}
 </ul>
 
 <style is:global>
