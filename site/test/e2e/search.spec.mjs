@@ -27,6 +27,10 @@ test.describe("live search", () => {
     const first = page.locator("[data-results-list] article").first();
     await expect(first.locator(".entry__link mark")).toHaveText("security");
     await expect(first.locator("[data-entry-desc] mark").first()).toHaveText(/security/i);
+    // Same token colors in the name as in the description, never the browser's default yellow.
+    const bg = (loc) => loc.evaluate((m) => getComputedStyle(m).backgroundColor);
+    expect(await bg(first.locator(".entry__link mark"))).toBe(await bg(first.locator("[data-entry-desc] mark").first()));
+    expect(await bg(first.locator(".entry__link mark"))).not.toBe("rgb(255, 255, 0)");
   });
 
   test("results update within 100 ms of the last keystroke (R2/AC-2)", async ({ page }) => {
@@ -170,6 +174,13 @@ test.describe("cards (R3)", () => {
 });
 
 test.describe("narrow screens and no JavaScript", () => {
+  test("the drawer toggle exists only on narrow screens", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("./?q=review");
+    await expect(page.locator("[data-filters-toggle]")).toBeHidden();
+    await expect(page.locator("[data-filter-groups]")).toBeVisible();
+  });
+
   test("filters open in a drawer at 360 px and close with Escape", async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 740 });
     await page.goto("./?q=review");

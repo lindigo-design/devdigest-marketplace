@@ -86,7 +86,8 @@ const isPlugin = e.kind === "plugin";
   .entry a:not(.entry__link), .entry button, .entry code { position: relative; z-index: 1; }
   .entry__sub { color: var(--ink-secondary); text-decoration-color: var(--rule-hairline); }
   .entry__sub:hover { color: var(--accent-indigo); }
-  .entry__desc mark { background: var(--accent-indigo-soft); color: var(--accent-indigo); padding: 0 var(--space-1); }
+  /* Name and description (R3/AC-2); without this, names get the browser's default yellow. */
+  .entry mark { background: var(--accent-indigo-soft); color: var(--accent-indigo); padding: 0 var(--space-1); }
   .entry__rel { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-5); }
   .entry__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); }
   .entry__tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }

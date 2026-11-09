@@ -161,7 +161,7 @@ const relations = (p: any) => ({
     line-height: var(--leading-numeral);
   }
 
-  .filters__toggle { display: none; width: 100%; }
+  .filters .filters__toggle { display: none; width: 100%; } /* beats .button's display */
   .filters__head {
     display: flex;
     justify-content: space-between;
@@ -198,7 +198,7 @@ const relations = (p: any) => ({
 
   /* < 768px: filters live in a full-screen drawer (tokens §4). */
   @media (max-width: 767px) {
-    .filters__toggle { display: inline-flex; }
+    .filters .filters__toggle { display: inline-flex; }
     .filters__panel:not(.is-open) { display: none; }
     .filters__panel.is-open {
       position: fixed;
