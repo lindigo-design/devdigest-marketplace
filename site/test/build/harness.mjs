@@ -19,7 +19,8 @@ export function buildSite({ repoRoot, env = {} }) {
   const res = spawnSync(process.execPath, [astro, "build", "--outDir", out], {
     cwd: SITE,
     encoding: "utf8",
-    env: { ...process.env, ASTRO_TELEMETRY_DISABLED: "1", CATALOG_REPO_ROOT: repoRoot, ...env },
+    // Default origin/base unless a test sets them: CI may define SITE_ORIGIN / SITE_BASE for the real site.
+    env: { ...process.env, ASTRO_TELEMETRY_DISABLED: "1", SITE_ORIGIN: "", SITE_BASE: "", CATALOG_REPO_ROOT: repoRoot, ...env },
   });
   const log = `${res.stdout}\n${res.stderr}`;
   if (res.status !== 0) throw new Error(`astro build failed (${res.status}):\n${log}`);

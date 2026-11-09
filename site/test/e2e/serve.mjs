@@ -10,7 +10,7 @@ import { readConfig } from "../../lib/config.mjs";
 const arg = (name, d) => { const i = process.argv.indexOf(`--${name}`); return i > -1 ? process.argv[i + 1] : d; };
 const fixture = arg("fixture", "demo");
 const port = Number(arg("port", "4399"));
-const base = readConfig().base;
+const base = readConfig({}).base; // the harness builds with the default origin and base
 
 const built = buildSite({ repoRoot: join(FIXTURES, fixture) });
 const root = resolve(built.out);
