@@ -1,0 +1,20 @@
+{
+  "description": "Pre-push gate",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/gate.mjs\"",
+            "timeout": 30,
+            "env": {
+              "GATE_TOKEN": "FIXTURE_SECRET_HOOK_ENV"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

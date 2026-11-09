@@ -39,11 +39,8 @@ site/
     catalog.mjs             buildCatalog({ repoRoot }) → { marketplace, plugins, entries, releases, warnings }
     sources/
       marketplace.mjs       reads .claude-plugin/marketplace.json + plugin.json files
-      skills.mjs            plugins/<p>/skills/<s>/SKILL.md
-      agents.mjs            plugins/<p>/agents/<a>.md
-      commands.mjs          plugins/<p>/commands/<c>.md
-      hooks.mjs             plugins/<p>/hooks/hooks.json
-      mcp.mjs               plugins/<p>/.mcp.json (names + transport only)
+      components.mjs        skills/<s>/SKILL.md, agents/<a>.md, commands/[<ns>/]<c>.md, hooks/hooks.json,
+                            .mcp.json (names + transport only); one reader per kind
       frontmatter.mjs       strict YAML frontmatter split + parse, errors name file + reason
     changelog.mjs           dated release sections, rollback detection, 2-line excerpt
     compatibility.mjs       Claude Code min / verified-on / OS badges from COMPATIBILITY.md
@@ -84,10 +81,11 @@ site/
       shortcuts.mjs         "/" and Ctrl/Cmd+K
   test/
     fixtures/
-      empty-scaffold/       mirrors today's repo: 4 plugins, .gitkeep only
+      empty-scaffold/       like today's repo: 2 plugins (one depends on the other), .gitkeep only
       demo/                 4 plugins + the sample components from the prototype (security, pr-self-review,
                             security-reviewer, architecture-reviewer, gate hook, one command, one MCP server)
-      broken-*/             one fixture per build-failure rule
+                            (broken inputs and edge cases are built per test in temp copies, since
+                            .gitignore would drop planted node_modules/ and evals/results/ files)
     unit/*.test.mjs         node:test, one file per lib/ and client/ module
     e2e/*.spec.mjs          Playwright: keyboard, URL state, copy, 360 px, reduced motion, axe, no-JS
     budget.test.mjs         500 synthetic entries: gzip size + query latency
@@ -295,7 +293,7 @@ Each task ends green on its tests and on the existing checks (`claude plugin val
 | # | Task | Output | ACs |
 | :- | :- | :- | :- |
 | T0 | **Scaffold.** `site/` with Astro, pinned deps, `astro.config.mjs` reading origin/base, `lib/config.mjs`, `tokens.css` copied verbatim from tokens §8 with header, `fonts.css` + `@fontsource` subsets (Cyrillic coverage checked), `synonyms.json` from Appendix A, `.gitignore`, CODEOWNERS lines. Placeholder `index.astro` builds. | builds an empty page | R6/AC-3, R6/AC-4 (config), R7/AC-5, R7/AC-6 (token file), spec §3 synonyms ownership |
-| T1 | **Index builder.** `lib/sources/*`, `frontmatter.mjs`, `catalog.mjs`, `errors.mjs`, `search-text.mjs`, `scripts/check-catalog.mjs`; fixtures `empty-scaffold`, `demo`, `broken-*`. | `npm run check` passes on the real repo (4 plugins, 0 components) | R1/AC-2–7, spec §7 rows 1–4 |
+| T1 | **Index builder.** `lib/sources/*`, `frontmatter.mjs`, `catalog.mjs`, `errors.mjs`, `search-text.mjs`, `scripts/check-catalog.mjs`; `lib/fs.mjs` (read-only, no symlinks); fixtures `empty-scaffold`, `demo`. | `npm run check` passes on the real repo (4 plugins, 0 components) | R1/AC-2–7, spec §7 rows 1–4 |
 | T2 | **CHANGELOG and compatibility.** `changelog.mjs`, `compatibility.mjs`, release list with `updated` from git. | releases + badges in the catalog | R8/AC-4, AC-7, R10/AC-2–4, §7 same date, rollback, corrected item |
 | T3 | **Synonyms and query parser.** `synonyms.mjs`, `client/query.mjs`. | parser unit tests incl. the demo query | R2/AC-5–7, AC-10, §7 stop-words-only, mixed UA/EN |
 | T4 | **Search engine + budget.** `client/engine.mjs`, `client/url-state.mjs`, `index-json.mjs`, `budget.test.mjs`. | ranking, fuzzy, filters, facets, URL round-trip, size + latency budget | R2/AC-1–4, AC-8, R4/AC-1–2 (logic), R7/AC-4, R9/AC-6 (shape), R10/AC-5 (logic) |
@@ -320,7 +318,7 @@ Commits: one per task on `feat/catalog-site`, each only after your OK (CLAUDE.md
 | R1/AC-2 | T1 | builder unit test: entry count per fixture |
 | R1/AC-3 | T1 | builder unit test: required fields on every entry |
 | R1/AC-4 | T1, T6 | `empty-scaffold` fixture; plugin page "No components yet" |
-| R1/AC-5 | T1 | `broken-*` fixtures: message names file + reason |
+| R1/AC-5 | T1 | broken-input cases in temp copies: message names file + reason |
 | R1/AC-6 | T1 | secret-marker scan; planted excluded files never appear |
 | R1/AC-7 | T1 | add/rename/remove fixture component test; spec demo step 4 |
 | R2/AC-1 | T4, T11 | engine runs on local index; e2e asserts no request while typing |

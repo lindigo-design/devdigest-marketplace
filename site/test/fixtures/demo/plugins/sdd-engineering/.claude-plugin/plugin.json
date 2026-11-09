@@ -1,0 +1,24 @@
+{
+  "name": "sdd-engineering",
+  "version": "0.1.0",
+  "description": "Fixture plugin sdd-engineering.",
+  "license": "MIT",
+  "homepage": "https://github.com/lindigo-design/devdigest-marketplace/tree/main/plugins/sdd-engineering",
+  "keywords": [
+    "sdd"
+  ],
+  "dependencies": [
+    {
+      "name": "engineering-paved-path",
+      "version": "^0.2"
+    },
+    {
+      "name": "research-tools",
+      "version": "^0.1"
+    },
+    {
+      "name": "architecture-review",
+      "version": "^0.1"
+    }
+  ]
+}

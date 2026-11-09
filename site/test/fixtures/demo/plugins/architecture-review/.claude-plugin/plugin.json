@@ -1,0 +1,17 @@
+{
+  "name": "architecture-review",
+  "version": "0.1.1",
+  "description": "Fixture plugin architecture-review.",
+  "license": "MIT",
+  "homepage": "https://github.com/lindigo-design/devdigest-marketplace/tree/main/plugins/architecture-review",
+  "keywords": [
+    "review",
+    "pre-push"
+  ],
+  "dependencies": [
+    {
+      "name": "engineering-paved-path",
+      "version": "^0.2"
+    }
+  ]
+}

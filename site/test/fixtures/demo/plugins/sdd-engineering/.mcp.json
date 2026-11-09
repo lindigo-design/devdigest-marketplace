@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "devdigest": {
+      "command": "node",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/mcp/server.mjs"
+      ],
+      "env": {
+        "API_KEY": "FIXTURE_SECRET_MCP_ENV"
+      }
+    },
+    "docs-search": {
+      "type": "http",
+      "url": "https://example.com/mcp",
+      "headers": {
+        "Authorization": "Bearer FIXTURE_SECRET_MCP_HEADER"
+      }
+    }
+  }
+}

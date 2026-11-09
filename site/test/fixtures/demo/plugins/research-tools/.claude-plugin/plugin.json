@@ -1,0 +1,16 @@
+{
+  "name": "research-tools",
+  "version": "0.1.0",
+  "description": "Fixture plugin research-tools.",
+  "license": "MIT",
+  "homepage": "https://github.com/lindigo-design/devdigest-marketplace/tree/main/plugins/research-tools",
+  "keywords": [
+    "research"
+  ],
+  "dependencies": [
+    {
+      "name": "engineering-paved-path",
+      "version": "^0.1"
+    }
+  ]
+}

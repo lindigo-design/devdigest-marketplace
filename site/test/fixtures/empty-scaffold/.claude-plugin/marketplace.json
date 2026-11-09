@@ -1,0 +1,27 @@
+{
+  "name": "lindigo-devdigest",
+  "description": "Scaffold with plugins but no components yet.",
+  "owner": {
+    "name": "Fixture Owner"
+  },
+  "plugins": [
+    {
+      "name": "workflow",
+      "source": "./plugins/workflow",
+      "description": "Depends on base.",
+      "category": "workflow",
+      "tags": [
+        "workflow"
+      ]
+    },
+    {
+      "name": "base",
+      "source": "./plugins/base",
+      "description": "Base layer.",
+      "category": "engineering-standards",
+      "tags": [
+        "base"
+      ]
+    }
+  ]
+}

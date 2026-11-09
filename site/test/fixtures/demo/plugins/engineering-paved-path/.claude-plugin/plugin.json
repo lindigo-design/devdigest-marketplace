@@ -1,0 +1,12 @@
+{
+  "name": "engineering-paved-path",
+  "version": "0.2.0",
+  "description": "Fixture plugin engineering-paved-path.",
+  "license": "MIT",
+  "homepage": "https://github.com/lindigo-design/devdigest-marketplace/tree/main/plugins/engineering-paved-path",
+  "keywords": [
+    "owasp",
+    "guardrails"
+  ],
+  "dependencies": []
+}
