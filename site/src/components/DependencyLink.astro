@@ -1,0 +1,31 @@
+---
+// Dependency with its range (spec CAT-01 R5/AC-2; §7 unsatisfied range; tokens §5 DependencyLink).
+interface Props {
+  dep: { name: string; range: string | null; inCatalog: boolean; satisfied: boolean | null };
+  href?: string;          // plugin page, when the dependency is in this marketplace
+  version?: string;       // its current version in the repo, for the warning text
+}
+const { dep, href, version } = Astro.props;
+const warnId = `dep-warn-${dep.name}`;
+---
+<span class="dep">
+  {dep.inCatalog && href ? <a href={href}>{dep.name}</a> : <span>{dep.name}</span>}
+  {dep.range && <span class="t-mono dep__range">{dep.range}</span>}
+  {dep.satisfied === false && (
+    <span class="dep__warn" id={warnId}>
+      Range not satisfied{version ? ` by ${version} in this repository` : ""}
+    </span>
+  )}
+  {!dep.inCatalog && <span class="t-caption">not in this marketplace</span>}
+</span>
+
+<style>
+  .dep {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-3);
+  }
+  .dep__range { color: var(--ink-secondary); }
+  .dep__warn { color: var(--signal-caution); font-size: var(--type-caption); line-height: var(--leading-caption); }
+</style>

@@ -95,7 +95,7 @@ Baseline: 8px. Vertical rhythm uses `space/*` only.
 | **SearchLine**: the display-xl input with the prefix "I need a" | empty (placeholder `___` in `ink/whisper`, blinking indigo caret) · focus · typing · has-query · no-results |
 | **ResultEntry**: one index row (spec R3 "card"): kind label, name, plugin + version, description, tags, badges, copy action | default · hover (hairline draws in indigo) · focus-visible · active |
 | **KindLabel**: `SKILL` / `AGENT` / `HOOK` / `COMMAND` / `MCP` / `PLUGIN` in `type/label` | default only (text, no icon) |
-| **CompatBadge**: "Claude Code ≥ 2.1.110", "Windows", "macOS" | declared · not declared (`ink/whisper`, dashed outline) |
+| **CompatBadge**: "Claude Code ≥ 2.1.110", "Windows", "macOS" | declared · not declared (`ink/secondary` text, dashed `ink/whisper` outline; whisper text would fail AA at badge size, see §2) |
 | **RunsCommandsMarker** | default (`signal/caution` text + tool list on hover/focus) |
 | **CopyCommand**: mono command + button | default · hover · copied (2s, `signal/positive`) · error (clipboard blocked: select the text instead) |
 | **FilterGroup**: checkboxes per kind / plugin / category / tag / OS | unchecked · checked · disabled (zero results) · focus |
@@ -193,6 +193,44 @@ Signature moments (3 layers, the skill requires at least 2):
   --duration-base: 240ms;
   --duration-reveal: 560ms;
   --stagger-step: 70ms;
+
+  /* type details from §1 (added 2026-11-09, plan T5: values unchanged, now addressable) */
+  --leading-display-xl: 1.05;
+  --leading-display: 1.08;
+  --leading-numeral: 1;
+  --leading-heading-1: 1.1;
+  --leading-heading-2: 1.2;
+  --leading-body: 1.55;
+  --leading-label: 1.3;
+  --leading-caption: 1.4;
+  --leading-mono: 1.5;
+  --weight-light: 300;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --tracking-display-xl: -0.015em;
+  --tracking-label: 0.08em;
+
+  /* grid from §4 (added 2026-11-09, plan T5); ≥ 1200px values, overridden below */
+  --grid-columns: 8;
+  --grid-gutter: 24px;
+  --grid-margin: 64px;
+}
+
+@media (max-width: 1199px) {
+  :root {
+    --grid-columns: 6;
+    --grid-gutter: 20px;
+    --grid-margin: 40px;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --grid-columns: 4;
+    --grid-gutter: 16px;
+    --grid-margin: 16px;
+  }
 }
 
 @media (prefers-color-scheme: dark) {

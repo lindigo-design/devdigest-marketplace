@@ -1,0 +1,36 @@
+---
+// Install block (spec CAT-01 R5/AC-3; tokens §5 InstallBlock): marketplace add, plugin install,
+// and the dependencies Claude Code installs automatically.
+import CopyCommand from "./CopyCommand.astro";
+interface Props {
+  plugin: string;
+  commands: { marketplaceAdd: string; install: string };
+  alsoInstalls: { name: string; range: string | null }[];
+  title?: string;
+}
+const { plugin, commands, alsoInstalls, title = "Install" } = Astro.props;
+const headingId = `install-${plugin}`;
+---
+<section class="install" aria-labelledby={headingId}>
+  <h2 id={headingId} class="t-label">{title}</h2>
+  <CopyCommand command={commands.marketplaceAdd} label="marketplace add command" />
+  <CopyCommand command={commands.install} label={`install command for ${plugin}`} />
+  {alsoInstalls.length > 0 && (
+    <p class="install__also t-mono">
+      Also installs: {alsoInstalls.map((d, i) => <>{i > 0 && ", "}{d.name}{d.range && ` ${d.range}`}</>)}
+    </p>
+  )}
+</section>
+
+<style>
+  .install {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    min-width: 0;
+    padding: var(--space-5);
+    background: var(--surface-raised);
+    border: var(--rule-thin) solid var(--rule-hairline);
+  }
+  .install__also { font-size: var(--type-caption); color: var(--ink-secondary); overflow-wrap: anywhere; }
+</style>

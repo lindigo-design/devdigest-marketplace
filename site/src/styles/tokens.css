@@ -55,6 +55,44 @@
   --duration-base: 240ms;
   --duration-reveal: 560ms;
   --stagger-step: 70ms;
+
+  /* type details from §1 (added 2026-11-09, plan T5: values unchanged, now addressable) */
+  --leading-display-xl: 1.05;
+  --leading-display: 1.08;
+  --leading-numeral: 1;
+  --leading-heading-1: 1.1;
+  --leading-heading-2: 1.2;
+  --leading-body: 1.55;
+  --leading-label: 1.3;
+  --leading-caption: 1.4;
+  --leading-mono: 1.5;
+  --weight-light: 300;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --tracking-display-xl: -0.015em;
+  --tracking-label: 0.08em;
+
+  /* grid from §4 (added 2026-11-09, plan T5); ≥ 1200px values, overridden below */
+  --grid-columns: 8;
+  --grid-gutter: 24px;
+  --grid-margin: 64px;
+}
+
+@media (max-width: 1199px) {
+  :root {
+    --grid-columns: 6;
+    --grid-gutter: 20px;
+    --grid-margin: 40px;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --grid-columns: 4;
+    --grid-gutter: 16px;
+    --grid-margin: 16px;
+  }
 }
 
 @media (prefers-color-scheme: dark) {

@@ -1,0 +1,18 @@
+---
+// Rendered markdown (tokens §5 Prose). `html` must come from lib/markdown.mjs, which sanitizes it (R5/AC-6).
+interface Props { html: string; source?: string; sourceHref?: string }
+const { html, source, sourceHref } = Astro.props;
+---
+<section class="prose-block">
+  {source && (
+    <p class="t-mono prose-block__source">
+      {sourceHref ? <a href={sourceHref}>{source}</a> : source}
+    </p>
+  )}
+  <div class="prose" set:html={html} />
+</section>
+
+<style>
+  .prose-block__source { margin-bottom: var(--space-4); font-size: var(--type-caption); color: var(--ink-secondary); }
+  .prose-block__source a { color: inherit; }
+</style>

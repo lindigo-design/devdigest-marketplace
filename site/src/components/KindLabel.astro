@@ -1,0 +1,7 @@
+---
+// Kind label: text only, no icon (tokens §5 KindLabel; brief: no emoji type icons).
+export const KIND_LABELS = { plugin: "Plugin", skill: "Skill", agent: "Agent", command: "Command", hook: "Hook", mcp: "MCP" };
+interface Props { kind: keyof typeof KIND_LABELS; class?: string }
+const { kind, class: cls } = Astro.props;
+---
+<span class:list={["t-label", "kind-label", cls]} data-kind={kind}>{KIND_LABELS[kind] ?? kind}</span>

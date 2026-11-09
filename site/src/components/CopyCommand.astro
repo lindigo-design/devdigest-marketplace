@@ -1,0 +1,47 @@
+---
+// Mono command + copy button (spec CAT-01 R3/AC-4; tokens §5 CopyCommand: default · hover · copied · error).
+// Behaviour lives in src/client/copy.mjs (event delegation). Without JavaScript the button is hidden
+// and the command stays selectable text.
+interface Props { command: string; label?: string }
+const { command, label = command } = Astro.props;
+---
+<div class="copy" data-copy>
+  <code class="copy__text" data-copy-text>{command}</code>
+  <button type="button" class="copy__button t-label" data-copy-button aria-label={`Copy: ${label}`}>Copy</button>
+</div>
+
+<style>
+  .copy {
+    display: flex;
+    align-items: stretch;
+    min-width: 0;
+    max-width: var(--measure);
+    border: var(--rule-thin) solid var(--rule-hairline);
+    border-radius: var(--radius-s);
+    background: var(--surface-raised);
+  }
+  .copy__text {
+    flex: 1;
+    min-width: 0;
+    padding: var(--space-2) var(--space-3);
+    overflow-x: auto;
+    white-space: nowrap;
+    color: var(--ink-primary);
+  }
+  .copy__button {
+    flex: 0 0 auto;
+    min-width: var(--space-9);
+    min-height: var(--space-7);
+    padding: 0 var(--space-4);
+    border: 0;
+    border-left: var(--rule-thin) solid var(--rule-hairline);
+    background: transparent;
+    color: var(--ink-primary);
+    cursor: pointer;
+    transition: color var(--duration-base) var(--ease-snap);
+  }
+  .copy__button:hover { color: var(--accent-indigo); }
+  .copy__button[data-state="copied"] { color: var(--signal-positive); }
+  .copy__button[data-state="error"] { color: var(--signal-caution); }
+  :global(html:not(.js)) .copy__button { display: none; }
+</style>

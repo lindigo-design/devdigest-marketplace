@@ -10,7 +10,8 @@ import { RepoReader } from "./fs.mjs";
 import { READERS } from "./sources/components.mjs";
 import { loadSynonyms } from "./synonyms.mjs";
 
-/** site/synonyms.json, next to this package (not inside the scanned repo, so fixtures share it). */
+/** site/synonyms.json, next to this package (not inside the scanned repo, so fixtures share it).
+ * Inside an Astro build the bundled path is wrong; astro.config.mjs sets CATALOG_SYNONYMS instead. */
 export const DEFAULT_SYNONYMS = join(dirname(fileURLToPath(import.meta.url)), "..", "synonyms.json");
 import { readMarketplace, readPlugin } from "./sources/marketplace.mjs";
 
@@ -76,7 +77,11 @@ function readCompat(ctx, p) {
  * @returns {{ marketplace, plugins, entries, releases, lastRelease, synonyms, warnings }}
  *   throws CatalogError listing every problem
  */
-export function buildCatalog({ repoRoot = defaultRepoRoot(), history = true, synonymsFile = DEFAULT_SYNONYMS } = {}) {
+export function buildCatalog({
+  repoRoot = defaultRepoRoot(),
+  history = true,
+  synonymsFile = process.env.CATALOG_SYNONYMS || DEFAULT_SYNONYMS,
+} = {}) {
   const problems = new Problems();
   const reader = new RepoReader(repoRoot);
   const base = { reader, problems };
