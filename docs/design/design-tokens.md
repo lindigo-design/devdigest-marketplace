@@ -121,6 +121,13 @@ Added 2026-11-09 for spec CAT-02 (plugin page: install and use). No new tokens.
 | **ManageBlock**: a disclosure; rows of action, session form and terminal form | closed · open · focus-visible |
 | **DownloadLink**: text link with a note in `type/caption` | default · hover |
 
+Added 2026-11-09 (owner review of the live site). No new tokens.
+
+| Component | States |
+| :- | :- |
+| **SiteHeader**: stays at the top while the page scrolls (`position: sticky`, `top: 0`), on `surface/page` with its `rule/hairline` bottom rule, above page content and below the mobile filter drawer and the skip link. Sticky rails and in-page anchors leave `space/9` for it | default · scrolled (unchanged look; content passes under it) |
+| **Component page** (skill, agent, command, hook, MCP server): the same layout as the plugin page. Head: kind label, title in `type/display`, "in plugin … · v…" and the description in `type/body-lg` `ink/secondary` within the measure. Rail: kind, plugin, version; "Preloads / Preloaded by" relations; source link. Main: a facts row (tags, compatibility badges with their labels), then hook / MCP / frontmatter (without the description, already shown in the head), body, install block | default |
+
 ## 6. Motion
 
 Things move like a page being typeset: deliberate, never bouncy, and never fade-in-from-bottom.

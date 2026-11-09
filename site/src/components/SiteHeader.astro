@@ -14,7 +14,12 @@ const name = getCatalog().marketplace.name;
 </header>
 
 <style>
+  /* Sticky (tokens §5 SiteHeader): above page content, below the mobile filter drawer (z 40) and the skip link (z 50). */
   .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: var(--surface-page);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
