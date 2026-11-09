@@ -104,10 +104,24 @@ test.describe("keyboard (R7/AC-1)", () => {
         const kind = el.matches("#q") ? "search" : el.matches('[data-filter-groups] input') ? "filter"
           : el.matches("[data-copy-button]") ? "copy" : el.matches(".entry__link") ? "card" : el.matches(".chip__remove") ? "chip" : "other";
         // The card link draws its ring on the row (article:has(:focus-visible)).
-        const ringOn = kind === "card" ? el.closest("article") : kind === "search" ? el.closest("label") : el;
+        // The search line has no box ring: its bottom rule turns indigo instead (tokens §5 SearchLine), checked below.
+        if (kind === "search") return { kind, ring: true };
+        const ringOn = kind === "card" ? el.closest("article") : el;
         const s = getComputedStyle(ringOn);
         return { kind, ring: s.outlineStyle !== "none" && parseFloat(s.outlineWidth) >= 2 };
       });
+      if (info.kind === "search") {
+        // The rule's color eases in (duration/base), so wait for it to settle on accent/indigo.
+        info.ring = await page.waitForFunction(() => {
+          const s = getComputedStyle(document.querySelector("#q").closest("label"));
+          const probe = document.createElement("i");
+          probe.style.color = getComputedStyle(document.documentElement).getPropertyValue("--accent-indigo").trim();
+          document.body.append(probe);
+          const want = getComputedStyle(probe).color;
+          probe.remove();
+          return parseFloat(s.borderBottomWidth) >= 2 && s.borderBottomColor === want;
+        }, null, { timeout: 2000 }).then(() => true, () => false);
+      }
       seen.add(info.kind);
       if (info.kind !== "other" && !info.ring) noRing.push(info.kind);
     }

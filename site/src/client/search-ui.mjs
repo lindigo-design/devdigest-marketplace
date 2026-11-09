@@ -121,9 +121,13 @@ export function initSearch() {
 
   // ---------- mobile filter drawer ----------
   // Visible, enabled controls in tab order. Disabled checkboxes (0 results) cannot take focus:
-  // focus() on them is silently ignored and focus would stay outside the drawer.
+  // focus() on them is silently ignored and focus would stay outside the drawer. Group summaries count too:
+  // the last focusable may be the summary of a closed group. Inputs in a closed group still have an
+  // offsetParent in Chrome (closed <details> content keeps a box), so they are excluded explicitly.
   function focusables(root) {
-    return [...root.querySelectorAll("input:not([disabled]), button:not([disabled])")].filter((x) => x.offsetParent !== null);
+    const inClosedGroup = (x) => x.tagName !== "SUMMARY" && x.closest("details:not([open])");
+    return [...root.querySelectorAll("input:not([disabled]), button:not([disabled]), summary")]
+      .filter((x) => x.offsetParent !== null && !inClosedGroup(x));
   }
 
   function openDrawer(open) {
@@ -164,7 +168,12 @@ export function initSearch() {
     ui.toggle.textContent = chips.length ? t("filters.toggle.count", { count: chips.length }) : t("filters.title");
   }
 
+  // Collapsible groups (owner review 2026-11-09; tokens §5 FilterGroup). Which groups are open survives the
+  // re-render on every query. First render: Kind is open, plus every group with a filter from the URL.
+  let openGroups = null;
+
   function renderFilters(facets) {
+    openGroups ??= new Set(["kind", ...FILTER_KEYS.filter((k) => state[k].length)]);
     const groups = FILTER_KEYS.map((k) => {
       let options = facets[k];
       if (k === "tag") {
@@ -174,8 +183,13 @@ export function initSearch() {
       }
       if (k === "category" || k === "os") options = options.filter((o) => o.count > 0 || state[k].includes(o.value));
       if (!options.length) return null;
-      return el("fieldset", { class: "filter-group" },
-        el("legend", { class: "t-label" }, GROUPS[k]),
+      const active = state[k].length;
+      const group = el("details", { class: "filter-group", open: openGroups.has(k), "data-filter-group": k },
+        el("summary", { class: "filter-group__summary t-label" },
+          el("span", { class: "filter-group__name" }, GROUPS[k]),
+          active ? el("span", { class: "filter-group__active", "aria-label": t("filters.group.active.aria", { count: active }) }, String(active)) : null),
+        el("fieldset", { class: "filter-group__options" },
+        el("legend", { class: "visually-hidden" }, GROUPS[k]),
         options.map((o) => {
           const checked = state[k].includes(o.value);
           const disabled = !checked && o.count === 0;
@@ -184,7 +198,9 @@ export function initSearch() {
           return el("label", { class: `filter-option${checked ? " filter-option--checked" : ""}${disabled ? " filter-option--disabled" : ""}` },
             box, el("span", { class: "filter-option__label" }, valueLabel(k, o.value)),
             el("span", { class: "filter-option__count", "aria-label": t("filters.option.count.aria", { count: o.count }) }, String(o.count)));
-        }));
+        })));
+      group.addEventListener("toggle", () => { if (group.open) openGroups.add(k); else openGroups.delete(k); });
+      return group;
     }).filter(Boolean);
     // Keep focus on the same checkbox after re-rendering. If it is now disabled (an unchecked option
     // with 0 results) or gone, move to the first enabled option of the same group, then of the filters.

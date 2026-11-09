@@ -27,6 +27,11 @@ const hook = page.hook;
 const mcp = page.mcp;
 const AGENT_FIRST = ["tools", "model", "skills"];
 const hasBody = typeof page.body === "string" && page.body.trim().length > 0;
+// The description is already in the page head (tokens §5 Component page), so the table leaves it out.
+const frontmatter = page.frontmatter
+  ? Object.fromEntries(Object.entries(page.frontmatter).filter(([k]) => k !== "description"))
+  : null;
+const hasRelations = (c.page.preloads?.length ?? 0) + (c.page.preloadedBy?.length ?? 0) > 0;
 ---
 <Base title={t("component.title", { name: c.name, kind: c.kind })} description={c.description} path={c.path}>
   <header class="page-head">
@@ -36,9 +41,7 @@ const hasBody = typeof page.body === "string" && page.body.trim().length > 0;
     <p class="t-body-lg t-secondary page-head__in">
       {t("component.inPlugin")} <a href={href(`${c.plugin}/`)}>{c.plugin}</a> <span class="t-mono">· {t("version", { version: c.version })}</span>
     </p>
-    <p class="t-body-lg measure">{c.description}</p>
-    <Relations plugin={c.plugin} preloads={c.page.preloads} preloadedBy={c.page.preloadedBy} />
-    <CompatBadge compat={c.compat} />
+    <p class="t-body-lg t-secondary measure">{c.description}</p>
   </header>
 
   <div class="layout-rail">
@@ -48,10 +51,28 @@ const hasBody = typeof page.body === "string" && page.body.trim().length > 0;
         { k: t("field.plugin"), v: c.plugin, href: href(`${c.plugin}/`) },
         { k: t("field.version"), v: c.version, mono: true },
       ]} />
-      <p class="rail__source rule-top rule-bottom t-caption"><a href={githubSource(c.source)}>{t("component.viewSource")}</a></p>
+      {hasRelations && (
+        <div class="rail__block">
+          <Relations plugin={c.plugin} preloads={c.page.preloads} preloadedBy={c.page.preloadedBy} />
+        </div>
+      )}
+      <p class="rail__block rule-bottom t-caption"><a href={githubSource(c.source)}>{t("component.viewSource")}</a></p>
     </aside>
 
     <div class="main">
+      <div class="facts">
+        {c.tags?.length > 0 && (
+          <div class="facts__group">
+            <h2 class="t-label">{t("tags")}</h2>
+            <ul class="tags">{c.tags.map((tag: string) => <li><a class="tag t-mono" href={href(`?tag=${encodeURIComponent(tag)}`)}>{tag}</a></li>)}</ul>
+          </div>
+        )}
+        <div class="facts__group">
+          <h2 class="t-label">{t("compat.title")}</h2>
+          <CompatBadge compat={c.compat} />
+        </div>
+      </div>
+
       {hook && (
         <section class="block" aria-labelledby="hook">
           <h2 id="hook" class="t-heading-2">{t("component.hook")}</h2>
@@ -81,9 +102,9 @@ const hasBody = typeof page.body === "string" && page.body.trim().length > 0;
         </section>
       )}
 
-      {page.frontmatter && (
+      {frontmatter && Object.keys(frontmatter).length > 0 && (
         <section class="block" aria-label={t("frontmatter.caption")}>
-          <FrontmatterTable data={page.frontmatter} first={c.kind === "agent" ? AGENT_FIRST : ["name", "description"]} />
+          <FrontmatterTable data={frontmatter} first={c.kind === "agent" ? AGENT_FIRST : ["name"]} />
           <RunsCommandsMarker runs={c.runs} />
         </section>
       )}
@@ -96,22 +117,33 @@ const hasBody = typeof page.body === "string" && page.body.trim().length > 0;
 
       <InstallBlock title={t("install.titleWith", { plugin: c.plugin })} plugin={c.plugin} command={install(c.plugin).install}
         alsoInstalls={transitiveDependencies(catalog.plugins, c.plugin)} panelHref={href(`${c.plugin}/#install`)} />
-
-      <p><a href={githubSource(c.source)}>{t("component.viewSource")}</a></p>
     </div>
   </div>
 </Base>
 
 <style>
+  /* Same layout as the plugin page (tokens §5 Component page). */
   .page-head { display: flex; flex-direction: column; gap: var(--space-3); padding-block: var(--space-8) var(--space-7); }
   .page-head :global(.page-head__kind) { margin-top: var(--space-6); }
   .page-head__title { animation: wipe-in var(--duration-reveal) var(--ease-settle) both; }
   .page-head__in { display: flex; flex-wrap: wrap; gap: 0 var(--space-2); align-items: baseline; }
   .rail { display: flex; flex-direction: column; min-width: 0; }
-  .rail__source { padding-block: var(--space-4); }
+  .rail__block { display: flex; flex-direction: column; gap: var(--space-2); padding-block: var(--space-4); border-top: var(--rule-thin) solid var(--rule-hairline); }
   .main { display: flex; flex-direction: column; gap: var(--space-7); min-width: 0; }
-  .block { display: flex; flex-direction: column; gap: var(--space-4); }
-  .block + .block { padding-top: var(--space-5); border-top: var(--rule-thin) solid var(--rule-hairline); }
+  .facts { display: flex; flex-wrap: wrap; gap: var(--space-5) var(--space-7); }
+  .facts__group { display: flex; flex-direction: column; gap: var(--space-2); }
+  .tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+  .tag {
+    display: inline-block;
+    padding: 0 var(--space-2);
+    background: var(--surface-sunken);
+    border-radius: var(--radius-s);
+    font-size: var(--type-label);
+    color: var(--ink-secondary);
+    text-decoration: none;
+  }
+  .tag:hover { color: var(--accent-indigo); }
+  .block { display: flex; flex-direction: column; gap: var(--space-4); padding-top: var(--space-5); border-top: var(--rule-thin) solid var(--rule-hairline); }
   .kv { display: grid; grid-template-columns: minmax(0, auto) minmax(0, 1fr); gap: var(--space-2) var(--space-5); margin: 0; }
   .kv dd { margin: 0; overflow-wrap: anywhere; }
   .kv__code { white-space: pre-wrap; overflow-wrap: anywhere; }

@@ -92,7 +92,7 @@ Baseline: 8px. Vertical rhythm uses `space/*` only.
 
 | Component | States |
 | :- | :- |
-| **SearchLine**: the display-xl input with the prefix "I need a" | empty (placeholder `___` in `ink/whisper`, blinking indigo caret) · focus · typing · has-query · no-results |
+| **SearchLine**: the display-xl input with the prefix "I need a" | empty (placeholder `___` in `ink/whisper`, blinking indigo caret) · focus (the `rule/strong` underline turns `accent/indigo`; no box ring, owner review 2026-11-09) · typing · has-query · no-results |
 | **ResultEntry**: one index row (spec R3 "card"): kind label, name, plugin + version, description, tags, badges, copy action | default · hover (hairline draws in indigo) · focus-visible · active |
 | **KindLabel**: `SKILL` / `AGENT` / `HOOK` / `COMMAND` / `MCP` / `PLUGIN` in `type/label` | default only (text, no icon) |
 | **CompatBadge**: "Claude Code ≥ 2.1.110", "Windows", "macOS" | declared · not declared (`ink/secondary` text, dashed `ink/whisper` outline; whisper text would fail AA at badge size, see §2) |
@@ -120,6 +120,15 @@ Added 2026-11-09 for spec CAT-02 (plugin page: install and use). No new tokens.
 | **TryItItem**: prompt in `type/mono` with copy action, result in `type/body` `ink/secondary` | default · copied |
 | **ManageBlock**: a disclosure; rows of action, session form and terminal form | closed · open · focus-visible |
 | **DownloadLink**: text link with a note in `type/caption` | default · hover |
+
+Added 2026-11-09 (owner review of the live site). No new tokens.
+
+| Component | States |
+| :- | :- |
+| **SiteHeader**: stays at the top while the page scrolls (`position: sticky`, `top: 0`), on `surface/page` with its `rule/hairline` bottom rule, above page content and below the mobile filter drawer and the skip link. Sticky rails and in-page anchors leave `space/9` for it | default · scrolled (unchanged look; content passes under it) |
+| **Component page** (skill, agent, command, hook, MCP server): the same layout as the plugin page. Head: kind label, title in `type/display`, "in plugin … · v…" and the description in `type/body-lg` `ink/secondary` within the measure. Rail: kind, plugin, version; "Preloads / Preloaded by" relations; source link. Main: a facts row (tags, compatibility badges with their labels), then hook / MCP / frontmatter (without the description, already shown in the head), body, install block | default |
+| **FilterGroup** (collapsible, replaces the always-open list): each group is a disclosure; the summary shows the group name in `type/label`, the number of checked values in `type/mono` `accent/indigo`, and "+" / "−" in `ink/secondary` on the right; `rule/hairline` between groups. Kind starts open, and so does every group with a filter from the URL; what the reader opens or closes stays that way while they type | closed · open · hover (summary turns `accent/indigo`) · focus-visible · has checked values |
+| **Filter panel**: on `surface/raised` with `space/5` padding, so it reads apart from the results; on wide screens `space/6` more between the panel and the results. The mobile drawer keeps `surface/page` | default |
 
 ## 6. Motion
 

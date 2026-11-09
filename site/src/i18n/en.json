@@ -179,6 +179,7 @@
   "filters.toggle.count": "Filters · {count}",
   "filters.clear": "Clear",
   "filters.done": "Done",
+  "filters.group.active.aria": { "one": "{count} selected", "other": "{count} selected" },
   "filters.option.count.aria": { "one": "{count} result", "other": "{count} results" },
   "chip.label": "{group}: {value}",
   "chip.remove": "×",

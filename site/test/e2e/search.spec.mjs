@@ -73,6 +73,7 @@ test.describe("filters and URL state (R4)", () => {
   test("filters combine with the query and live in the URL; reload restores them", async ({ page }) => {
     await page.goto("./");
     await type(page, "review");
+    await page.locator('[data-filter-group="plugin"] > summary').click();
     await page.locator('[data-filter-groups] input[name="plugin"][value="architecture-review"]').check();
     await expect(page).toHaveURL(/q=review&plugin=architecture-review/);
     const before = await ids(page);
@@ -82,6 +83,22 @@ test.describe("filters and URL state (R4)", () => {
     await expect(page.locator("#q")).toHaveValue("review");
     await expect(page.locator('[data-filter-groups] input[value="architecture-review"]')).toBeChecked();
     expect(await ids(page)).toEqual(before);
+  });
+
+  test("filter groups collapse; open state survives typing; groups with URL filters start open", async ({ page }) => {
+    await page.goto("./?q=review");
+    const group = (k) => page.locator(`[data-filter-group="${k}"]`);
+    await expect(group("kind")).toHaveAttribute("open", "");
+    for (const k of ["plugin", "tag"]) await expect(group(k)).not.toHaveAttribute("open", "");
+    await expect(page.locator('input[name="plugin"]').first()).toBeHidden();
+    await group("plugin").locator("summary").click();
+    await group("kind").locator("summary").click();
+    await type(page, "security");
+    await expect(group("plugin")).toHaveAttribute("open", "");
+    await expect(group("kind")).not.toHaveAttribute("open", "");
+    await page.goto("./?q=review&tag=review");
+    await expect(group("tag")).toHaveAttribute("open", "");
+    await expect(group("tag").locator(".filter-group__active")).toHaveText("1");
   });
 
   test("removing a chip removes the filter; back button restores it", async ({ page }) => {

@@ -45,10 +45,15 @@ export function kindOf(token) {
  * Does a (single-word) query token match a synonym entry?
  * Exact; or the token extends the entry when the entry is a Ukrainian stem or a word of 4+ letters
  * ("безпеки" ⊃ "безпек", "reviewer" ⊃ "review"); or the token is a 4+ letter prefix of the entry ("secur").
+ * A Ukrainian token matches as a prefix from 2 letters ("ар" → "архітектур"): search is live, and Ukrainian words
+ * reach English content only through synonyms, so without this the results stay empty until the 4th letter
+ * while English words already match from the 1st (MiniSearch prefix search). Short Ukrainian function words
+ * ("на", "по", "до", …) are stop words and never get here.
  */
 export function tokenMatches(token, entry) {
   if (token === entry) return true;
   if ((CYRILLIC.test(entry) || entry.length >= 4) && token.startsWith(entry)) return true;
+  if (CYRILLIC.test(token) && token.length >= 2 && entry.startsWith(token)) return true;
   return token.length >= 4 && entry.startsWith(token);
 }
 

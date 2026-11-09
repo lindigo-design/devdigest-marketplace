@@ -9,6 +9,7 @@ html {
   color-scheme: light dark;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  scroll-padding-top: var(--space-9); /* in-page anchors land below the sticky site header (tokens §5) */
 }
 
 body {
@@ -145,7 +146,7 @@ a:hover { color: var(--ink-primary); }
 }
 @media (min-width: 1200px) {
   .layout-rail { grid-template-columns: minmax(0, 2fr) minmax(0, 6fr); }
-  .layout-rail > .rail-sticky { position: sticky; top: var(--space-5); }
+  .layout-rail > .rail-sticky { position: sticky; top: var(--space-9); } /* clears the sticky site header */
 }
 
 .rule-top { border-top: var(--rule-thin) solid var(--rule-hairline); }
