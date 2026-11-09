@@ -7,8 +7,11 @@ import { parseChangelog, sectionUpdateTimes, sortReleases, updatedTime } from ".
 import { parseCompatibility } from "./compatibility.mjs";
 import { Problems } from "./errors.mjs";
 import { RepoReader } from "./fs.mjs";
+import { resolveRelations } from "./relations.mjs";
 import { READERS } from "./sources/components.mjs";
 import { loadSynonyms } from "./synonyms.mjs";
+import { releaseTags } from "./tags.mjs";
+import { howToUse, invocation } from "./usage.mjs";
 
 /** site/synonyms.json, next to this package (not inside the scanned repo, so fixtures share it).
  * Inside an Astro build the bundled path is wrong; astro.config.mjs sets CATALOG_SYNONYMS instead. */
@@ -69,11 +72,25 @@ function readCompat(ctx, p) {
   if (!c.declared) ctx.problems.warn(file, `compatibility not declared: ${c.reason}`);
   p.compat = { declared: c.declared, claudeCode: c.claudeCode, verifiedOn: c.verifiedOn, os: c.os };
   p.page.compatibility = { file: ctx.reader.isFile(file) ? file : null, claudeCodeRaw: c.claudeCodeRaw, osRaw: c.osRaw };
+  p.page.contextCost = c.contextCost; // always-on tokens, page only (spec CAT-02 R2/AC-8)
+}
+
+/** Example prompts (CAT-02 R6/AC-2, AC-4) and whether the release tag exists (R5/AC-1, AC-3). */
+function readUsage(ctx, p, tags) {
+  p.page.howToUse = howToUse(p.page.readme);
+  if (p.page.readme !== null && p.page.howToUse === null) {
+    ctx.problems.warn(p.page.readmePath, 'no "You type | You get" table under "## How to use"; Try it shows no examples');
+  }
+  const tag = `${p.name}--v${p.version}`;
+  p.page.tag = tag;
+  p.page.tagged = tags.has(tag);
+  if (!p.page.tagged) ctx.problems.warn(`${p.source}/.claude-plugin/plugin.json`, `no release tag ${tag} yet; the Download source link is left out`);
 }
 
 /**
- * @param {{ repoRoot?: string, history?: boolean, synonymsFile?: string }} [opts]
- *   history: read git log for feed `updated` times; synonymsFile: path of synonyms.json
+ * @param {{ repoRoot?: string, history?: boolean, synonymsFile?: string, tags?: Set<string> }} [opts]
+ *   history: read git log for feed `updated` times; synonymsFile: path of synonyms.json;
+ *   tags: release tags `<plugin>--v<version>` (default: CATALOG_RELEASE_TAGS, else git, see tags.mjs)
  * @returns {{ marketplace, plugins, entries, releases, lastRelease, synonyms, warnings }}
  *   throws CatalogError listing every problem
  */
@@ -81,6 +98,7 @@ export function buildCatalog({
   repoRoot = defaultRepoRoot(),
   history = true,
   synonymsFile = process.env.CATALOG_SYNONYMS || DEFAULT_SYNONYMS,
+  tags = releaseTags(repoRoot),
 } = {}) {
   const problems = new Problems();
   const reader = new RepoReader(repoRoot);
@@ -98,6 +116,7 @@ export function buildCatalog({
   const releases = [];
   for (const p of plugins) {
     readCompat(base, p);
+    readUsage(base, p, tags);
     const own = readReleases(base, p, history);
     p.page.latestRelease = own[0] ?? null; // newest as written in the CHANGELOG
     releases.push(...own);
@@ -125,6 +144,7 @@ export function buildCatalog({
         compat: p.compat, // components inherit the plugin's badges (R10/AC-2)
         path: `${p.name}/${c.kind}/${c.slug}/`,
       }))
+      .map((c) => ({ ...c, page: { ...c.page, invocation: invocation(c) } })) // CAT-02 R1/AC-4, AC-5
       .sort((a, b) => KIND_ORDER.indexOf(a.kind) - KIND_ORDER.indexOf(b.kind) || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
 
     // Two components of one kind in one plugin must not share a URL (the plugin name already separates plugins).
@@ -141,6 +161,7 @@ export function buildCatalog({
     entries.push(p, ...comps);
   }
 
+  resolveRelations(entries, problems); // CAT-02 R1/AC-6–9, across plugins
   problems.throwIfAny();
   const sorted = sortReleases(releases);
   return {
