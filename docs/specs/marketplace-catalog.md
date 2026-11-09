@@ -174,7 +174,7 @@ Never read: `evals/results/`, `node_modules/`, `.claude/settings.local.json`, an
 | Query in mixed UA/EN | Each term handled independently, results merged by score. |
 | JavaScript disabled | Plugin and component pages still render (static HTML); search shows a notice. |
 | Dependency range not satisfied by the current version in the repo | Plugin page shows a warning next to that dependency. |
-| Two plugins released on the same date | "What's new" and feeds order them by date, then by plugin name. |
+| Two plugins released on the same date | "What's new" and feeds order them by date, then by release time (the commit that first added the version's CHANGELOG section; newest first), then by plugin name. A later correction of the notes changes the item's `updated` time, not its place. Without git history: date, then plugin name. |
 | A rollback release (`### Reverted` notes) | Shown in "What's new" and the feeds like any release, with a "Rollback" label. |
 | Feed reader caches an item that was later corrected | Item id stays `<plugin>--v<version>`; the `updated` time changes, so readers refresh it. |
 

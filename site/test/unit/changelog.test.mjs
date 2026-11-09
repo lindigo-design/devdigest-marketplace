@@ -1,7 +1,7 @@
 // CHANGELOG parsing (spec CAT-01 R8/AC-3, AC-4, AC-7; §7 same date, rollback, corrected items).
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, test } from "node:test";
 import { buildCatalog } from "../../lib/catalog.mjs";
@@ -157,6 +157,58 @@ describe("updated times from git history (§7 corrected items)", () => {
     const r = tempRepo("empty-scaffold");
     try {
       assert.equal(sectionUpdateTimes(r.root, "plugins/base/CHANGELOG.md").size, 0);
+    } finally {
+      r.cleanup();
+    }
+  });
+});
+
+describe("same-day releases: the one released last comes first (polish after CAT-02)", () => {
+  test("sortReleases: same date → later release time first, even against plugin-name order", () => {
+    const rs = sortReleases([
+      { plugin: "architecture-review", version: "1.0.0", date: "2026-11-09", released: "2026-11-09T10:00:00Z" },
+      { plugin: "research-tools", version: "1.0.1", date: "2026-11-09", released: "2026-11-09T18:00:00Z" },
+      { plugin: "engineering-paved-path", version: "1.0.0", date: "2026-11-09", released: "2026-11-09T10:00:00Z" },
+      { plugin: "zeta", version: "0.1.0", date: "2026-11-08", released: "2026-11-09T20:00:00Z" }, // older date stays last
+    ]);
+    assert.deepEqual(rs.map((r) => `${r.plugin}@${r.version}`),
+      ["research-tools@1.0.1", "architecture-review@1.0.0", "engineering-paved-path@1.0.0", "zeta@0.1.0"]);
+  });
+
+  test("from git: two releases on the same date, ordered by their release commit; a later correction does not reorder", () => {
+    const r = tempRepo("demo");
+    const empty = join(r.root, ".gitconfig-empty");
+    writeFileSync(empty, "");
+    const env = { ...process.env, GIT_CONFIG_GLOBAL: empty, GIT_CONFIG_NOSYSTEM: "1" };
+    const git = (args, date) =>
+      execFileSync("git", ["-c", "user.name=t", "-c", "user.email=t@example.com", ...args], {
+        cwd: r.root, stdio: "ignore", env: { ...env, ...(date ? { GIT_AUTHOR_DATE: date, GIT_COMMITTER_DATE: date } : {}) },
+      });
+    const commit = (date) => { git(["add", "-A"]); git(["commit", "-q", "-m", "c"], date); };
+    const read = (file) => readFileSync(join(r.root, file), "utf8").replace(/\r\n/g, "\n");
+    // A new dated section right under [Unreleased], as scripts/release.mjs writes it.
+    const release = (plugin, notes) => {
+      const file = `plugins/${plugin}/CHANGELOG.md`;
+      r.write(file, read(file).replace("## [Unreleased]\n", `## [Unreleased]\n\n## [9.0.0] — 2026-11-20\n\n### Changed\n- ${notes}\n`));
+    };
+    try {
+      git(["init", "-q"]);
+      commit("2026-11-19T10:00:00Z");
+      release("architecture-review", "First release of the day.");
+      commit("2026-11-20T10:00:00Z");
+      release("research-tools", "Second release of the day.");
+      commit("2026-11-20T11:00:00Z");
+      const correct = (s) => s.replace("First release of the day.", "First release of the day, corrected.");
+      const arFile = "plugins/architecture-review/CHANGELOG.md";
+      r.write(arFile, correct(read(arFile)));
+      commit("2026-11-20T12:00:00Z");
+
+      const cat = buildCatalog({ repoRoot: r.root, history: true, tags: new Set() });
+      const sameDay = cat.releases.filter((x) => x.date === "2026-11-20");
+      assert.deepEqual(sameDay.map((x) => x.plugin), ["research-tools", "architecture-review"]);
+      assert.equal(sameDay[0].released, "2026-11-20T11:00:00Z");
+      assert.equal(sameDay[1].released, "2026-11-20T10:00:00Z");
+      assert.equal(sameDay[1].updated, "2026-11-20T12:00:00Z", "the correction changes updated (feeds), not the order");
     } finally {
       r.cleanup();
     }

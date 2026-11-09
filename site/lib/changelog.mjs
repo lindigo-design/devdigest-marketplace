@@ -62,9 +62,13 @@ export function parseChangelog(text, file, problems) {
 
 /** Newest first: date desc, then plugin name asc, then version desc (§7 same-date rule). */
 export function sortReleases(releases) {
+  // Same date: the release committed last comes first (its section's first git time, `released`), then plugin
+  // name. Without history `released` is the release day, so the order falls back to plugin name.
+  const at = (r) => new Date(r.released ?? `${r.date}T00:00:00Z`).getTime();
   return [...releases].sort(
     (a, b) =>
       (a.date < b.date ? 1 : a.date > b.date ? -1 : 0) ||
+      at(b) - at(a) ||
       (a.plugin < b.plugin ? -1 : a.plugin > b.plugin ? 1 : 0) ||
       compare(b.version, a.version),
   );
@@ -84,16 +88,19 @@ function sectionTexts(text) {
 }
 
 /**
- * version → ISO time of the last commit that changed that section's heading or notes.
- * Returns an empty map when history is unusable (no git, untracked file, shallow clone):
+ * version → ISO time of the last commit that changed that section's heading or notes (`last`, the feeds'
+ * "updated") and of the commit that first added it (`first`, the release; orders same-day releases).
+ * Both maps are empty when history is unusable (no git, untracked file, shallow clone):
  * callers then fall back to the release date.
  */
-export function sectionUpdateTimes(repoRoot, file) {
+export function sectionTimes(repoRoot, file) {
+  const none = { first: new Map(), last: new Map() };
   try {
-    if (git(repoRoot, ["rev-parse", "--is-shallow-repository"]).trim() === "true") return new Map();
+    if (git(repoRoot, ["rev-parse", "--is-shallow-repository"]).trim() === "true") return none;
     const log = git(repoRoot, ["log", "--reverse", "--format=%H %cI", "--", file]).trim();
-    if (!log) return new Map();
+    if (!log) return none;
     const times = new Map();
+    const first = new Map();
     let previous = new Map();
     for (const line of log.split("\n")) {
       const [hash, time] = line.split(" ");
@@ -105,14 +112,20 @@ export function sectionUpdateTimes(repoRoot, file) {
         continue;
       }
       const current = sectionTexts(text);
-      for (const [version, body] of current) if (previous.get(version) !== body) times.set(version, time);
+      for (const [version, body] of current) {
+        if (!first.has(version)) first.set(version, time);
+        if (previous.get(version) !== body) times.set(version, time);
+      }
       previous = current;
     }
-    return times;
+    return { first, last: times };
   } catch {
-    return new Map();
+    return none;
   }
 }
+
+/** version → ISO time of the last commit that changed that section (see sectionTimes). */
+export const sectionUpdateTimes = (repoRoot, file) => sectionTimes(repoRoot, file).last;
 
 /** ISO `updated` for a release: the git time, never earlier than the release day. */
 export function updatedTime(date, gitTime) {

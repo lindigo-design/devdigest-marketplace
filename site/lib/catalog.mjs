@@ -3,7 +3,7 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { satisfies } from "../../scripts/lib/marketplace.mjs";
-import { parseChangelog, sectionUpdateTimes, sortReleases, updatedTime } from "./changelog.mjs";
+import { parseChangelog, sectionTimes, sortReleases, updatedTime } from "./changelog.mjs";
 import { parseCompatibility } from "./compatibility.mjs";
 import { Problems } from "./errors.mjs";
 import { RepoReader } from "./fs.mjs";
@@ -57,11 +57,12 @@ function readReleases(ctx, p, history) {
     ctx.problems.warn(file, "no CHANGELOG; the plugin has no releases in What's new or the feeds");
     return [];
   }
-  const times = history ? sectionUpdateTimes(ctx.reader.root, file) : new Map();
+  const times = history ? sectionTimes(ctx.reader.root, file) : { first: new Map(), last: new Map() };
   return parseChangelog(ctx.reader.text(file), file, ctx.problems).map((r) => ({
     plugin: p.name,
     ...r,
-    updated: updatedTime(r.date, times.get(r.version)),
+    released: updatedTime(r.date, times.first.get(r.version)), // orders same-day releases (sortReleases)
+    updated: updatedTime(r.date, times.last.get(r.version)),
   }));
 }
 
