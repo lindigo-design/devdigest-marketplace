@@ -8,7 +8,7 @@ All notable changes to this plugin. Versions follow [SemVer](https://semver.org/
 
 ### Added
 - Agent `architecture-reviewer`: read-only review of a change set against the onion and frontend UI architecture skills and the project's own documented rules; learns the repository layout first; generalized to any repository.
-- Hook `bash-guard` (`PreToolUse` on `Bash`): read-only git only while `architecture-reviewer` runs; generic script, agent-to-profile map passed from `hooks.json`; self-test.
+- Hook `bash-guard` (`PreToolUse` on `Bash`): read-only git only while `architecture-reviewer` runs; generic script with one read-only profile, agent-to-profile map passed from `hooks.json`; self-test.
 - `LICENSE` (MIT) and `sources.json` recording the origin of the agent and hook.
 
 ### Changed

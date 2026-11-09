@@ -1,5 +1,5 @@
 {
-  "description": "Scope guards for SDD agents: spec-creator writes only Markdown under specs/, implementation-planner only under plans/, and plan-verifier's Bash is limited to read-only git plus typecheck and test runs.",
+  "description": "Scope guards for SDD agents: spec-creator writes only Markdown under specs/, implementation-planner only under plans/, and plan-verifier's Bash is limited to read-only git.",
   "hooks": {
     "PreToolUse": [
       {
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/bash-guard.mjs\" sdd-engineering:plan-verifier=verify",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/bash-guard.mjs\" sdd-engineering:plan-verifier=review",
             "timeout": 10
           }
         ]

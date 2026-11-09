@@ -127,7 +127,7 @@ Closes: R1/AC-8, R2/AC-1 (researcher), R5/AC-1, 6, 8 (research-tools).
 - `LICENSE`, `sources.json`, README ("Later": `security-reviewer`, `pr-self-review`, push `gate`), `marketplace.json`, `COMPATIBILITY.md` 2.1.318.
 - Security checklist from `docs/SECURITY.md` in the PR (new hook).
 
-`sdd-engineering`'s `hooks.json` passes `sdd-engineering:plan-verifier=verify` to its own copy.
+`sdd-engineering`'s `hooks.json` passes `sdd-engineering:plan-verifier=review` to its own copy. Decision 2026-11-09: there is only the read-only `review` profile; `plan-verifier` runs no tests or type checks (they execute project code and assume one stack), and `run-plan` runs every verify command in the user's session.
 
 Closes: R2/AC-1, 2, 4, 5, R1/AC-3, R6/AC-6 (architecture-reviewer), R5/AC-1, 6, 8.
 
@@ -137,7 +137,7 @@ Closes: R2/AC-1, 2, 4, 5, R1/AC-3, R6/AC-6 (architecture-reviewer), R5/AC-1, 6, 
 - Skills: `run-plan` (from `implement-plan`: steps for `test-writer`, `doc-writer`, `security-reviewer` removed; flow per spec §4: approved-plan check, implementer → verifier, one retry, `architecture-reviewer` on Finish, offer retro, no commit/push), `workflow-retro` (shows first, writes `retros/` after OK), `fastify-best-practices` (third-party, attribution), `react-best-practices` and `testing` only if D6 clears them. Supporting scripts via `${CLAUDE_SKILL_DIR}`.
 - Agents' `skills:` lists: only shipped skills (R6/AC-6); `next-best-practices` is a README prerequisite (D5).
 - Hooks: `write-scope.mjs` (`sdd-engineering:spec-creator` → `specs/`, `sdd-engineering:implementation-planner` → `plans/`), `bash-guard.mjs` (identical copy), `self-test.mjs`, `hooks.json` with `description`.
-- `evals/` migrated for the shipped agents and skills (R1/AC-6), without `evals/results/`.
+- No evals in 1.0.0 (R1/AC-6 amended 2026-11-09): listed under Later in every README, shipped in 1.1.
 - `LICENSE`, `THIRD_PARTY_NOTICES.md` (fastify, and react/testing if shipped), `sources.json`.
 - README: the full workflow (spec §4 graph and steps), which plugin supplies each agent and skill, what the user approves, prerequisites, "Later" (`test-writer`, `doc-writer`, `implementer-protocol`, stack skills from spec Q3).
 - `plugin.json` description and keywords, `marketplace.json`, `COMPATIBILITY.md` 2.1.318; dependency ranges stay `^0.1` until PR-5.

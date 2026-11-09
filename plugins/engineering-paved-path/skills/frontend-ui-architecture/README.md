@@ -26,7 +26,6 @@ clear home.
 | `SKILL.md` | when the skill triggers | layout discovery, layers, placement table, promotion, splitting, business logic, state, Next.js essentials, anti-patterns, scope |
 | `references/nextjs-app-router.md` | when touching routes/layouts, the `'use client'` boundary, or a server layer | App Router organization, server/client boundary, data-handling model, DAL/Server Actions rules |
 | `references/examples.md` | when you need a worked example | a "new feature" walkthrough plus good/bad pairs on a neutral sample app |
-| `evals/` | by `claude plugin eval` | three cases: add a URL-persisted filter, place a shared helper, split a grown page |
 | `README.md` | humans | this file: scope, decisions, sources |
 
 ## Design notes

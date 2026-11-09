@@ -31,7 +31,7 @@ Other plugins use them by name: the `architecture-reviewer` agent preloads both,
 | Type | Name | What it covers |
 | :- | :- | :- |
 | skill | `onion-architecture` | Rings of a backend module, inward-only dependencies, ports and adapters, where routes, services, repositories, jobs and validation go; references for Fastify, Drizzle, Zod, adapters, jobs and server-sent events; worked examples. |
-| skill | `frontend-ui-architecture` | Where components, hooks, helpers, constants, types and state live in a React / Next.js App Router UI; how to split a component; import layers; the client boundary; evals. |
+| skill | `frontend-ui-architecture` | Where components, hooks, helpers, constants, types and state live in a React / Next.js App Router UI; how to split a component; import layers; the client boundary. |
 
 Skills are namespaced: `/engineering-paved-path:<skill>`.
 
@@ -54,6 +54,7 @@ Planned for minor releases once their source and licence are confirmed or they a
 
 - `security`: security rubric and checklists (licence of the original not confirmed yet).
 - `guardrails`, `engineering-insights`, `mermaid-diagram`.
+- Evals for both skills (1.1), with a sample application to run them against.
 
 ## Licence
 

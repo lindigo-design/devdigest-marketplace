@@ -6,8 +6,8 @@ description: >-
   changing a backend module, route, service, repository, adapter, job handler or database query, when
   wiring code into the composition root, when reviewing a backend change for layering, or when a user
   asks "where should this backend code live?", "is this route too fat?", or mentions onion, clean or
-  hexagonal architecture, ports and adapters, or layers. Covers Fastify, Drizzle, Zod, SDK adapters,
-  background jobs and server-sent events. Not for frontend structure (use
+  hexagonal architecture, ports and adapters, or layers. Examples use Fastify, Drizzle and Zod; the
+  rules apply to any modular backend. Not for frontend structure (use
   engineering-paved-path:frontend-ui-architecture).
 ---
 

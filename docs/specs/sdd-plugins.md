@@ -3,7 +3,7 @@
 | | |
 | :- | :- |
 | Spec ID | `SDD-01` |
-| Status | approved 2026-11-09 (rev. 5: + R1/AC-9, R4/AC-3, R5/AC-9, AC-10, AC-11, R5/AC-4 range form, R6/AC-6, AC-7) |
+| Status | approved 2026-11-09 (rev. 6: R1/AC-6 amended, plan-verifier strictly read-only; rev. 5: + R1/AC-9, R4/AC-3, R5/AC-9, AC-10, AC-11, R5/AC-4 range form, R6/AC-6, AC-7) |
 | Owner | @lindigo-design |
 | Created | 2026-11-09 |
 | Scope | `plugins/engineering-paved-path`, `plugins/research-tools`, `plugins/architecture-review`, `plugins/sdd-engineering` |
@@ -110,7 +110,7 @@ graph TB
 | skill | `frontend-ui-architecture` | Frontend UI structure rules: routes, components, hooks, state, client boundary |
 | skill | `security` | Security rubric and checklists. **Blocked by licence** (section 7.1) |
 
-No agents, hooks or executables. All three skills are **generalized**: the DevDigest sources hard-code `server/src/modules/<name>/`, `client/`, `platform/container.ts` and DevDigest product terms (15 and 12 such mentions in the two architecture `SKILL.md` files). The migrated skills describe the rules in terms of roles (backend source root, module, UI source root) and take the actual paths from the consuming repository, discovered or asked for (R1/AC-5). Examples and evals keep working by using a neutral sample layout.
+No agents, hooks or executables. All three skills are **generalized**: the DevDigest sources hard-code `server/src/modules/<name>/`, `client/`, `platform/container.ts` and DevDigest product terms (15 and 12 such mentions in the two architecture `SKILL.md` files). The migrated skills describe the rules in terms of roles (backend source root, module, UI source root) and take the actual paths from the consuming repository, discovered or asked for (R1/AC-5). Examples use a neutral sample layout.
 
 ### 3.2 `research-tools` (no dependencies)
 
@@ -204,11 +204,11 @@ So a script compares `agent_type` with exact strings such as `architecture-revie
 
 ### 5.1 `bash-guard`: one copy or two
 
-The DevDigest `bash-guard.mjs` is one script with profiles (`review`, `verify`, `tests`, `docs`); today each agent passes its profile in its frontmatter hook. Two read-only agents in this spec need it: `architecture-reviewer` (profile `review`) and `plan-verifier` (profile `verify`).
+The DevDigest `bash-guard.mjs` is one script with profiles (`review`, `verify`, `tests`, `docs`); today each agent passes its profile in its frontmatter hook. Two read-only agents in this spec need it: `architecture-reviewer` (profile `review`) and `plan-verifier` (originally profile `verify`; since rev. 6 also `review`, strictly read-only: every verify command is run by `run-plan` in the user's session).
 
 | | A. One copy in `architecture-review` | B. Two identical copies + CI check |
 | :- | :- | :- |
-| Where | `architecture-review/hooks/`, mapping `architecture-review:architecture-reviewer` → `review` and `sdd-engineering:plan-verifier` → `verify` | Same script in `architecture-review` and `sdd-engineering`; each `hooks.json` maps only its own agents |
+| Where | `architecture-review/hooks/`, mapping `architecture-review:architecture-reviewer` → `review` and `sdd-engineering:plan-verifier` → `review` | Same script in `architecture-review` and `sdd-engineering`; each `hooks.json` maps only its own agents |
 | Works with SDD | Yes: `sdd-engineering` always installs `architecture-review` | Yes |
 | Coupling | `architecture-review` names an agent of a plugin that depends on it (dependency points the wrong way). Changing `plan-verifier`'s name or Bash needs means releasing `architecture-review` first, then widening the range in `sdd-engineering`. | Each plugin owns the policy for its own agents. A guard change is released in both plugins in the same PR. |
 | Cost per `Bash` call | 1 node process | 2 node processes (each exits at once when `agent_type` is not its own) |
@@ -225,7 +225,7 @@ The DevDigest `bash-guard.mjs` is one script with profiles (`review`, `verify`, 
 - **AC-3:** WHEN an agent or skill references a skill from another plugin, it SHALL use `<plugin>:<skill>` (for example `engineering-paved-path:security`), and that plugin SHALL be in the referencing plugin's `dependencies`.
 - **AC-4:** WHEN a skill runs a supporting script, it SHALL locate it through `${CLAUDE_SKILL_DIR}`, never through `.claude/skills/`.
 - **AC-5:** WHERE a DevDigest component read or named a fixed DevDigest path, the migrated component SHALL take that path as an explicit input (argument, discovery in the consuming repository, or a question to the user) instead.
-- **AC-6:** `sdd-engineering` SHALL ship evals for its agents and skills under `evals/`, migrated with them.
+- **AC-6:** *(amended 2026-11-09)* Release 1.0.0 SHALL ship without evals: the sources have none for the SDD agents and skills, and the `frontend-ui-architecture` evals need a sample application that does not exist yet. Each plugin README SHALL list evals under "Later"; they ship in a 1.1 release.
 - **AC-7:** A skill SHALL live in a plugin that every plugin using it depends on (or is), and SHALL NOT live in a plugin none of whose dependents use it.
 - **AC-8:** `research-tools` SHALL have no `dependencies`.
 - **AC-9:** Every cross-plugin reference in component text (agent and skill bodies and frontmatter, hook scripts, evals), in the forms `<plugin>:<skill>` and `<plugin>:<agent>` (for example `run-plan` naming `architecture-review:architecture-reviewer`), SHALL name a plugin that is in the referencing plugin's `dependencies`. CI SHALL fail with `file:line` and the missing dependency otherwise.

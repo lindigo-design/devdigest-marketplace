@@ -58,6 +58,7 @@ Agents are namespaced: `@agent-architecture-review:<agent>`.
 
 - `security-reviewer`: waits for the `security` skill, whose licence is not confirmed yet.
 - `pr-self-review` with a push gate.
+- Evals for `architecture-reviewer` (1.1).
 
 ## Licence
 

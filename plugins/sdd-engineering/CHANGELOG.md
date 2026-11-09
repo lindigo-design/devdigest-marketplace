@@ -10,7 +10,7 @@ All notable changes to this plugin. Versions follow [SemVer](https://semver.org/
 - Agents `spec-creator`, `implementation-planner`, `implementer` (one agent for backend and frontend) and `plan-verifier`, generalized to any repository; no MCP tools.
 - Skills `run-plan` (runs an approved plan task by task: implementer, plan-verifier, one retry, architecture review at the end; started by the user only) and `workflow-retro` (saved only after the user confirms).
 - Skill `fastify-best-practices`, unmodified from mcollina/skills @ 58b3eeb (MIT, © 2026 Matteo Collina), with `THIRD_PARTY_NOTICES.md`.
-- Hooks: `write-scope` (spec-creator → `specs/`, implementation-planner → `plans/`, Markdown only) and `bash-guard` (identical copy; `plan-verifier` → `verify` profile), each with a self-test.
+- Hooks: `write-scope` (spec-creator → `specs/`, implementation-planner → `plans/`, Markdown only) and `bash-guard` (identical copy; `plan-verifier` strictly read-only: read-only git only, every verify command is run by `run-plan` in the user's session), each with a self-test.
 - `LICENSE` (MIT) and `sources.json` recording the origin of each component.
 
 ### Changed

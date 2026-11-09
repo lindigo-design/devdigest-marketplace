@@ -10,10 +10,9 @@
 //   - a mapped agent                                              -> its profile's allowlist applies.
 //
 // Profiles:
-//   review = cd <dir inside the repo>, git [--no-pager] status|diff|log|show with a small flag allowlist
-//   verify = review + from a package directory (one that holds a package.json):
-//              node node_modules/typescript/bin/tsc --noEmit -p tsconfig.json
-//              node node_modules/vitest/vitest.mjs run [<paths>] [--exclude '**/*.it.test.ts'] [-t "<name>"] [--sequence.shuffle]
+//   review = cd <dir inside the repo>, git [--no-pager] status|diff|log|show with a small flag allowlist.
+//            Nothing else runs: no tests, type checks, linters or package scripts, because they execute
+//            project code. Agents report such commands for the caller to run.
 //
 // Output: exit 0 = allow, exit 2 = block (stderr goes back to the agent as the reason).
 // FAILS CLOSED for mapped agents: an unknown profile, an unparsable command, a missing command. Bad hook
@@ -34,12 +33,11 @@
 import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import path from 'node:path';
 
-const PROFILES = ['review', 'verify'];
+const PROFILES = ['review'];
 const GIT_SUMMARY =
   'cd <dir in the repo>, git [--no-pager] status [--porcelain|--short|-s] | diff [--name-status|--name-only|--stat|--cached|--staged|-U<n>] | log [--oneline|--stat|--name-status|--name-only|-p|--follow|-<n>|-n <n>] | show [--stat|--name-status|--name-only|--oneline] + revisions/paths';
 const ALLOWED_SUMMARY = {
   review: GIT_SUMMARY,
-  verify: `${GIT_SUMMARY}; in a directory with a package.json: node node_modules/typescript/bin/tsc --noEmit -p tsconfig.json, node node_modules/vitest/vitest.mjs run [<paths>] [--exclude '**/*.it.test.ts'] [-t "<name>"] [--sequence.shuffle]`,
 };
 const HINTS = 'Read and search files with Read/Grep/Glob (cat/grep/ls/find/... are blocked).';
 
@@ -230,14 +228,13 @@ function inNestedRepo(ctx, rel) {
   }
   return false;
 }
-// a directory an agent may be in / a path git or vitest may be pointed at: both the path as written
+// a directory an agent may be in / a path git may be pointed at: both the path as written
 // and its canonical target must be inside the repo, outside node_modules/.git/.env and nested repos
 function safeRel(ctx, abs) {
   if (!lexicallySafe(ctx, abs)) return false;
   const r = real(abs);
   return r !== null && lexicallySafe(ctx, r) && !inNestedRepo(ctx, repoRel(ctx, r));
 }
-const isPackageDir = (ctx) => existsSync(`${ctx.cwd}/package.json`);
 
 // ---------- git: status|diff|log|show with a flag allowlist ----------
 const GIT_FLAGS = {
@@ -278,51 +275,8 @@ function gitOk(w, ctx) {
   return true;
 }
 
-// ---------- node tools: fixed shapes, run from a package directory ----------
-const nodeCmd = (w, script) => w[0] === 'node' && norm(w[1] ?? '') === script;
-
-function tscOk(w, ctx) {
-  return (
-    w.length === 5 &&
-    nodeCmd(w, 'node_modules/typescript/bin/tsc') &&
-    w[2] === '--noEmit' && w[3] === '-p' && w[4] === 'tsconfig.json' &&
-    isPackageDir(ctx)
-  );
-}
-
-function vitestOk(w, ctx) {
-  if (!nodeCmd(w, 'node_modules/vitest/vitest.mjs') || w[2] !== 'run' || !isPackageDir(ctx)) return false;
-  const args = w.slice(3);
-  const seen = new Set();
-  for (let j = 0; j < args.length; j++) {
-    const a = args[j];
-    const once = (key) => !seen.has(key) && seen.add(key);
-    if (a === '-t') {
-      // vitest's parser reads a "-..." token after -t as the next option (-t --config=..., -t -u)
-      if (!once('-t') || args[j + 1] === undefined || args[j + 1].startsWith('-')) return false;
-      j += 1; // the test name: any text, it is only a filter
-    } else if (a === '--sequence.shuffle') {
-      if (!once(a)) return false;
-    } else if (a === '--exclude') {
-      if (!once(a) || args[j + 1] !== '**/*.it.test.ts') return false;
-      j += 1;
-    } else if (a.startsWith('-')) {
-      return false; // --config, --root, --dir, -u, --coverage, --reporter, --outputFile, ...
-    } else {
-      // a test file / folder filter inside this package
-      const abs = resolve(ctx.cwd, a);
-      const rel = repoRel(ctx, abs);
-      const pkg = repoRel(ctx, ctx.cwd);
-      const inPkg = rel !== null && (pkg === '' || rel === pkg || rel.startsWith(`${pkg}/`));
-      if (!inPkg || !safeRel(ctx, abs)) return false;
-    }
-  }
-  return true;
-}
-
 const MATCHERS = {
   review: [gitOk],
-  verify: [gitOk, tscOk, vitestOk],
 };
 
 function checkSegment(profile, w, ctx) {

@@ -97,10 +97,9 @@ A change of 1–2 files with no contract → say a plan is not needed and stop.
    `pnpm-lock.yaml` → pnpm, `package-lock.json` → npm, `yarn.lock` → yarn, `bun.lockb` → bun; other
    ecosystems: `Makefile`, `pyproject.toml`, `go.mod`, `Cargo.toml`) and read the real scripts
    (`package.json` `scripts`, Make targets, CI workflow files). Use only commands that exist, with the
-   directory they run in. Prefer the direct tool form for typecheck and tests when the project's
-   scripts wrap many steps (for example `node node_modules/typescript/bin/tsc --noEmit -p tsconfig.json`,
-   `node node_modules/vitest/vitest.mjs run <paths>`): the read-only verifier may run only narrow command
-   shapes.
+   directory they run in, exactly as a developer would type them. The verifier is read-only and runs
+   none of them; `/sdd-engineering:run-plan` runs them in the user's session, so make each one
+   self-contained and say which need services (database, containers, network).
 5. Place each new file using the preloaded skills (table above) and the project's conventions.
 6. **Spec feasibility check**, only two questions per `SPEC-NN/AC-n`:
    (a) does it contradict existing code or an entry in the project's insights or conventions file?

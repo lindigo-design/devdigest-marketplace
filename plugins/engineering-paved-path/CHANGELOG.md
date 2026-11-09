@@ -8,7 +8,7 @@ All notable changes to this plugin. Versions follow [SemVer](https://semver.org/
 
 ### Added
 - Skill `onion-architecture`: backend layering rules, per-tool references and examples, generalized to any repository layout.
-- Skill `frontend-ui-architecture`: UI code organization rules with evals, generalized to any repository layout.
+- Skill `frontend-ui-architecture`: UI code organization rules, generalized to any repository layout (its evals return in 1.1 with a sample application).
 - `LICENSE` (MIT) and `sources.json` recording the origin of each skill.
 
 ### Changed

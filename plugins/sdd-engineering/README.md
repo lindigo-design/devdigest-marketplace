@@ -64,7 +64,7 @@ Subagents cannot start other subagents, so your main session does the orchestrat
 | skill | `workflow-retro` | Retrospective of a finished run. |
 | skill | `fastify-best-practices` | Fastify routes, plugins, validation, errors, performance (third-party, MIT). |
 | hook | `write-scope` | `spec-creator` writes only Markdown under `specs/`, `implementation-planner` only under `plans/`. |
-| hook | `bash-guard` | `plan-verifier`'s Bash: read-only git, plus `tsc --noEmit` and `vitest run` through `node node_modules/…`. |
+| hook | `bash-guard` | `plan-verifier`'s Bash: read-only git only. |
 
 Agents and skills are namespaced: `@agent-sdd-engineering:<agent>`, `/sdd-engineering:<skill>`.
 
@@ -74,7 +74,7 @@ The planner preloads `engineering-paved-path:onion-architecture`, `engineering-p
 
 - `implementer` can `Write`, `Edit`, run `Bash` and load skills; it is told to touch only the files its task owns and never to install packages or change git state. This is an instruction, not a hook: keep your normal permission prompts on.
 - `spec-creator` and `implementation-planner` can write, but the `write-scope` hook blocks anything outside their folder.
-- `plan-verifier` has no `Write`/`Edit`; the `bash-guard` hook blocks every other command, which it then lists under `NOT CHECKED` for `run-plan` to run in your session.
+- `plan-verifier` is strictly read-only: no `Write`/`Edit`, and the `bash-guard` hook allows only read-only git. It runs no tests, type checks or builds, since they execute project code; it lists every verify command under `NOT CHECKED` and `run-plan` runs them in your session, under your normal permissions.
 - **Hooks are session-wide.** Both hooks run on every matching tool call once the plugin is enabled, read the caller's `agent_type`, and do nothing unless it is one of the agents above. Your own edits and commands are not affected.
 - Hooks need `node` on `PATH` and run from `${CLAUDE_PLUGIN_ROOT}/hooks/`. Self-tests: `node hooks/self-test.mjs` and `node hooks/write-scope.self-test.mjs`.
 - `spec-creator` may use `WebFetch` for design sources you give it. `workflow-retro` reads session transcripts and may fetch current model prices; it caches nothing.
@@ -97,7 +97,8 @@ Stack skills that this plugin does not ship yet. The agents work without them an
 ## Later
 
 - `react-best-practices`, `next-best-practices`, `testing` skills (as minor releases once licensed).
-- `test-writer` and `doc-writer` agents; evals for the agents and skills.
+- `test-writer` and `doc-writer` agents.
+- Evals for the agents and skills (1.1).
 
 ## Licence
 

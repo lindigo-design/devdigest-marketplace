@@ -76,9 +76,11 @@ task: T<n>
 base: <plan base>
 ```
 
-plan-verifier is read-only and its Bash allows only read-only git and a few typecheck/test command
-shapes. It lists every Verify command it could not run under `NOT CHECKED`, with the exact command and
-cwd. Run those commands yourself and record command → result.
+plan-verifier is strictly read-only: its Bash allows only read-only git, and it runs no tests, type
+checks, linters or builds. It lists every Verify command under `NOT CHECKED`, with the exact command
+and cwd. Run those commands yourself, in this session and under the user's normal permissions, and
+record command → exit code → summary line. If a result changes the picture (a failing test), you may
+re-run plan-verifier with `results:` so its verdict uses them.
 
 The task **passes** when the verdict is `COMPLIANT`, or `INCOMPLETE EVIDENCE` where every `NOT CHECKED`
 command you ran succeeded and no other row is `UNVERIFIABLE` for a reason you can't resolve (if one is,

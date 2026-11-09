@@ -47,6 +47,7 @@ None.
 ## Later
 
 - `brainstorm`: an interactive, read-only ideation agent.
+- Evals for `researcher` (1.1).
 
 ## Licence
 

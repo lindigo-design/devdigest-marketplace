@@ -35,8 +35,8 @@ mk('vendor/other/.git'); // a nested repository
 mk('vendor/other/package.json', '{}\n');
 
 // ---------- cases ----------
-const AGENTS = { review: 'test-plugin:reader', verify: 'test-plugin:checker' };
-const MAP = [`${AGENTS.review}=review`, `${AGENTS.verify}=verify`];
+const AGENTS = { review: 'test-plugin:reader', other: 'test-plugin:checker' };
+const MAP = [`${AGENTS.review}=review`, `${AGENTS.other}=review`];
 const B = (command, agent, extra = {}) =>
   JSON.stringify({ hook_event_name: 'PreToolUse', tool_name: 'Bash', tool_input: { command }, cwd: ROOT, ...(agent ? { agent_type: agent } : {}), ...extra });
 
@@ -44,7 +44,7 @@ const cases = [];
 const add = (profile, commands, expected) => {
   for (const c of commands) cases.push({ label: `${profile}: ${c}`, args: MAP, input: B(c, AGENTS[profile]), expected, profile });
 };
-const PROFILES = ['review', 'verify'];
+const PROFILES = ['review'];
 const APP_ABS = path.join(ROOT, 'app'); // absolute, OS-native separators
 
 // every profile: cd inside the repo + git status|diff|log|show with the flag allowlist
@@ -120,50 +120,11 @@ const EVERYWHERE_BLOCKED = [
 ];
 for (const profile of PROFILES) add(profile, EVERYWHERE_BLOCKED, BLOCK);
 
-// verify only: tsc + vitest, fixed shapes, from a directory with a package.json
-add('verify', [
-  'cd app && node node_modules/typescript/bin/tsc --noEmit -p tsconfig.json',
-  'cd lib && node node_modules/typescript/bin/tsc --noEmit -p tsconfig.json',
-  `cd "${APP_ABS}" && node node_modules/typescript/bin/tsc --noEmit -p tsconfig.json`,
-  'cd app && node node_modules/vitest/vitest.mjs run test/a.test.ts',
-  'cd app && node node_modules/vitest/vitest.mjs run',
-  "cd app && node node_modules/vitest/vitest.mjs run --exclude '**/*.it.test.ts'",
-  'cd app && node node_modules/vitest/vitest.mjs run src/lib/urls.test.ts -t "pins to the sha"',
-  'cd app && node node_modules/vitest/vitest.mjs run --sequence.shuffle src/lib/a.test.ts src/lib/b.test.ts',
-  "cd app && node node_modules/vitest/vitest.mjs run 'src/routes/[id]/x.test.tsx' -t 'it renders $5'",
-], ALLOW);
-add('verify', [
-  'node node_modules/typescript/bin/tsc --noEmit -p tsconfig.json', // repo root has no package.json
-  'cd docs && node node_modules/typescript/bin/tsc --noEmit -p tsconfig.json', // not a package
-  'cd app && node node_modules/typescript/bin/tsc -p tsconfig.json',
-  'cd app && node node_modules/typescript/bin/tsc --noEmit',
-  'cd app && node node_modules/typescript/bin/tsc --noEmit -p tsconfig.build.json',
-  'cd app && node node_modules/typescript/bin/tsc --noEmit -p tsconfig.json --generateTrace t',
-  'cd app && node node_modules/typescript/bin/tsc --build',
-  'node node_modules/vitest/vitest.mjs run', // repo root
-  'cd app/src && node ../node_modules/vitest/vitest.mjs run',
-  'cd app && node node_modules/vitest/vitest.mjs',
-  'cd app && node node_modules/vitest/vitest.mjs watch',
-  'cd app && node node_modules/vitest/vitest.mjs run -u',
-  'cd app && node node_modules/vitest/vitest.mjs run --update',
-  'cd app && node node_modules/vitest/vitest.mjs run --coverage',
-  'cd app && node node_modules/vitest/vitest.mjs run --outputFile=x.json',
-  'cd app && node node_modules/vitest/vitest.mjs run --reporter=html',
-  'cd app && node node_modules/vitest/vitest.mjs run --config ../vendor/other/vitest.config.ts',
-  'cd app && node node_modules/vitest/vitest.mjs run --root ../vendor/other',
-  'cd app && node node_modules/vitest/vitest.mjs run --dir ../lib',
-  "cd app && node node_modules/vitest/vitest.mjs run --exclude '**/*.ts'",
-  'cd app && node node_modules/vitest/vitest.mjs run ../lib/src/a.test.ts',
-  'cd app && node node_modules/vitest/vitest.mjs run -t a -t b',
-  'cd vendor/other && node node_modules/vitest/vitest.mjs run', // nested repo
-  "cd app && node node_modules/vitest/vitest.mjs run $'-u'",
-  'cd app && node node_modules/vitest/vitest.mjs run -t --config=x.ts',
-  'cd app && node node_modules/vitest/vitest.mjs run -t -u',
-], BLOCK);
-// review: no node tools
+// review: no tests, type checks or package scripts, not even through node_modules
 add('review', [
   'cd app && node node_modules/vitest/vitest.mjs run',
   'cd app && node node_modules/typescript/bin/tsc --noEmit -p tsconfig.json',
+  'cd app && node node_modules/eslint/bin/eslint.js .',
 ], BLOCK);
 
 // agent selection and fail-closed behaviour
@@ -175,7 +136,8 @@ special('prefix of a mapped name -> allow', MAP, B('touch x.txt', 'test-plugin')
 special('bare agent name without plugin scope -> allow', MAP, B('touch x.txt', 'reader'), ALLOW);
 special('no args, subagent -> allow', [], B('touch x.txt', AGENTS.review), ALLOW);
 special('unknown profile for the mapped agent -> block', [`${AGENTS.review}=nope`], B('git status', AGENTS.review), BLOCK, `${AGENTS.review}=nope`);
-special('unknown profile for another agent -> allow', [`${AGENTS.verify}=nope`, `${AGENTS.review}=review`], B('git status', AGENTS.review), ALLOW);
+special('verify profile is gone -> block mapped agent', [`${AGENTS.review}=verify`], B('git status', AGENTS.review), BLOCK, 'verify');
+special('unknown profile for another agent -> allow', [`${AGENTS.other}=nope`, `${AGENTS.review}=review`], B('git status', AGENTS.review), ALLOW);
 special('malformed arg, subagent -> block', ['review', ...MAP], B('git status', AGENTS.review), BLOCK, '"review"');
 special('malformed arg, main session -> allow', ['review'], B('touch x.txt'), ALLOW);
 special('malformed JSON -> block', MAP, '{not json', BLOCK, 'unreadable');
