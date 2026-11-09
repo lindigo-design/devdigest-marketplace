@@ -73,6 +73,10 @@ const hasRelations = (c.page.preloads?.length ?? 0) + (c.page.preloadedBy?.lengt
         </div>
       </div>
 
+      {/* Install sits right under the facts, as on the plugin page, not after a long body (owner review 2026-11-10). */}
+      <InstallBlock title={t("install.titleWith", { plugin: c.plugin })} plugin={c.plugin} command={install(c.plugin).install}
+        alsoInstalls={transitiveDependencies(catalog.plugins, c.plugin)} panelHref={href(`${c.plugin}/#install`)} />
+
       {hook && (
         <section class="block" aria-labelledby="hook">
           <h2 id="hook" class="t-heading-2">{t("component.hook")}</h2>
@@ -114,9 +118,6 @@ const hasRelations = (c.page.preloads?.length ?? 0) + (c.page.preloadedBy?.lengt
           <Prose html={markdown(page.body, c.source)} source={c.source} sourceHref={githubSource(c.source)} />
         </div>
       )}
-
-      <InstallBlock title={t("install.titleWith", { plugin: c.plugin })} plugin={c.plugin} command={install(c.plugin).install}
-        alsoInstalls={transitiveDependencies(catalog.plugins, c.plugin)} panelHref={href(`${c.plugin}/#install`)} />
     </div>
   </div>
 </Base>
