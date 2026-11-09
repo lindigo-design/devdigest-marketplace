@@ -1,0 +1,17 @@
+{
+  "skills": {
+    "run-plan": { "origin": "devdigest", "license": "MIT", "copyright": "2026 Ivan Lapa", "source": "DevDigest, branch local/all-lessons @ b288d63: .claude/skills/implement-plan (renamed, generalized)" },
+    "workflow-retro": { "origin": "devdigest", "license": "MIT", "copyright": "2026 Ivan Lapa", "source": "DevDigest, branch local/all-lessons @ b288d63: .claude/skills/workflow-retro (generalized)" },
+    "fastify-best-practices": { "origin": "third-party", "url": "https://github.com/mcollina/skills/tree/58b3eeb398d10c007988e80f73d30ebadab64754/skills/fastify", "license": "MIT", "copyright": "2026 Matteo Collina" }
+  },
+  "agents": {
+    "spec-creator": { "origin": "devdigest", "license": "MIT", "copyright": "2026 Ivan Lapa", "source": "DevDigest, branch local/all-lessons @ b288d63: .claude/agents/spec-creator.md (generalized, MCP tools removed)" },
+    "implementation-planner": { "origin": "devdigest", "license": "MIT", "copyright": "2026 Ivan Lapa", "source": "DevDigest, branch local/all-lessons @ b288d63: .claude/agents/implementation-planner.md (generalized)" },
+    "implementer": { "origin": "devdigest", "license": "MIT", "copyright": "2026 Ivan Lapa", "source": "DevDigest, branch local/all-lessons @ b288d63: .claude/agents/implementer-backend.md + implementer-frontend.md + .claude/skills/implementer-protocol (merged, generalized)" },
+    "plan-verifier": { "origin": "devdigest", "license": "MIT", "copyright": "2026 Ivan Lapa", "source": "DevDigest, branch local/all-lessons @ b288d63: .claude/agents/plan-verifier.md (generalized)" }
+  },
+  "hooks": {
+    "write-scope": { "origin": "devdigest", "license": "MIT", "copyright": "2026 Ivan Lapa", "source": "DevDigest, branch local/all-lessons @ b288d63: .claude/agents/hooks/write-scope.mjs (rewritten as a generic agent-to-folder guard)" },
+    "bash-guard": { "origin": "devdigest", "license": "MIT", "copyright": "2026 Ivan Lapa", "source": "identical copy of plugins/architecture-review/hooks/bash-guard.mjs" }
+  }
+}

@@ -2,7 +2,7 @@
 
 | | |
 | :- | :- |
-| Claude Code | ≥ 2.1.110 (declared minimum); verified on 2.1.318 (local and CI pin) |
+| Claude Code | ≥ 2.1.318 (declared minimum; verified on 2.1.318, the CI pin) |
 | OS | Windows 10/11, macOS |
 | Runtime | Node.js on `PATH` for hook scripts (`.mjs`) |
 | Surfaces | Claude Code CLI / IDE extensions. Not tested in claude.ai or Cowork |

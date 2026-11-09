@@ -39,8 +39,27 @@ Thanks for improving the `lindigo-devdigest` marketplace. This file covers how t
 - Every `SKILL.md` and agent file starts with YAML frontmatter that has `name` and `description`. The catalog site build fails without them and names the file. Names use only letters, digits, `.`, `_` and `-` (they become page URLs).
 - Optional frontmatter `tags` on a skill, agent or command rank above the plugin's tags in catalog search.
 - A `CLAUDE.md` inside a plugin is not loaded; put instructions in a skill.
-- Reference another plugin's skill as `<plugin>:<skill>` and declare that plugin in `dependencies` with a range such as `^0.1`.
+- Reference another plugin's skill as `<plugin>:<skill>` and declare that plugin in `dependencies` with a range such as `^1.0`.
 - Code taken from DevDigest keeps its MIT notice and a provenance line in `CHANGELOG.md`.
+
+## Sources, licences and public text
+
+The repository is public, so every component must be licensed for redistribution and must not depend on one project. `check-components.mjs` enforces this (spec [SDD-01](docs/specs/sdd-plugins.md), R1/R4/R6):
+
+- A plugin with skills or agents ships `LICENSE` and `sources.json`, which records each skill and agent:
+
+  ```json
+  {
+    "skills": { "fastify-best-practices": { "origin": "third-party", "url": "https://github.com/…", "license": "MIT", "copyright": "…" } },
+    "agents": { "researcher": { "origin": "devdigest", "license": "MIT" } }
+  }
+  ```
+
+  `origin` is `devdigest`, `own` or `third-party`. A third-party entry needs an `https` URL, an SPDX licence and a `## <name>` section in the plugin's `THIRD_PARTY_NOTICES.md` with source, licence, copyright and the licence text. A component whose licence is unknown is not committed at all.
+- An agent's `skills:` list names only skills shipped in the same release: a bare name for its own plugin, `<plugin>:<skill>` for a declared dependency.
+- Any `<plugin>:<skill>` or `<plugin>:<agent>` written in component text names the own plugin or a declared dependency.
+- Copies of `hooks/bash-guard.mjs` in different plugins are byte-identical; each plugin's `hooks.json` maps only its own agents.
+- Agents, skills, hooks, scripts, evals and plugin READMEs contain no project-specific paths or names (`server/src`, `client/src`, `.claude/skills/`, `$CLAUDE_PROJECT_DIR/.claude`, course-lesson codes, the source project's name). This marketplace's own identifiers in install commands are fine. Errors print as `file:line`.
 
 ## Check locally before opening a PR
 
@@ -48,6 +67,7 @@ Thanks for improving the `lindigo-devdigest` marketplace. This file covers how t
 claude plugin validate --strict .
 claude plugin validate --strict ./plugins/<name>
 node .github/scripts/check-versions.mjs origin/main
+node .github/scripts/check-components.mjs          # every plugin; pass origin/main to check only changed ones
 
 # Smoke install in a throwaway config, so your own ~/.claude stays untouched
 claude plugin marketplace add ./
@@ -79,7 +99,7 @@ Changes to the site itself run the full suite; see [site/README.md](site/README.
 [`validate.yml`](.github/workflows/validate.yml) runs on every PR, with `contents: read` and no secrets:
 
 1. `claude plugin validate --strict` for the root and every plugin;
-2. `check-versions.mjs`: catalog and directory consistency, no `version` in the catalog, a version bump for every changed plugin;
+2. `check-versions.mjs`: catalog and directory consistency, no `version` in the catalog, a version bump for every changed plugin; `check-components.mjs` on the changed plugins (sources and licences, `skills:` lists, cross-plugin references, denylist); hook self-tests;
 3. smoke install of every plugin in a temporary `HOME`, then a check that all dependencies are enabled.
 
 [`pages.yml`](.github/workflows/pages.yml) builds and tests the catalog site on PRs that touch plugins, the catalog, the site or the design tokens, and deploys it from `main`:
@@ -95,6 +115,7 @@ Changes to the site itself run the full suite; see [site/README.md](site/README.
 | Step | Command | Where |
 | :- | :- | :- |
 | Prepare | `node scripts/release.mjs <plugin> patch\|minor\|major` | feature branch |
+| Prepare several at once | `node scripts/release.mjs <plugin>=major <plugin>=major …` (each released once; ranges between them rewritten, no cascade) | feature branch |
 | Tag | `node scripts/tag-release.mjs --push` | `main`, after merge |
 | Roll back | `node scripts/rollback.mjs <plugin> <good-version> --reason "<why>"` | feature branch, then tag after merge |
 

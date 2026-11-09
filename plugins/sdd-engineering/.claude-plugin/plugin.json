@@ -1,7 +1,7 @@
 {
   "name": "sdd-engineering",
-  "version": "0.1.0",
-  "description": "Spec-driven development workflow: spec, plan, implement, test, verify and document, with scoped write hooks.",
+  "version": "1.0.0",
+  "description": "Spec-driven workflow: spec-creator, implementation-planner, implementer and plan-verifier agents, run-plan and workflow-retro skills.",
   "author": {
     "name": "Yana Levchenko",
     "url": "https://github.com/lindigo-design"
@@ -14,21 +14,22 @@
     "spec",
     "planning",
     "implementation",
-    "testing",
-    "agents"
+    "verification",
+    "agents",
+    "hooks"
   ],
   "dependencies": [
     {
       "name": "engineering-paved-path",
-      "version": "^0.1"
+      "version": "^1.0"
     },
     {
       "name": "research-tools",
-      "version": "^0.1"
+      "version": "^1.0"
     },
     {
       "name": "architecture-review",
-      "version": "^0.1"
+      "version": "^1.0"
     }
   ]
 }

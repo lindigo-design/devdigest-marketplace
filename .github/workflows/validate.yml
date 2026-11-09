@@ -64,6 +64,28 @@ jobs:
       - name: Check (push — catalog consistency only)
         if: github.event_name != 'pull_request'
         run: node .github/scripts/check-versions.mjs
+      # Sources and licences, agents' skills: lists, cross-plugin references, bash-guard copies,
+      # denylisted project-specific terms (spec SDD-01). Checks the plugins this change touches.
+      - name: Components (PR — plugins changed against the base branch)
+        if: github.event_name == 'pull_request'
+        run: node .github/scripts/check-components.mjs "origin/${{ github.base_ref }}"
+      - name: Components (push — plugins changed by this push)
+        if: github.event_name == 'push'
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: node .github/scripts/check-components.mjs "$BEFORE"
+      - name: Components (manual run — every plugin)
+        if: github.event_name == 'workflow_dispatch'
+        run: node .github/scripts/check-components.mjs
+      - name: Hook self-tests
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          for f in plugins/*/hooks/*self-test.mjs; do
+            echo "::group::${f}"
+            node "${f}"
+            echo "::endgroup::"
+          done
 
   smoke-install:
     name: smoke install (temporary HOME)

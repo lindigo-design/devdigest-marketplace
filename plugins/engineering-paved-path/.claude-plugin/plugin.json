@@ -1,7 +1,7 @@
 {
   "name": "engineering-paved-path",
-  "version": "0.1.0",
-  "description": "Base layer of the DevDigest marketplace: shared team guardrails (as a skill), security rubric, engineering insights, workflow retros and Mermaid diagrams.",
+  "version": "1.0.0",
+  "description": "Onion backend architecture and frontend UI structure skills, shared by architecture-review and sdd-engineering.",
   "author": {
     "name": "Yana Levchenko",
     "url": "https://github.com/lindigo-design"
@@ -10,10 +10,12 @@
   "repository": "https://github.com/lindigo-design/devdigest-marketplace",
   "license": "MIT",
   "keywords": [
-    "guardrails",
-    "security",
-    "engineering-insights",
-    "retro",
-    "mermaid"
+    "architecture",
+    "onion-architecture",
+    "clean-architecture",
+    "layering",
+    "frontend",
+    "react",
+    "nextjs"
   ]
 }

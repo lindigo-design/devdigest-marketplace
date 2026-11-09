@@ -4,12 +4,12 @@ Public [Claude Code plugin marketplace](https://code.claude.com/docs/en/plugin-m
 
 | Plugin | What it gives you | Depends on |
 | :- | :- | :- |
-| [`engineering-paved-path`](plugins/engineering-paved-path) | Team guardrails (as a skill), security rubric, engineering insights, workflow retro, Mermaid diagrams | — |
-| [`research-tools`](plugins/research-tools) | Read-only `researcher` and `brainstorm` agents | engineering-paved-path |
-| [`architecture-review`](plugins/architecture-review) | Architecture/security reviewers, `pr-self-review` + push gate, architecture rule skills | engineering-paved-path |
-| [`sdd-engineering`](plugins/sdd-engineering) | Spec → plan → implement → test → verify → docs | engineering-paved-path, research-tools, architecture-review |
+| [`engineering-paved-path`](plugins/engineering-paved-path) | Architecture rules shared by the other plugins: onion backend architecture, frontend UI structure | — |
+| [`research-tools`](plugins/research-tools) | Read-only `researcher` agent with evidence for every finding | — |
+| [`architecture-review`](plugins/architecture-review) | Read-only `architecture-reviewer` agent with a read-only Bash guard | engineering-paved-path |
+| [`sdd-engineering`](plugins/sdd-engineering) | Spec → plan → implement → verify → architecture review → retro | engineering-paved-path, research-tools, architecture-review |
 
-> Status: **0.1.0 scaffold.** Manifests and dependency graph are in place; skills, agents and hooks are migrated one plugin at a time.
+> Status: **1.0.0.** All four plugins ship their first stable components. Not yet included: the `security`, React, Next.js and testing skills (licence of the originals not confirmed), `brainstorm`, `security-reviewer`, `pr-self-review`, `test-writer`, `doc-writer`, and evals (planned for 1.1). Each plugin README lists them under *Later*.
 
 ## Install
 
@@ -56,23 +56,18 @@ The repository is public, so no git credentials are needed to add the marketplac
 
 ```mermaid
 graph TD
-    EPP["engineering-paved-path<br/>guardrails · security · insights · retro · mermaid"]
-    RT["research-tools<br/>researcher · brainstorm"]
-    AR["architecture-review<br/>architecture/security reviewers · pr-self-review · gate"]
-    SDD["sdd-engineering<br/>spec → plan → implement → test → verify → docs"]
-    MCP["devdigest-mcp (planned)<br/>DevDigest MCP server"]
+    EPP["engineering-paved-path<br/>onion-architecture · frontend-ui-architecture"]
+    RT["research-tools<br/>researcher"]
+    AR["architecture-review<br/>architecture-reviewer · bash-guard"]
+    SDD["sdd-engineering<br/>spec → plan → implement → verify → review → retro"]
 
-    RT -->|"^0.1"| EPP
-    AR -->|"^0.1"| EPP
-    SDD -->|"^0.1"| EPP
-    SDD -->|"^0.1"| RT
-    SDD -->|"^0.1"| AR
-    SDD -.->|"optional, not a dependency"| MCP
+    AR -->|"^1.0"| EPP
+    SDD -->|"^1.0"| EPP
+    SDD -->|"^1.0"| RT
+    SDD -->|"^1.0"| AR
 ```
 
-`sdd-engineering` depends on `architecture-review` because `implement-plan` runs `architecture-reviewer` and `security-reviewer` on *Finish*.
-
-**DevDigest MCP** is not a dependency. `spec-creator` can use the DevDigest MCP tools when they are available; they will ship later as a separate `devdigest-mcp` plugin.
+`sdd-engineering` depends on `architecture-review` because `run-plan` runs `architecture-reviewer` on the full diff when every task has passed, and on `research-tools` because `researcher` feeds `spec-creator`.
 
 ## Repository layout
 
@@ -107,12 +102,13 @@ Rules for every plugin:
 
 - `version` lives **only** in `plugins/<name>/.claude-plugin/plugin.json`, never in `marketplace.json`. Users get a new copy only when this string changes.
 - Any change under `plugins/<name>/` must bump that plugin's version (SemVer). CI fails a PR that changes a plugin without raising its version above `main`.
-- Dependencies use caret ranges on `0.x` minors (`^0.1` = `>=0.1.0 <0.2.0`). A breaking change in a base plugin bumps its minor and requires dependents to widen their range in the same PR.
+- Dependencies use caret ranges on the major (`^1.0` = `>=1.0.0 <2.0.0`). A breaking change in a base plugin bumps its major and requires dependents to widen their range in the same PR (`release.mjs <plugin>=major …` releases them together).
 - Update the plugin's `CHANGELOG.md` in the same PR.
 
 | Step | Command | Where |
 | :- | :- | :- |
 | Prepare a release | `node scripts/release.mjs <plugin> patch\|minor\|major` | feature branch |
+| Release several plugins together | `node scripts/release.mjs <plugin>=major <plugin>=major …` | feature branch |
 | Tag released versions | `node scripts/tag-release.mjs --push` | `main`, after merge |
 | Roll back | `node scripts/rollback.mjs <plugin> <good-version> --reason "<why>"` | feature branch, then tag after merge |
 
@@ -126,7 +122,7 @@ Write release notes under `## [Unreleased]` in the plugin's `CHANGELOG.md`, then
 node scripts/release.mjs <plugin> patch|minor|major [--update-dependents] [--dry-run]
 ```
 
-The script bumps `version` in `plugin.json`, moves the `[Unreleased]` notes into a dated version section and runs `claude plugin validate --strict`. If the new version breaks a dependent's range (for example `engineering-paved-path` `0.2.0` vs `^0.1`), it stops; `--update-dependents` widens those ranges and patch-releases the dependents in the same change.
+The script bumps `version` in `plugin.json`, moves the `[Unreleased]` notes into a dated version section and runs `claude plugin validate --strict`. If the new version breaks a dependent's range (for example `engineering-paved-path` `2.0.0` vs `^1.0`), it stops; `--update-dependents` widens those ranges and patch-releases the dependents in the same change.
 
 ### Release tags
 

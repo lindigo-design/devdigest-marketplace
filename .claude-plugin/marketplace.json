@@ -9,30 +9,30 @@
     {
       "name": "engineering-paved-path",
       "source": "./plugins/engineering-paved-path",
-      "description": "Base layer: shared team guardrails, security rubric, engineering insights, workflow retros and Mermaid diagrams.",
+      "description": "Onion backend architecture and frontend UI structure skills, shared by architecture-review and sdd-engineering.",
       "category": "engineering-standards",
-      "tags": ["guardrails", "security", "retro", "mermaid", "base"]
+      "tags": ["architecture", "onion", "frontend", "layering", "base"]
     },
     {
       "name": "research-tools",
       "source": "./plugins/research-tools",
-      "description": "Read-only researcher and brainstorm agents for codebase and external research before any change.",
+      "description": "Read-only researcher agent: answers one question from your repository or external docs, with evidence for every claim.",
       "category": "research",
-      "tags": ["research", "brainstorm", "read-only", "agents"]
+      "tags": ["research", "read-only", "agents", "evidence"]
     },
     {
       "name": "architecture-review",
       "source": "./plugins/architecture-review",
-      "description": "Architecture and security reviewer agents, PR self-review skill with a pre-push gate, onion and frontend UI architecture rules.",
+      "description": "Read-only architecture-reviewer agent that checks a change set against layering rules, with a read-only Bash guard.",
       "category": "code-review",
-      "tags": ["review", "architecture", "security", "pr", "hooks"]
+      "tags": ["review", "architecture", "read-only", "hooks", "agents"]
     },
     {
       "name": "sdd-engineering",
       "source": "./plugins/sdd-engineering",
-      "description": "Spec-driven development workflow: spec, plan, implement, test, verify and document with scoped write hooks.",
+      "description": "Spec-driven workflow: spec-creator, implementation-planner, implementer and plan-verifier agents, run-plan and workflow-retro skills.",
       "category": "workflow",
-      "tags": ["sdd", "spec", "planning", "implementation", "testing", "agents"]
+      "tags": ["sdd", "spec", "planning", "implementation", "verification", "agents"]
     }
   ]
 }

@@ -1,0 +1,27 @@
+{
+  "description": "Scope guards for SDD agents: spec-creator writes only Markdown under specs/, implementation-planner only under plans/, and plan-verifier's Bash is limited to read-only git.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/write-scope.mjs\" sdd-engineering:spec-creator=specs sdd-engineering:implementation-planner=plans",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/bash-guard.mjs\" sdd-engineering:plan-verifier=review",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
