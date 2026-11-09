@@ -204,7 +204,7 @@ Because of R6/AC-4–5, the catalog can later join a personal site in any of thr
 
 1. **Custom domain on the user site.** If `lindigo-design.github.io` gets a custom domain (for example `lindigo.design`), GitHub serves project sites under it automatically, so the catalog appears at `lindigo.design/devdigest-marketplace/`. Only the origin config changes.
 2. **Own subdomain.** Add a `CNAME` (for example `plugins.lindigo.design`) to this repository and set base `/`.
-3. **Link from the site.** The personal site links to the catalog, or reuses its public `search-index.json` to show plugin cards on its own pages.
+3. **Link from the site.** The personal site links to the catalog, or reuses its public `index.json` (R9/AC-6) to show plugin cards on its own pages.
 
 ## Appendix A: starter synonym groups
 

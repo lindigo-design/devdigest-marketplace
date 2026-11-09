@@ -14,3 +14,7 @@ node_modules/
 Thumbs.db
 .vscode/
 .idea/
+
+# Catalog site build output
+site/dist/
+site/.astro/

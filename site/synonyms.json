@@ -1,0 +1,20 @@
+[
+  ["review", "reviewer", "рев'ю", "ревю", "перевір", "огляд"],
+  ["security", "secure", "vulnerability", "owasp", "безпек", "вразлив"],
+  ["architecture", "layering", "onion", "архітектур", "шар"],
+  ["spec", "specification", "requirements", "специфікац", "вимог"],
+  ["plan", "planning", "план"],
+  ["implement", "implementation", "code", "реаліз", "імплемент", "код"],
+  ["test", "testing", "tests", "тест"],
+  ["research", "researcher", "investigate", "дослідж", "пошук інформац"],
+  ["brainstorm", "options", "ideas", "ідеї", "варіант", "брейншторм"],
+  ["docs", "documentation", "document", "документац"],
+  ["diagram", "mermaid", "chart", "діаграм", "схем"],
+  ["guardrails", "rules", "conventions", "правил", "обмежен"],
+  ["retro", "retrospective", "ретро", "ретроспектив"],
+  ["insights", "lessons", "learnings", "інсайт", "урок"],
+  ["pr", "pull request", "push", "gate", "пул реквест", "пуш"],
+  ["frontend", "ui", "react", "next", "інтерфейс", "фронтенд"],
+  ["backend", "server", "api", "бекенд", "сервер"],
+  ["workflow", "pipeline", "process", "процес", "флоу"]
+]

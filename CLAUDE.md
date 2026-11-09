@@ -35,7 +35,7 @@ Workflow: spec → plan → user approval → implement by task → verify again
 | Concept brief (Lindigo, Editorial/Swiss) | [docs/design/concept-brief.md](docs/design/concept-brief.md) | approved |
 | Design tokens: the only source of colors, type, spacing, motion | [docs/design/design-tokens.md](docs/design/design-tokens.md) | approved |
 | Prototype (reference, not source of truth) | [docs/design/prototype/](docs/design/prototype/) | exported |
-| Implementation plan | `docs/plans/catalog-site.md` | next |
+| Implementation plan | [docs/plans/catalog-site.md](docs/plans/catalog-site.md) | approved; implementing |
 
 Site constraints:
 - Astro + MiniSearch, no backend.
