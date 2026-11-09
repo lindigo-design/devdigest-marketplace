@@ -263,6 +263,7 @@ jobs:
 - `validate.yml` is not modified. T10 confirms that `claude plugin validate --strict .` and `check-versions.mjs` ignore `site/` (R6/AC-3).
 - One-time manual step for the owner: **Settings → Pages → Source: GitHub Actions**. The plan does not change repository settings.
 - Note: a `paths` filter on `pull_request` makes a required check stay pending on PRs that don't touch those paths. Recommend not marking `build` as required, or dropping the filter if it is.
+  Resolved 2026-11-09: the main ruleset requires the three site checks, so the filter was removed and the site checks run on every PR.
 - *Updated after T12:* the `build` job is split so the GitHub UI shows the site build as its own check: `test` ("site: unit + build tests": fonts check, unit tests, catalog check, build tests), `build` ("site: build": build + Pages artifact on `main`), `e2e` ("site: browser tests (Playwright + axe)"); `deploy` needs `[test, build, e2e]`.
 
 ## 8. Tests

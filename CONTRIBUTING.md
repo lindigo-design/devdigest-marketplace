@@ -105,7 +105,7 @@ Changes to the site itself run the full suite; see [site/README.md](site/README.
 2. `check-versions.mjs`: catalog and directory consistency, no `version` in the catalog, a version bump for every changed plugin; `check-components.mjs` on the changed plugins (sources and licences, `skills:` lists, cross-plugin references, denylist); hook self-tests;
 3. smoke install of every plugin in a temporary `HOME`, then a check that all dependencies are enabled and that each plugin's declared `Context cost` is within 10 % of `claude plugin details` (`check-context-cost.mjs`).
 
-[`pages.yml`](.github/workflows/pages.yml) builds and tests the catalog site on PRs that touch plugins, the catalog, the site or the design tokens, and deploys it from `main`:
+[`pages.yml`](.github/workflows/pages.yml) builds and tests the catalog site on every PR (its three jobs are required checks for `main`), and deploys it from `main`:
 
 1. `site: unit + build tests`: unit tests (including the token and UI-string lints), the catalog check of this repository, build tests on fixtures (including origin/base-path variants);
 2. `site: build`: the site build, uploaded as the Pages artifact on `main`;
