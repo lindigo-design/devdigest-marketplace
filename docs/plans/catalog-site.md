@@ -283,6 +283,7 @@ Local commands (added to CLAUDE.md "Checks before done"):
 ```bash
 npm --prefix site ci
 npm --prefix site test            # unit + budget + token lint
+npm --prefix site run test:build  # builds the demo and empty-scaffold fixtures, checks the pages
 npm --prefix site run check       # build the catalog only
 npm --prefix site run build
 npm --prefix site run e2e         # needs a Playwright browser

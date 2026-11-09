@@ -1,0 +1,160 @@
+---
+// Plugin page /<plugin>/ (spec CAT-01 R5/AC-1–3, R1/AC-4, R10/AC-1, AC-4; §7 unsatisfied range).
+import { transitiveDependencies } from "../../../lib/graph.mjs";
+import CompatBadge from "../../components/CompatBadge.astro";
+import DependencyLink from "../../components/DependencyLink.astro";
+import EmptyState from "../../components/EmptyState.astro";
+import InstallBlock from "../../components/InstallBlock.astro";
+import KindLabel from "../../components/KindLabel.astro";
+import MetaRail from "../../components/MetaRail.astro";
+import Prose from "../../components/Prose.astro";
+import { getCatalog, githubSource, href, install, markdown } from "../../data/site.mjs";
+import Base from "../../layouts/Base.astro";
+
+export function getStaticPaths() {
+  return getCatalog().plugins.map((plugin) => ({ params: { plugin: plugin.name }, props: { plugin } }));
+}
+
+const { plugin: p } = Astro.props;
+const catalog = getCatalog();
+const byId = new Map(catalog.entries.map((e) => [e.id, e]));
+const versionOf = (name: string) => catalog.plugins.find((x) => x.name === name)?.version;
+const components = p.page.components.map((id: string) => byId.get(id));
+const latest = p.page.latestRelease;
+const compat = p.page.compatibility;
+---
+<Base title={p.name} description={p.description} path={p.path}>
+  <header class="page-head">
+    <a class="t-caption" href={href()}>← All plugins</a>
+    <KindLabel kind="plugin" class="page-head__kind" />
+    <h1 class="t-display page-head__title">{p.name}</h1>
+    <p class="t-body-lg t-secondary measure">{p.description}</p>
+  </header>
+
+  <div class="layout-rail">
+    <aside aria-label="Details" class="rail">
+      <MetaRail rows={[
+        { k: "Version", v: p.version, mono: true },
+        { k: "Category", v: p.category },
+        { k: "License", v: p.page.license },
+        { k: "Released", v: latest?.date ?? null, mono: true },
+      ]} />
+      <section class="rail__block" aria-labelledby="deps">
+        <h2 id="deps" class="t-label">Depends on</h2>
+        {p.page.dependencies.length ? (
+          <ul class="list">
+            {p.page.dependencies.map((d) => (
+              <li><DependencyLink dep={d} href={href(`${d.name}/`)} version={versionOf(d.name)} /></li>
+            ))}
+          </ul>
+        ) : <p class="t-secondary">Nothing</p>}
+      </section>
+      <section class="rail__block rule-bottom" aria-labelledby="used-by">
+        <h2 id="used-by" class="t-label">Used by</h2>
+        {p.page.usedBy.length ? (
+          <ul class="list">{p.page.usedBy.map((u) => <li><a href={href(`${u}/`)}>{u}</a></li>)}</ul>
+        ) : <p class="t-secondary">None</p>}
+      </section>
+    </aside>
+
+    <div class="main">
+      <div class="facts">
+        {p.tags.length > 0 && (
+          <div class="facts__group">
+            <h2 class="t-label">Tags</h2>
+            <ul class="tags">{p.tags.map((t) => <li><a class="tag t-mono" href={href(`?tag=${encodeURIComponent(t)}`)}>{t}</a></li>)}</ul>
+          </div>
+        )}
+        <div class="facts__group">
+          <h2 class="t-label">Compatibility</h2>
+          <CompatBadge compat={p.compat} verified />
+        </div>
+      </div>
+
+      <InstallBlock plugin={p.name} commands={install(p.name)} alsoInstalls={transitiveDependencies(catalog.plugins, p.name)} />
+
+      <section class="block" aria-labelledby="components">
+        <h2 id="components" class="t-heading-2">Components</h2>
+        {components.length ? (
+          <ul class="components">
+            {components.map((c) => (
+              <li class="components__row">
+                <KindLabel kind={c.kind} class="components__kind" />
+                <span><a href={href(c.path)}>{c.name}</a> <span class="t-secondary">{c.description}</span></span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <EmptyState title="No components yet"
+            text="Skills, agents, hooks and commands appear here once this plugin is migrated to the catalog format." />
+        )}
+      </section>
+
+      <section class="block" aria-labelledby="latest">
+        <h2 id="latest" class="t-heading-2">Latest change</h2>
+        {latest ? (
+          <>
+            <p class="release">
+              <span class="t-mono release__version">{latest.version}</span>
+              <span class="t-mono t-secondary">{latest.date}</span>
+              {latest.rollback && <span class="t-label release__rollback">Rollback</span>}
+            </p>
+            <Prose html={markdown(latest.notes, `${p.source}/CHANGELOG.md`)} />
+            <p class="t-caption"><a href={githubSource(`${p.source}/CHANGELOG.md`)}>Full changelog on GitHub</a></p>
+          </>
+        ) : <p class="t-secondary">No released version yet.</p>}
+      </section>
+
+      <section class="block" aria-labelledby="compat-notes">
+        <h2 id="compat-notes" class="t-heading-2">Compatibility notes</h2>
+        {compat.file ? (
+          <>
+            <dl class="compat">
+              {compat.claudeCodeRaw && <><dt class="t-label">Claude Code</dt><dd>{compat.claudeCodeRaw}</dd></>}
+              {compat.osRaw && <><dt class="t-label">OS</dt><dd>{compat.osRaw}</dd></>}
+            </dl>
+            <p class="t-caption"><a href={githubSource(compat.file)}>COMPATIBILITY.md on GitHub</a></p>
+          </>
+        ) : <p class="t-secondary">Compatibility not declared.</p>}
+      </section>
+
+      {p.page.readme && (
+        <div class="block">
+          <Prose html={markdown(p.page.readme, p.page.readmePath)} source="README.md" sourceHref={githubSource(p.page.readmePath)} />
+        </div>
+      )}
+    </div>
+  </div>
+</Base>
+
+<style>
+  .page-head { display: flex; flex-direction: column; gap: var(--space-3); padding-block: var(--space-8) var(--space-7); }
+  .page-head :global(.page-head__kind) { margin-top: var(--space-6); }
+  .page-head__title { animation: wipe-in var(--duration-reveal) var(--ease-settle) both; }
+  .rail { display: flex; flex-direction: column; min-width: 0; }
+  .rail__block { display: flex; flex-direction: column; gap: var(--space-2); padding-block: var(--space-4); border-top: var(--rule-thin) solid var(--rule-hairline); }
+  .list { display: flex; flex-direction: column; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+  .main { display: flex; flex-direction: column; gap: var(--space-7); min-width: 0; }
+  .facts { display: flex; flex-wrap: wrap; gap: var(--space-5) var(--space-7); }
+  .facts__group { display: flex; flex-direction: column; gap: var(--space-2); }
+  .tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+  .tag {
+    display: inline-block;
+    padding: 0 var(--space-2);
+    background: var(--surface-sunken);
+    border-radius: var(--radius-s);
+    font-size: var(--type-label);
+    color: var(--ink-secondary);
+    text-decoration: none;
+  }
+  .tag:hover { color: var(--accent-indigo); }
+  .block { display: flex; flex-direction: column; gap: var(--space-4); padding-top: var(--space-5); border-top: var(--rule-thin) solid var(--rule-hairline); }
+  .components { margin: 0; padding: 0; list-style: none; }
+  .components__row { display: flex; gap: var(--space-5); padding-block: var(--space-3); border-top: var(--rule-thin) solid var(--rule-hairline); }
+  .components__row :global(.components__kind) { flex: 0 0 var(--space-9); padding-top: var(--space-1); }
+  .release { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-4); }
+  .release__version { font-weight: var(--weight-medium); }
+  .release__rollback { color: var(--signal-rollback); }
+  .compat { display: grid; grid-template-columns: auto 1fr; gap: var(--space-2) var(--space-5); margin: 0; }
+  .compat dd { margin: 0; }
+</style>

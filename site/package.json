@@ -13,7 +13,8 @@
     "preview": "astro preview",
     "test": "node --test \"test/unit/**/*.test.mjs\"",
     "fonts": "node scripts/fonts-css.mjs",
-    "check": "node scripts/check-catalog.mjs"
+    "check": "node scripts/check-catalog.mjs",
+    "test:build": "node --test \"test/build/**/*.test.mjs\""
   },
   "dependencies": {
     "@fontsource-variable/source-serif-4": "5.3.1",

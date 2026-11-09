@@ -204,6 +204,10 @@ export function readHooks(ctx) {
     });
   }
 
+  // The file's top-level "description" is every handler's description text (CONTRIBUTING requires it);
+  // without it, a generated one stands in.
+  const fileDescription = str(json.description);
+
   // Names (plan D3): script basename, else <event>-<matcher>; duplicates get -2, -3 in file order.
   const used = new Map();
   return drafts.map((d) => {
@@ -219,11 +223,11 @@ export function readHooks(ctx) {
       kind: "hook",
       name,
       slug: name,
-      description: `${d.event} hook${on}: ${what}.`,
+      description: fileDescription ?? `${d.event} hook${on}: ${what}.`,
       source: d.script ? `${ctx.dir}/${d.script}` : rel,
       runs: d.type === "command" ? { label: "Runs commands", detail: `${d.event}${on}` } : null,
       bodyTerms: toTerms(`${d.event} ${d.matcher ?? ""} ${d.type} ${d.command ?? ""} ${d.script ?? ""}`),
-      page: { hook: { ...d, config: rel } },
+      page: { hook: { ...d, config: rel, summary: `${d.event} hook${on}: ${what}.` } },
     };
   });
 }

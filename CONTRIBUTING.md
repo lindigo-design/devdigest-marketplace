@@ -35,6 +35,7 @@ Thanks for improving the `lindigo-devdigest` marketplace. This file covers how t
 - Quote `"${CLAUDE_PLUGIN_ROOT}"` in shell-form hook commands, because paths with spaces are common on Windows.
 - Executables live in `scripts/`, not a top-level `bin/`.
 - Plugin agents ignore `hooks`, `mcpServers` and `permissionMode` in frontmatter; declare hooks in `hooks/hooks.json`.
+- Every `hooks/hooks.json` has a top-level `description` saying what the hooks do (it is the hook's text in the catalog search).
 - A `CLAUDE.md` inside a plugin is not loaded; put instructions in a skill.
 - Reference another plugin's skill as `<plugin>:<skill>` and declare that plugin in `dependencies` with a range such as `^0.1`.
 - Code taken from DevDigest keeps its MIT notice and a provenance line in `CHANGELOG.md`.

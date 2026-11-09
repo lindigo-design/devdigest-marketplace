@@ -1,5 +1,5 @@
 {
-  "description": "Pre-push gate",
+  "description": "Blocks git push until the PR self-review has passed.",
   "hooks": {
     "PreToolUse": [
       {

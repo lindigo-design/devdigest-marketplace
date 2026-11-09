@@ -18,3 +18,4 @@ Thumbs.db
 # Catalog site build output
 site/dist/
 site/.astro/
+site/.test-dist/

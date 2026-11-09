@@ -24,9 +24,16 @@ describe("hooks", () => {
       event: "PreToolUse", matcher: "Bash", type: "command",
       command: 'node "${CLAUDE_PLUGIN_ROOT}/scripts/gate.mjs"', script: "scripts/gate.mjs",
       url: null, timeout: 30, config: "plugins/architecture-review/hooks/hooks.json",
+      summary: "PreToolUse hook on Bash: runs scripts/gate.mjs.",
     });
     assert.equal(h.source, "plugins/architecture-review/scripts/gate.mjs");
     assert.deepEqual(h.runs, { label: "Runs commands", detail: "PreToolUse on Bash" });
+  });
+
+  test("description: the top-level description of hooks.json, else a generated one", () => {
+    assert.equal(get("architecture-review/hook/gate").description, "Blocks git push until the PR self-review has passed.");
+    assert.equal(get("sdd-engineering/hook/scope-guard").description, "PreToolUse hook on Edit|Write: runs scripts/scope-guard.mjs.");
+    assert.equal(get("sdd-engineering/hook/stop-any").description, "Stop hook: prompt hook.");
   });
 
   test("non-command hooks are not marked as running commands", () => {
