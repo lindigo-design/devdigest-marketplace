@@ -9,7 +9,7 @@ Public [Claude Code plugin marketplace](https://code.claude.com/docs/en/plugin-m
 | [`architecture-review`](plugins/architecture-review) | Read-only `architecture-reviewer` agent with a read-only Bash guard | engineering-paved-path |
 | [`sdd-engineering`](plugins/sdd-engineering) | Spec → plan → implement → verify → architecture review → retro | engineering-paved-path, research-tools, architecture-review |
 
-> Status: **0.1.0 scaffold.** Manifests and dependency graph are in place; skills, agents and hooks are migrated one plugin at a time.
+> Status: **1.0.0.** All four plugins ship their first stable components. Not yet included: the `security`, React, Next.js and testing skills (licence of the originals not confirmed), `brainstorm`, `security-reviewer`, `pr-self-review`, `test-writer`, `doc-writer`, and evals (planned for 1.1). Each plugin README lists them under *Later*.
 
 ## Install
 
@@ -61,10 +61,10 @@ graph TD
     AR["architecture-review<br/>architecture-reviewer · bash-guard"]
     SDD["sdd-engineering<br/>spec → plan → implement → verify → review → retro"]
 
-    AR -->|"^0.1"| EPP
-    SDD -->|"^0.1"| EPP
-    SDD -->|"^0.1"| RT
-    SDD -->|"^0.1"| AR
+    AR -->|"^1.0"| EPP
+    SDD -->|"^1.0"| EPP
+    SDD -->|"^1.0"| RT
+    SDD -->|"^1.0"| AR
 ```
 
 `sdd-engineering` depends on `architecture-review` because `run-plan` runs `architecture-reviewer` on the full diff when every task has passed, and on `research-tools` because `researcher` feeds `spec-creator`.
@@ -102,7 +102,7 @@ Rules for every plugin:
 
 - `version` lives **only** in `plugins/<name>/.claude-plugin/plugin.json`, never in `marketplace.json`. Users get a new copy only when this string changes.
 - Any change under `plugins/<name>/` must bump that plugin's version (SemVer). CI fails a PR that changes a plugin without raising its version above `main`.
-- Dependencies use caret ranges on `0.x` minors (`^0.1` = `>=0.1.0 <0.2.0`). A breaking change in a base plugin bumps its minor and requires dependents to widen their range in the same PR.
+- Dependencies use caret ranges on the major (`^1.0` = `>=1.0.0 <2.0.0`). A breaking change in a base plugin bumps its major and requires dependents to widen their range in the same PR (`release.mjs <plugin>=major …` releases them together).
 - Update the plugin's `CHANGELOG.md` in the same PR.
 
 | Step | Command | Where |
@@ -122,7 +122,7 @@ Write release notes under `## [Unreleased]` in the plugin's `CHANGELOG.md`, then
 node scripts/release.mjs <plugin> patch|minor|major [--update-dependents] [--dry-run]
 ```
 
-The script bumps `version` in `plugin.json`, moves the `[Unreleased]` notes into a dated version section and runs `claude plugin validate --strict`. If the new version breaks a dependent's range (for example `engineering-paved-path` `0.2.0` vs `^0.1`), it stops; `--update-dependents` widens those ranges and patch-releases the dependents in the same change.
+The script bumps `version` in `plugin.json`, moves the `[Unreleased]` notes into a dated version section and runs `claude plugin validate --strict`. If the new version breaks a dependent's range (for example `engineering-paved-path` `2.0.0` vs `^1.0`), it stops; `--update-dependents` widens those ranges and patch-releases the dependents in the same change.
 
 ### Release tags
 

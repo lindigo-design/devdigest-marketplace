@@ -52,7 +52,7 @@ Agents are namespaced: `@agent-architecture-review:<agent>`.
 
 | Plugin | Range | Why |
 | :- | :- | :- |
-| `engineering-paved-path` | `^0.1` | the two architecture skills the agent preloads |
+| `engineering-paved-path` | `^1.0` | the two architecture skills the agent preloads |
 
 ## Later
 

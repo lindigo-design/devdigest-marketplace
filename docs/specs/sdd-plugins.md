@@ -160,7 +160,24 @@ Measured with `claude plugin details` (Claude Code 2.1.318) on trial plugins bui
 | `architecture-review` alone | ~1,399 tok | ~882 tok | −37 % |
 | `sdd-engineering` (all four) | ~2,920 tok | ~2,916 tok | ≈ 0 |
 
-The full SDD install costs the same; installing a reusable plugin alone no longer pays for stack skills it never uses. Numbers are re-measured on the migrated components in the plan's final task and replace these.
+The full SDD install costs the same; installing a reusable plugin alone no longer pays for stack skills it never uses. The estimates above came from the unmigrated sources; the release figures below replace them (R5/AC-7).
+
+**Measured on release 1.0.0** (`claude plugin details`, Claude Code 2.1.318, throwaway config, 2026-11-09). Always-on = descriptions loaded in every session; on-invoke = paid only when the component runs. Hooks cost no model context.
+
+| Plugin | Ships | Always-on | On-invoke per component |
+| :- | :- | -: | :- |
+| `engineering-paved-path` | 2 skills | ~346 tok | onion-architecture ~2.9k, frontend-ui-architecture ~3.3k |
+| `research-tools` | 1 agent | ~155 tok | researcher ~2.4k |
+| `architecture-review` | 1 agent, 1 hook | ~160 tok | architecture-reviewer ~1.7k |
+| `sdd-engineering` | 3 skills, 4 agents, 1 hook entry (2 scripts) | ~1,492 tok | fastify-best-practices ~0.7k, run-plan ~1.7k, workflow-retro ~2.7k, implementation-planner ~3.2k, implementer ~1.4k, plan-verifier ~1.9k, spec-creator ~2.9k |
+
+| What a user installs | Always-on, 1.0.0 | Rev. 2 estimate |
+| :- | -: | -: |
+| `research-tools` alone | ~155 tok | ~205 tok |
+| `architecture-review` alone (+ paved-path) | ~506 tok | ~882 tok |
+| `sdd-engineering` (all four) | ~2,153 tok | ~2,916 tok |
+
+The release is smaller than the estimate because `security`, `react-best-practices`, `next-best-practices` and `testing` are not shipped (section 7.1) and the rewritten descriptions are shorter.
 
 ## 4. How the workflow runs
 

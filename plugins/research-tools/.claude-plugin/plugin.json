@@ -1,6 +1,6 @@
 {
   "name": "research-tools",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "Read-only researcher agent: answers one question from your repository or external docs, with evidence for every claim.",
   "author": {
     "name": "Yana Levchenko",

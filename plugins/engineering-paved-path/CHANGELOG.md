@@ -4,6 +4,13 @@ All notable changes to this plugin. Versions follow [SemVer](https://semver.org/
 
 ## [Unreleased]
 
+## [1.0.0] — 2026-11-09
+
+### Changed
+- First stable release: `onion-architecture` and `frontend-ui-architecture`, generalized to any repository.
+
+Source: DevDigest (MIT, © 2026 Ivan Lapa), branch local/all-lessons @ b288d63
+
 ## [0.1.1] — 2026-11-09
 
 ### Added

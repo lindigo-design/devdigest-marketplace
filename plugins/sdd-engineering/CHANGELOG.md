@@ -4,6 +4,16 @@ All notable changes to this plugin. Versions follow [SemVer](https://semver.org/
 
 ## [Unreleased]
 
+## [1.0.0] — 2026-11-09
+
+### Changed
+- Dependency `architecture-review` range `^0.1` → `^1.0` (architecture-review 1.0.0).
+- Dependency `research-tools` range `^0.1` → `^1.0` (research-tools 1.0.0).
+- Dependency `engineering-paved-path` range `^0.1` → `^1.0` (engineering-paved-path 1.0.0).
+- First stable release: spec-driven workflow (`spec-creator`, `implementation-planner`, `implementer`, `plan-verifier`, `run-plan`, `workflow-retro`), `fastify-best-practices`, scope hooks.
+
+Source: DevDigest (MIT, © 2026 Ivan Lapa), branch local/all-lessons @ b288d63
+
 ## [0.1.1] — 2026-11-09
 
 ### Added

@@ -39,7 +39,7 @@ Thanks for improving the `lindigo-devdigest` marketplace. This file covers how t
 - Every `SKILL.md` and agent file starts with YAML frontmatter that has `name` and `description`. The catalog site build fails without them and names the file. Names use only letters, digits, `.`, `_` and `-` (they become page URLs).
 - Optional frontmatter `tags` on a skill, agent or command rank above the plugin's tags in catalog search.
 - A `CLAUDE.md` inside a plugin is not loaded; put instructions in a skill.
-- Reference another plugin's skill as `<plugin>:<skill>` and declare that plugin in `dependencies` with a range such as `^0.1`.
+- Reference another plugin's skill as `<plugin>:<skill>` and declare that plugin in `dependencies` with a range such as `^1.0`.
 - Code taken from DevDigest keeps its MIT notice and a provenance line in `CHANGELOG.md`.
 
 ## Sources, licences and public text

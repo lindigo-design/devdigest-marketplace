@@ -83,9 +83,9 @@ The planner preloads `engineering-paved-path:onion-architecture`, `engineering-p
 
 | Plugin | Range | Why |
 | :- | :- | :- |
-| `engineering-paved-path` | `^0.1` | architecture skills for the planner and implementer |
-| `research-tools` | `^0.1` | `researcher` before the spec |
-| `architecture-review` | `^0.1` | `architecture-reviewer` when the run finishes |
+| `engineering-paved-path` | `^1.0` | architecture skills for the planner and implementer |
+| `research-tools` | `^1.0` | `researcher` before the spec |
+| `architecture-review` | `^1.0` | `architecture-reviewer` when the run finishes |
 
 ## Prerequisites (optional)
 

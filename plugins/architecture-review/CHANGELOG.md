@@ -4,6 +4,14 @@ All notable changes to this plugin. Versions follow [SemVer](https://semver.org/
 
 ## [Unreleased]
 
+## [1.0.0] — 2026-11-09
+
+### Changed
+- Dependency `engineering-paved-path` range `^0.1` → `^1.0` (engineering-paved-path 1.0.0).
+- First stable release: read-only `architecture-reviewer` agent and `bash-guard` hook.
+
+Source: DevDigest (MIT, © 2026 Ivan Lapa), branch local/all-lessons @ b288d63
+
 ## [0.1.1] — 2026-11-09
 
 ### Added
