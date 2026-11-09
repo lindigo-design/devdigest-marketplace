@@ -119,6 +119,12 @@ export function initSearch() {
   ui.more?.addEventListener("click", () => { shown += PAGE; renderList(); });
 
   // ---------- mobile filter drawer ----------
+  // Visible, enabled controls in tab order. Disabled checkboxes (0 results) cannot take focus:
+  // focus() on them is silently ignored and focus would stay outside the drawer.
+  function focusables(root) {
+    return [...root.querySelectorAll("input:not([disabled]), button:not([disabled])")].filter((x) => x.offsetParent !== null);
+  }
+
   function openDrawer(open) {
     ui.panel.classList.toggle("is-open", open);
     ui.toggle.setAttribute("aria-expanded", String(open));
@@ -126,7 +132,7 @@ export function initSearch() {
       ui.panel.setAttribute("role", "dialog");
       ui.panel.setAttribute("aria-modal", "true");
       ui.panel.setAttribute("aria-label", t("filters.title"));
-      ui.panel.querySelector("input, button")?.focus();
+      focusables(ui.panel)[0]?.focus();
     } else {
       ["role", "aria-modal", "aria-label"].forEach((a) => ui.panel.removeAttribute(a));
       ui.toggle.focus();
@@ -138,7 +144,7 @@ export function initSearch() {
     if (!ui.panel.classList.contains("is-open")) return;
     if (e.key === "Escape") { e.preventDefault(); openDrawer(false); return; }
     if (e.key !== "Tab") return;
-    const items = [...ui.panel.querySelectorAll("input:not([disabled]), button")].filter((x) => x.offsetParent !== null);
+    const items = focusables(ui.panel);
     if (!items.length) return;
     const [first, last] = [items[0], items[items.length - 1]];
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
@@ -179,10 +185,17 @@ export function initSearch() {
             el("span", { class: "filter-option__count", "aria-label": t("filters.option.count.aria", { count: o.count }) }, String(o.count)));
         }));
     }).filter(Boolean);
-    // Keep focus on the same checkbox after re-rendering.
+    // Keep focus on the same checkbox after re-rendering. If it is now disabled (an unchecked option
+    // with 0 results) or gone, move to the first enabled option of the same group, then of the filters.
     const focused = document.activeElement?.closest?.("[data-filter-groups]") ? [document.activeElement.name, document.activeElement.value] : null;
     ui.groups.replaceChildren(...groups);
-    if (focused) ui.groups.querySelector(`input[name="${CSS.escape(focused[0])}"][value="${CSS.escape(focused[1])}"]`)?.focus();
+    if (focused) {
+      const [name, value] = focused.map((s) => CSS.escape(s));
+      const same = ui.groups.querySelector(`input[name="${name}"][value="${value}"]`);
+      const target = same && !same.disabled ? same
+        : ui.groups.querySelector(`input[name="${name}"]:not([disabled])`) ?? focusables(ui.groups)[0];
+      target?.focus();
+    }
   }
 
   function renderList() {
