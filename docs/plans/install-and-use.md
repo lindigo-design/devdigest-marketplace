@@ -3,7 +3,7 @@
 | | |
 | :- | :- |
 | Spec | [CAT-02](../specs/install-and-use.md), approved 2026-11-09 |
-| Status | in progress |
+| Status | implemented (T0–T8), 2026-11-09; not pushed |
 | Branch | `docs/cat-02-install-spec` (worktree `.claude/worktrees/cat-02`), from `main` @ `ac57a2a` |
 | Commits | one per task, after `npm test`, `npm run test:build`, `npm run check`, `npm run build` and `npm run e2e` pass (from `site/`); never pushed |
 
@@ -77,6 +77,26 @@ Tokens: no new values. `design-tokens.md` §5 gets the 8 rows of spec §8 in T0.
 | T7 | Context-cost CI: lib + test, CI script, `validate.yml`; `Context cost` rows; patch releases 1.0.1 | R8 | `node --test "scripts/**/*.test.mjs"`, the CI script locally in a throwaway config, `check-versions.mjs origin/main`, `claude plugin validate --strict` |
 | T8 | Docs (README, CONTRIBUTING, CLAUDE.md, site/README); acceptance run; plan §4 | R8/AC-6, §10 | all checks |
 
-## 4. Acceptance run
+## 4. Acceptance run (spec §10)
 
-Filled in at T8.
+Run on 2026-11-09 against a build of this repository (plugins at 1.0.1), with Claude Code 2.1.318; browser steps on the demo fixture in Playwright.
+
+| # | Step | How | Result |
+| :- | :- | :- | :- |
+| 1 | `/sdd-engineering/` components, invocations, preloads, "you start it" | real build | pass: Skills · 3, Agents · 4, Hooks · 2; planner preloads 2 paved-path skills + `fastify-best-practices` |
+| 2 | `onion-architecture` preloaded by agents of two plugins | real build | pass |
+| 3 | Project + terminal commands; URL keeps scope and tab after reload | real build (commands); e2e on the demo (URL, reload) | pass |
+| 4 | Copied project commands write the JSON shown on the page | throwaway config + repo (V2), compared with the page | pass: byte-identical |
+| 5 | Second signed-in user gets the plugins with no install (V3) | needs a signed-in interactive session | **not run**: manual check after merge |
+| 6 | Session one-step command: confirm, then details with scope choice | needs a signed-in interactive session | **not run**: manual check after merge |
+| 7 | Manage with Project: `--scope project`, pin row with warning | real build | pass |
+| 8 | Download source zip | real build + `curl -I` | pass with a caveat: 1.0.1 tags are pushed after merge, so the link is omitted with a build warning until the tag push rebuilds the site; the URL form returns 302 → codeload for `sdd-engineering--v1.0.0` |
+| 9 | Try it: checks and the first two README examples, no backticks | real build | pass |
+| 10 | 360 px, both themes, keyboard only, axe | e2e (demo): 94 tests | pass |
+| 11 | Drifted `Context cost` fails CI with plugin and both numbers | `check-context-cost.mjs` in a throwaway config, one row set to ~200 | pass: `research-tools: declared ~200 tokens, measured ~155 tokens (29 % apart …)`, exit 1; with the real rows: exit 0 |
+
+Checks at T8: site `npm test` 285, `test:build` 68, `e2e` 94, `npm run check`, build; `node --test "scripts/**/*.test.mjs"` 34; `claude plugin validate --strict` root + 4 plugins; `check-versions.mjs origin/main` (4 × 1.0.0 → 1.0.1); `check-components.mjs origin/main`; hook self-tests.
+
+**After merge (owner):** `node scripts/tag-release.mjs --push` on `main` (the tag push rebuilds the site, R5/AC-4); allow tag deployments in Settings → Environments → github-pages ("*--v*"); steps 5 and 6 by hand.
+
+**Polish, not done:** at 360 px the Copy button keeps its 96 px minimum width, so long commands wrap into a narrow column (CopyCommand is shared by cards and pages; stacking the button under the command on narrow screens is a separate design change for `design-tokens.md` §5 first).
