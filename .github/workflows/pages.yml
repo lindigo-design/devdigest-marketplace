@@ -76,8 +76,33 @@ jobs:
           cache: npm
           cache-dependency-path: site/package-lock.json
       - run: npm ci
+      # The "Download source" link appears only for release tags the build can see (CAT-02 R5). A tag push checks
+      # out main, and that checkout was observed to leave the tags out, so the deployed pages had no links.
+      # Fetch them explicitly (public repository, no credentials needed) and log what the build will see.
+      - name: Fetch release tags
+        run: |
+          git fetch --force --tags origin
+          echo "Release tags visible to the build: $(git tag --list '*--v*' | wc -l)"
       - name: Build the site
         run: npm run build
+      # Fail instead of deploying a page that silently lacks its download link: every plugin whose current version
+      # has a release tag must link to that tag's archive.
+      - name: Release tags have download links
+        run: |
+          set -euo pipefail
+          missing=0
+          for manifest in ../plugins/*/.claude-plugin/plugin.json; do
+            name=$(node -p "require('./' + process.argv[1]).name" "$manifest")
+            version=$(node -p "require('./' + process.argv[1]).version" "$manifest")
+            tag="${name}--v${version}"
+            git rev-parse -q --verify "refs/tags/${tag}" >/dev/null || { echo "no tag yet: ${tag}"; continue; }
+            if grep -q "archive/refs/tags/${tag}.zip" "dist/${name}/index.html"; then
+              echo "ok: ${name} links ${tag}.zip"
+            else
+              echo "::error::dist/${name}/index.html has no download link for ${tag}"; missing=1
+            fi
+          done
+          exit "$missing"
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
         uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
