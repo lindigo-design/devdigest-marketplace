@@ -1,0 +1,28 @@
+---
+// "Preloads: …" / "Preloaded by: …" between agents and skills (spec CAT-02 R1/AC-6–9; tokens §5 Relations line,
+// type/body). The owning plugin is named only when it differs from `plugin`; a skill missing from the catalog
+// stays plain text.
+import { href } from "../data/site.mjs";
+import { t } from "../i18n/t.mjs";
+interface Ref { name: string; plugin?: string; path?: string; missing?: boolean }
+interface Props { plugin: string; preloads?: Ref[] | null; preloadedBy?: Ref[] | null }
+const { plugin, preloads, preloadedBy } = Astro.props;
+const lines = [
+  { label: t("usage.preloads"), refs: preloads ?? [] },
+  { label: t("usage.preloadedBy"), refs: preloadedBy ?? [] },
+].filter((l) => l.refs.length > 0);
+---
+{lines.map((l) => (
+  <p class="relations t-body">
+    <span class="t-secondary">{l.label}</span>{" "}
+    {l.refs.map((r, i) => (
+      <>{i > 0 && ", "}{r.missing
+        ? <span class="t-mono">{r.name}</span>
+        : <><a href={href(r.path)}>{r.name}</a>{r.plugin !== plugin && <span class="t-secondary"> {t("usage.inPlugin", { plugin: r.plugin })}</span>}</>}</>
+    ))}
+  </p>
+))}
+
+<style>
+  .relations { margin: 0; overflow-wrap: anywhere; }
+</style>

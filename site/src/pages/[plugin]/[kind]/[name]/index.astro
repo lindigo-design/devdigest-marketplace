@@ -8,6 +8,7 @@ import InstallBlock from "../../../../components/InstallBlock.astro";
 import KindLabel from "../../../../components/KindLabel.astro";
 import MetaRail from "../../../../components/MetaRail.astro";
 import Prose from "../../../../components/Prose.astro";
+import Relations from "../../../../components/Relations.astro";
 import RunsCommandsMarker from "../../../../components/RunsCommandsMarker.astro";
 import { getCatalog, githubSource, href, install, markdown } from "../../../../data/site.mjs";
 import { t } from "../../../../i18n/t.mjs";
@@ -36,6 +37,7 @@ const hasBody = typeof page.body === "string" && page.body.trim().length > 0;
       {t("component.inPlugin")} <a href={href(`${c.plugin}/`)}>{c.plugin}</a> <span class="t-mono">· {t("version", { version: c.version })}</span>
     </p>
     <p class="t-body-lg measure">{c.description}</p>
+    <Relations plugin={c.plugin} preloads={c.page.preloads} preloadedBy={c.page.preloadedBy} />
     <CompatBadge compat={c.compat} />
   </header>
 
