@@ -119,3 +119,39 @@ test.describe("manage block (R4)", () => {
       .toHaveAttribute("href", "https://github.com/lindigo-design/devdigest-marketplace/archive/refs/tags/sdd-engineering--v0.1.0.zip");
   });
 });
+
+test.describe("quality on the plugin page (R7)", () => {
+  test("AC-1: Tab reaches scope radios, tabs, copy buttons and Manage, each with a visible focus ring", async ({ page }) => {
+    await page.goto("./sdd-engineering/");
+    const seen = new Set();
+    const noRing = [];
+    for (let i = 0; i < 80; i++) {
+      await page.keyboard.press("Tab");
+      const info = await page.evaluate(() => {
+        const el = document.activeElement;
+        const kind = el.matches("[data-scope-input]") ? "scope" : el.matches('[role="tab"]') ? "tab"
+          : el.matches("[data-copy-button]") ? "copy" : el.matches("#manage > summary") ? "manage" : "other";
+        // The radio draws its ring on its label (.ip__scope:has(input:focus-visible)).
+        const ringOn = kind === "scope" ? el.closest("label") : el;
+        const s = getComputedStyle(ringOn);
+        return { kind, ring: s.outlineStyle !== "none" && parseFloat(s.outlineWidth) >= 2 };
+      });
+      seen.add(info.kind);
+      if (info.kind !== "other" && !info.ring) noRing.push(info.kind);
+    }
+    for (const k of ["scope", "tab", "copy", "manage"]) expect(seen, `reached ${k}`).toContain(k);
+    expect(noRing).toEqual([]);
+  });
+
+  test.describe("AC-4: reduced motion", () => {
+    test.use({ reducedMotion: "reduce" });
+    test("switching scope and tab runs no animation or transition", async ({ page }) => {
+      await page.goto("./sdd-engineering/");
+      await page.waitForTimeout(100);
+      await page.getByRole("radio", { name: /^Local/ }).check();
+      await page.getByRole("tab", { name: "In your terminal" }).click();
+      const running = await page.evaluate(() => document.getAnimations().filter((a) => a.playState === "running").map((a) => a.constructor.name));
+      expect(running).toEqual([]);
+    });
+  });
+});

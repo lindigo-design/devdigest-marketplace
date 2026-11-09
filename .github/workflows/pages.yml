@@ -2,12 +2,16 @@ name: catalog site
 
 # Builds and tests the catalog site on every PR that touches plugins or the site, and deploys it to
 # GitHub Pages on every push to main (spec CAT-01 R1/AC-1, R6). No repository secrets are used.
+# A pushed release tag (<plugin>--v<version>, from scripts/tag-release.mjs) rebuilds main, so the plugin page's
+# "Download source" link appears once its tag exists (spec CAT-02 R5/AC-4). The github-pages environment must
+# allow deployments from tags matching "*--v*" (Settings → Environments → github-pages).
 # One-time setup by the owner: Settings → Pages → Source: GitHub Actions.
 # Optional repository variables SITE_ORIGIN / SITE_BASE override the origin and base path (R6/AC-5).
 
 on:
   push:
     branches: [main]
+    tags: ["*--v*"]
   pull_request:
     paths:
       - "plugins/**"
@@ -41,8 +45,9 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          fetch-depth: 0 # CHANGELOG history gives feed items their "updated" time (§7)
+          fetch-depth: 0 # CHANGELOG history gives feed items their "updated" time (§7); tags for CAT-02 R5
           persist-credentials: false
+          ref: ${{ startsWith(github.ref, 'refs/tags/') && 'main' || '' }} # a tag push builds main, never an older commit
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: "22"
@@ -68,8 +73,9 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          fetch-depth: 0 # CHANGELOG history gives feed items their "updated" time (§7)
+          fetch-depth: 0 # CHANGELOG history gives feed items their "updated" time (§7); tags for CAT-02 R5
           persist-credentials: false
+          ref: ${{ startsWith(github.ref, 'refs/tags/') && 'main' || '' }} # a tag push builds main, never an older commit
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: "22"
@@ -79,7 +85,7 @@ jobs:
       - name: Build the site
         run: npm run build
       - name: Upload Pages artifact
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
         uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
         with:
           path: site/dist
@@ -120,7 +126,7 @@ jobs:
 
   deploy:
     name: deploy to GitHub Pages
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
     needs: [test, build, e2e]
     runs-on: ubuntu-latest
     timeout-minutes: 10
