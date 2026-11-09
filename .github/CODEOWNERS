@@ -1,0 +1,8 @@
+# Marketplace catalog
+/.claude-plugin/   @lindigo-design
+
+# Every plugin
+/plugins/*         @lindigo-design
+
+# CI and ownership rules
+/.github/          @lindigo-design

@@ -1,0 +1,16 @@
+# Eval run output (claude plugin eval)
+evals/results/
+**/evals/results/
+
+# Dependencies
+node_modules/
+
+# Local Claude Code state — never commit
+.claude/settings.local.json
+.mcpb-cache/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

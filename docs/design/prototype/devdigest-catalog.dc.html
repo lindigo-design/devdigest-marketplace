@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,500;8..60,600&amp;display=swap" rel="stylesheet">
+<style>
+[data-theme="light"]{--page:#F5F3EE;--raised:#FFFFFF;--sunken:#ECE9E2;--ink:#17171B;--sec:#54545C;--whisper:#8A8892;--hair:#D9D5CB;--indigo:#3340B5;--isoft:#E4E6F6;--caution:#A84E17;--positive:#2D7A4D;--rollback:#7A3FA0;color-scheme:light}
+[data-theme="dark"]{--page:#111115;--raised:#1A1A20;--sunken:#0B0B0E;--ink:#EDEBE6;--sec:#A9A7B1;--whisper:#6E6C77;--hair:#2B2A32;--indigo:#8F9AFF;--isoft:#22254A;--caution:#E38B57;--positive:#6CC594;--rollback:#C79BEB;color-scheme:dark}
+html,body{margin:0;padding:0}
+*{box-sizing:border-box}
+a{color:var(--indigo);text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{color:var(--ink)}
+:focus-visible{outline:2px solid var(--indigo);outline-offset:3px}
+textarea::placeholder{color:var(--whisper);opacity:1}
+@keyframes wipe{from{clip-path:inset(-0.2em 100% -0.2em 0)}to{clip-path:inset(-0.2em 0 -0.2em 0)}}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+<div data-theme="{{ theme }}" style="min-height:100vh; background:var(--page); color:var(--ink); font-family:'IBM Plex Sans',system-ui,sans-serif; font-size:1rem; line-height:1.55; overflow-x:clip; transition:background-color 240ms cubic-bezier(0.16,1,0.3,1), color 240ms cubic-bezier(0.16,1,0.3,1)">
+<div style="max-width:1600px; margin:0 auto; padding:0 {{ margin }} 48px">
+
+<header style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px 24px; padding:24px 0; border-bottom:1px solid var(--hair)">
+  <button onClick="{{ goHome }}" style="background:none; border:0; padding:0; cursor:pointer; color:var(--ink); font-family:'Source Serif 4',serif; font-size:1.25rem; font-weight:600; letter-spacing:-0.01em">lindigo-devdigest</button>
+  <nav aria-label="Site" style="display:flex; align-items:center; gap:12px 24px; flex-wrap:wrap; font-size:0.8125rem">
+    <span style="display:flex; gap:6px; align-items:center; color:var(--sec)"><kbd style="font-family:'IBM Plex Mono',monospace; font-size:0.75rem; border:1px solid var(--hair); border-radius:2px; padding:0 6px; color:var(--ink)">/</kbd>to search</span>
+    <a href="#" onClick="{{ goHome }}">Catalog</a>
+    <a href="https://github.com/lindigo-design/devdigest-marketplace">GitHub</a>
+    <button onClick="{{ toggleTheme }}" aria-label="Switch colour theme" style="background:none; border:1px solid var(--hair); border-radius:2px; padding:6px 10px; color:var(--ink); cursor:pointer; font-family:inherit; font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase">{{ themeLabel }}</button>
+  </nav>
+</header>
+
+<sc-if value="{{ showSearch }}" hint-placeholder-val="{{ true }}">
+<section aria-label="Search" style="padding-top:64px; max-width:{{ searchMax }}">
+  <label for="q" style="display:flex; flex-wrap:wrap; align-items:baseline; column-gap:0.26em; font-family:'Source Serif 4',serif; font-size:clamp(2rem,4vw,3.25rem); line-height:1.05; letter-spacing:-0.015em; font-weight:400; padding-bottom:16px; border-bottom:2px solid {{ ruleColor }}; cursor:text; transition:border-color 240ms cubic-bezier(0.16,1,0.3,1)">
+    <span style="display:inline-block; animation:wipe 560ms cubic-bezier(0.16,1,0.3,1) both">I</span>
+    <span style="display:inline-block; animation:wipe 560ms cubic-bezier(0.16,1,0.3,1) 140ms both">need</span>
+    <span style="display:inline-block; animation:wipe 560ms cubic-bezier(0.16,1,0.3,1) 280ms both">a</span>
+    <span style="flex:1 1 4ch; min-width:0; position:relative; display:block; animation:wipe 560ms cubic-bezier(0.16,1,0.3,1) 420ms both">
+      <textarea id="q" ref="{{ searchRef }}" rows="1" value="{{ query }}" onChange="{{ onQuery }}" onKeyDown="{{ onQueryKey }}" onFocus="{{ onSearchFocus }}" onBlur="{{ onSearchBlur }}" placeholder="___" spellcheck="false" autocomplete="off" aria-label="I need a" style="display:block; width:100%; border:0; margin:0; padding:0; background:transparent; resize:none; overflow:hidden; font:inherit; letter-spacing:inherit; line-height:inherit; color:var(--ink); caret-color:var(--indigo); outline:none"></textarea>
+      <sc-if value="{{ showFakeCaret }}"><span aria-hidden="true" style="position:absolute; left:0; top:0.06em; width:0.05em; height:0.82em; background:var(--indigo); animation:blink 1.06s steps(1) infinite"></span></sc-if>
+    </span>
+  </label>
+  <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; padding-top:16px; min-height:48px">
+    <span style="font-size:0.8125rem; line-height:1.4; color:var(--sec)">{{ searchMeta }}</span>
+    <sc-for list="{{ chips }}" as="c" hint-placeholder-count="0">
+      <span style="display:inline-flex; align-items:center; gap:2px; background:var(--isoft); color:var(--indigo); border-radius:2px; padding:2px 2px 2px 10px; font-size:0.8125rem; font-weight:600">{{ c.text }}<button onClick="{{ c.remove }}" aria-label="{{ c.aria }}" style="background:none; border:0; color:var(--indigo); cursor:pointer; font-size:1rem; line-height:1; padding:4px 8px; font-family:inherit">×</button></span>
+    </sc-for>
+  </div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isPlugin }}" hint-placeholder-val="{{ false }}">
+<section data-screen-label="04 Plugin page" style="padding:64px 0 48px">
+  <button onClick="{{ goHome }}" style="background:none; border:0; padding:0; cursor:pointer; color:var(--indigo); font-family:inherit; font-size:0.8125rem" style-hover="color:var(--ink)">← All plugins</button>
+  <div style="margin-top:48px; font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--sec)">Plugin</div>
+  <h1 style="margin:12px 0 24px; font-family:'Source Serif 4',serif; font-weight:400; font-size:clamp(1.75rem,3.5vw,2.5rem); line-height:1.08; letter-spacing:-0.02em; overflow-wrap:anywhere; animation:wipe 560ms cubic-bezier(0.16,1,0.3,1) both">{{ pg.name }}</h1>
+  <p style="margin:0; max-width:68ch; font-size:1.125rem; line-height:1.55; color:var(--sec); text-wrap:pretty">{{ pg.desc }}</p>
+</section>
+</sc-if>
+
+<sc-if value="{{ isComponent }}" hint-placeholder-val="{{ false }}">
+<section data-screen-label="05 Component page" style="padding:64px 0 48px">
+  <button onClick="{{ backFromComp }}" style="background:none; border:0; padding:0; cursor:pointer; color:var(--indigo); font-family:inherit; font-size:0.8125rem" style-hover="color:var(--ink)">← Back to results</button>
+  <div style="margin-top:48px; font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--sec)">{{ cp.kindLabel }}</div>
+  <h1 style="margin:12px 0 16px; font-family:'Source Serif 4',serif; font-weight:400; font-size:clamp(1.75rem,3.5vw,2.5rem); line-height:1.08; letter-spacing:-0.02em; overflow-wrap:anywhere; animation:wipe 560ms cubic-bezier(0.16,1,0.3,1) both">{{ cp.name }}</h1>
+  <p style="margin:0; font-size:1.125rem; line-height:1.55; color:var(--sec); display:flex; flex-wrap:wrap; gap:0 6px">in plugin <a href="#" onClick="{{ cp.goPlugin }}">{{ cp.plugin }}</a> <span style="font-family:'IBM Plex Mono',monospace; font-size:0.875rem; align-self:center">· v0.1.0</span></p>
+</section>
+</sc-if>
+
+<div style="display:grid; grid-template-columns:{{ gridCols }}; column-gap:24px; row-gap:48px; padding-top:{{ gridPad }}; align-items:start">
+
+<aside aria-label="{{ railLabel }}" style="position:{{ railPos }}; top:24px; min-width:0; display:flex; flex-direction:column; gap:48px">
+
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+  <div>
+    <div style="font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--sec); padding-bottom:12px; border-bottom:1px solid var(--hair)">In the catalog</div>
+    <div style="display:grid; grid-template-columns:{{ statCols }}; column-gap:24px">
+      <sc-for list="{{ stats }}" as="s" hint-placeholder-count="6">
+        <div style="padding:{{ statPad }}; border-bottom:1px solid var(--hair)">
+          <sc-if value="{{ s.link }}">
+            <button onClick="{{ s.go }}" aria-label="{{ s.aria }}" style="background:none; border:0; padding:0; cursor:pointer; text-align:left; color:var(--indigo); display:flex; flex-direction:{{ statDir }}; align-items:{{ statAlign }}; gap:6px 12px; font-family:inherit" style-hover="color:var(--ink)">
+              <span style="font-family:'Source Serif 4',serif; font-size:clamp(1.75rem,3vw,2.5rem); line-height:1; font-weight:300; font-variant-numeric:tabular-nums">{{ s.n }}</span>
+              <span style="font-size:0.8125rem; line-height:1.4; text-decoration:underline; text-underline-offset:3px">{{ s.label }}</span>
+            </button>
+          </sc-if>
+          <sc-if value="{{ s.zero }}">
+            <div style="display:flex; flex-direction:{{ statDir }}; align-items:{{ statAlign }}; gap:6px 12px">
+              <span style="font-family:'Source Serif 4',serif; font-size:clamp(1.75rem,3vw,2.5rem); line-height:1; font-weight:300; font-variant-numeric:tabular-nums; color:var(--whisper)">{{ s.n }}</span>
+              <span style="font-size:0.8125rem; line-height:1.4; color:var(--sec)">{{ s.label }}</span>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+    <p style="margin:16px 0 0; font-size:0.8125rem; line-height:1.4; color:var(--sec); max-width:36ch">No components yet — plugins are being migrated.</p>
+  </div>
+  <div style="display:flex; flex-wrap:wrap; gap:32px 48px">
+    <div style="display:flex; flex-direction:column; gap:6px">
+      <span style="font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--sec)">Last release</span>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:0.875rem">2026-11-09</span>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:6px">
+      <span style="font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--sec)">Feeds</span>
+      <span style="display:flex; gap:16px; font-size:0.8125rem"><a href="feed.xml">RSS</a><a href="feed.json">JSON feed</a></span>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isResults }}" hint-placeholder-val="{{ false }}">
+  <div>
+    <sc-if value="{{ isNarrow }}">
+      <button onClick="{{ toggleDrawer }}" aria-expanded="{{ drawerOpen }}" style="width:100%; min-height:44px; background:none; border:1px solid var(--ink); border-radius:2px; color:var(--ink); cursor:pointer; font-family:inherit; font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase">{{ drawerLabel }}</button>
+    </sc-if>
+    <div role="{{ fwRole }}" aria-label="Filters" style="display:{{ fwDisplay }}; position:{{ fwPos }}; inset:0; z-index:40; background:var(--page); padding:{{ fwPad }}; overflow:auto">
+      <div style="display:flex; justify-content:space-between; align-items:baseline; gap:16px; padding-bottom:12px; border-bottom:1px solid var(--hair)">
+        <span style="font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--sec)">Filters</span>
+        <span style="display:flex; gap:16px">
+          <button onClick="{{ clearFilters }}" style="background:none; border:0; padding:0; cursor:pointer; color:var(--indigo); font-family:inherit; font-size:0.8125rem; text-decoration:underline; text-underline-offset:3px">Clear</button>
+          <sc-if value="{{ isNarrow }}"><button onClick="{{ toggleDrawer }}" style="background:none; border:0; padding:0; cursor:pointer; color:var(--ink); font-family:inherit; font-size:0.8125rem; font-weight:600">Done</button></sc-if>
+        </span>
+      </div>
+      <div style="display:flex; flex-direction:{{ fgDir }}; flex-wrap:wrap; gap:32px 48px; padding-top:24px">
+        <sc-for list="{{ filterGroups }}" as="g" hint-placeholder-count="5">
+          <fieldset style="border:0; margin:0; padding:0; min-width:0; flex:1 1 160px">
+            <legend style="padding:0; margin-bottom:8px; font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--sec)">{{ g.name }}</legend>
+            <div style="display:flex; flex-direction:column">
+              <sc-for list="{{ g.options }}" as="o">
+                <button onClick="{{ o.toggle }}" aria-pressed="{{ o.active }}" style="display:flex; align-items:center; gap:10px; width:100%; min-height:36px; background:none; border:0; padding:4px 0; cursor:pointer; color:{{ o.color }}; font-family:inherit; font-size:0.9375rem; text-align:left; transition:color 120ms cubic-bezier(0.16,1,0.3,1)" style-hover="color:var(--indigo)">
+                  <span aria-hidden="true" style="width:12px; height:12px; flex:0 0 auto; border:1px solid {{ o.boxBorder }}; background:{{ o.boxBg }}; border-radius:2px"></span>
+                  <span style="flex:1; min-width:0; overflow-wrap:anywhere">{{ o.label }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:0.8125rem; color:var(--sec); font-variant-numeric:tabular-nums">{{ o.count }}</span>
+                </button>
+              </sc-for>
+            </div>
+          </fieldset>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isPlugin }}" hint-placeholder-val="{{ false }}">
+  <div>
+    <sc-for list="{{ pg.meta }}" as="m">
+      <div style="display:flex; justify-content:space-between; gap:16px; padding:12px 0; border-top:1px solid var(--hair)">
+        <span style="font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--sec)">{{ m.k }}</span>
+        <span style="font-family:{{ m.font }}; font-size:0.875rem; text-align:right">{{ m.v }}</span>
+      </div>
+    </sc-for>
+    <div style="padding:16px 0; border-top:1px solid var(--hair)">
+      <div style="font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--sec); margin-bottom:8px">Depends on</div>
+      <sc-if value="{{ pg.hasDeps }}">
+        <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px">
+          <sc-for list="{{ pg.deps }}" as="d">
+            <li style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:4px 12px"><a href="#" onClick="{{ d.go }}">{{ d.name }}</a><span style="font-family:'IBM Plex Mono',monospace; font-size:0.875rem; color:var(--sec)">{{ d.range }}</span></li>
+          </sc-for>
+        </ul>
+      </sc-if>
+      <sc-if value="{{ pg.noDeps }}"><span style="color:var(--sec)">Nothing</span></sc-if>
+    </div>
+    <div style="padding:16px 0; border-top:1px solid var(--hair); border-bottom:1px solid var(--hair)">
+      <div style="font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--sec); margin-bottom:8px">Used by</div>
+      <sc-if value="{{ pg.hasUsedBy }}">
+        <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px">
+          <sc-for list="{{ pg.usedBy }}" as="u"><li><a href="#" onClick="{{ u.go }}">{{ u.name }}</a></li></sc-for>
+        </ul>
+      </sc-if>
+      <sc-if value="{{ pg.noUsedBy }}"><span style="color:var(--sec)">None</span></sc-if>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isComponent }}" hint-placeholder-val="{{ false }}">
+  <div>
+    <sc-for list="{{ cp.meta }}" as="m">
+      <div style="display:flex; justify-content:space-between; gap:16px; padding:12px 0; border-top:1px solid var(--hair)">
+        <span style="font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--sec)">{{ m.k }}</span>
+        <span style="font-family:{{ m.font }}; font-size:0.875rem; text-align:right">{{ m.v }}</span>
+      </div>
+    </sc-for>
+    <div style="padding:16px 0; border-top:1px solid var(--hair); border-bottom:1px solid var(--hair); font-size:0.8125rem">
+      <a href="{{ cp.source }}">View source on GitHub →</a>
+    </div>
+  </div>
+  </sc-if>
+</aside>
+
+<main style="min-width:0">
+
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+  <section data-screen-label="01 Home" aria-labelledby="whatsnew" style="margin-bottom:96px">
+    <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:8px 16px; padding-bottom:16px">
+      <h2 id="whatsnew" style="margin:0; font-family:'Source Serif 4',serif; font-size:2rem; line-height:1.1; font-weight:500">What’s new</h2>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:0.875rem; color:var(--sec)">2026-11-09</span>
+    </div>
+    <ol style="list-style:none; margin:0; padding:0; border-bottom:1px solid var(--hair)">
+      <sc-for list="{{ news }}" as="n" hint-placeholder-count="4">
+        <li style="display:flex; flex-wrap:wrap; gap:8px 24px; padding:16px 0; border-top:1px solid var(--hair)">
+          <div style="flex:0 1 260px; min-width:0">
+            <a href="#" onClick="{{ n.go }}" style="font-weight:600; color:var(--ink); text-decoration:none" style-hover="color:var(--indigo); text-decoration:underline">{{ n.plugin }}</a>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:0.8125rem; color:var(--sec)">v0.1.0 · 2026-11-09</div>
+          </div>
+          <p style="flex:1 1 300px; margin:0; max-width:68ch; color:var(--sec); text-wrap:pretty"><span style="display:block">{{ n.l1 }}</span><span style="display:block">{{ n.l2 }}</span></p>
+        </li>
+      </sc-for>
+    </ol>
+  </section>
+  <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:8px 16px; padding-bottom:16px">
+    <h2 style="margin:0; font-family:'Source Serif 4',serif; font-size:2rem; line-height:1.1; font-weight:500">Plugins</h2>
+    <span style="font-size:0.8125rem; color:var(--sec)">4 entries, in dependency order</span>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ showRows }}" hint-placeholder-val="{{ true }}">
+  <div data-screen-label="{{ rowsLabel }}" role="list" style="border-bottom:1px solid var(--hair)">
+    <sc-for list="{{ rows }}" as="r" hint-placeholder-count="4">
+      <sc-if value="{{ r.isHeader }}">
+        <div role="presentation" style="display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:8px 16px; padding:64px 0 16px; border-top:1px solid var(--hair)">
+          <span style="font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--sec)">{{ r.title }}</span>
+          <span style="font-size:0.8125rem; color:var(--sec)">{{ r.note }}</span>
+        </div>
+      </sc-if>
+      <sc-if value="{{ r.isRow }}">
+        <article role="listitem" onFocus="{{ r.onFocus }}" onBlur="{{ r.onBlur }}" style="display:flex; flex-wrap:wrap; gap:12px 24px; padding:24px 0 32px; border-top:1px solid var(--hair); background-image:linear-gradient(var(--indigo),var(--indigo)); background-repeat:no-repeat; background-origin:border-box; background-position:0 0; background-size:{{ r.lineSize }}; transition:background-size 240ms cubic-bezier(0.16,1,0.3,1); animation:wipe 560ms cubic-bezier(0.16,1,0.3,1) both; animation-delay:{{ r.delay }}" style-hover="background-size:100% 1px">
+          <div style="flex:0 0 112px; padding-top:6px; font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--sec)">{{ r.kindLabel }}</div>
+          <div style="flex:1 1 280px; min-width:0; display:flex; flex-direction:column; gap:12px">
+            <div style="display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 16px">
+              <h3 style="margin:0; font-size:1.375rem; line-height:1.2; font-weight:600; overflow-wrap:anywhere"><button onClick="{{ r.open }}" style="background:none; border:0; padding:0; font:inherit; color:var(--ink); cursor:pointer; text-align:left; transition:color 120ms cubic-bezier(0.16,1,0.3,1)" style-hover="color:var(--indigo)">{{ r.name }}</button></h3>
+              <span style="font-size:0.8125rem; line-height:1.4; color:var(--sec)"><button onClick="{{ r.onCap }}" style="background:none; border:0; padding:0; font:inherit; color:var(--sec); cursor:pointer; text-decoration:underline; text-underline-offset:3px; text-decoration-color:var(--hair)" style-hover="color:var(--indigo)">{{ r.capLink }}</button> · <span style="font-family:'IBM Plex Mono',monospace">v0.1.0</span></span>
+            </div>
+            <p style="margin:0; max-width:68ch; color:var(--sec); text-wrap:pretty"><sc-for list="{{ r.segs }}" as="s"><sc-if value="{{ s.hl }}"><mark style="background:var(--isoft); color:var(--indigo); padding:0 2px">{{ s.t }}</mark></sc-if><sc-if value="{{ s.plain }}"><span>{{ s.t }}</span></sc-if></sc-for></p>
+            <sc-if value="{{ r.hasDeps }}"><p style="margin:0; font-size:0.8125rem; line-height:1.4; color:var(--sec)">Depends on <span style="font-family:'IBM Plex Mono',monospace">{{ r.deps }}</span></p></sc-if>
+            <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center">
+              <sc-for list="{{ r.tags }}" as="t"><span style="font-family:'IBM Plex Mono',monospace; font-size:0.75rem; line-height:1.5; padding:2px 8px; background:var(--sunken); border-radius:2px; color:var(--sec)">{{ t }}</span></sc-for>
+              <span aria-hidden="true" style="width:1px; height:16px; background:var(--hair); margin:0 4px"></span>
+              <span style="font-size:0.75rem; line-height:1.5; padding:1px 10px; border:1px solid var(--hair); border-radius:999px; color:var(--sec)">Claude Code ≥ 2.1.110</span>
+              <span style="font-size:0.75rem; line-height:1.5; padding:1px 10px; border:1px solid var(--hair); border-radius:999px; color:var(--sec)">Windows</span>
+              <span style="font-size:0.75rem; line-height:1.5; padding:1px 10px; border:1px solid var(--hair); border-radius:999px; color:var(--sec)">macOS</span>
+            </div>
+            <sc-if value="{{ r.hasRuns }}"><p style="margin:0; display:flex; flex-wrap:wrap; gap:2px 10px; align-items:baseline; color:var(--caution)"><span style="font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase">Runs commands</span><span style="font-size:0.8125rem; line-height:1.4">{{ r.runs }}</span></p></sc-if>
+            <div style="display:flex; align-items:stretch; border:1px solid var(--hair); border-radius:2px; background:var(--raised); max-width:68ch; min-width:0">
+              <code style="flex:1; min-width:0; overflow-x:auto; white-space:nowrap; padding:10px 12px; font-family:'IBM Plex Mono',monospace; font-size:0.875rem; line-height:1.5; color:var(--ink)">{{ r.cmd }}</code>
+              <button onClick="{{ r.onCopy }}" aria-label="{{ r.copyAria }}" style="flex:0 0 auto; min-width:92px; border:0; border-left:1px solid var(--hair); background:transparent; padding:0 16px; cursor:pointer; font-family:inherit; font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:{{ r.copyColor }}; transition:color 240ms cubic-bezier(0.87,0,0.13,1)">{{ r.copyLabel }}</button>
+            </div>
+          </div>
+        </article>
+      </sc-if>
+    </sc-for>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+  <section data-screen-label="03 No results" aria-live="polite" style="border-top:1px solid var(--hair); padding-top:32px; max-width:68ch">
+    <h2 style="margin:0 0 16px; font-family:'Source Serif 4',serif; font-size:2rem; line-height:1.1; font-weight:500; overflow-wrap:anywhere">Nothing matches “{{ submitted }}”.</h2>
+    <p style="margin:0; color:var(--sec); text-wrap:pretty">No plugin, skill, agent, hook or command mentions these words{{ filterNote }}. The catalog is small for now: 4 plugins, with components still being migrated.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:32px">
+      <button onClick="{{ clearFilters }}" style="min-height:44px; padding:0 20px; background:none; border:1px solid var(--ink); border-radius:2px; color:var(--ink); cursor:pointer; font-family:inherit; font-size:0.9375rem; font-weight:600">Clear filters</button>
+      <button onClick="{{ showEverything }}" style="min-height:44px; padding:0 20px; background:var(--ink); border:1px solid var(--ink); border-radius:2px; color:var(--page); cursor:pointer; font-family:inherit; font-size:0.9375rem; font-weight:600">Show everything</button>
+    </div>
+    <p style="margin:48px 0 0; font-size:0.8125rem; color:var(--sec)">Missing something? <a href="https://github.com/lindigo-design/devdigest-marketplace/issues/new">Request a skill on GitHub</a></p>
+  </section>
+  </sc-if>
+
+  <sc-if value="{{ isPlugin }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex; flex-direction:column; gap:48px; max-width:880px">
+    <div style="display:flex; flex-wrap:wrap; gap:24px 48px">
+      <div style="display:flex; flex-direction:column; gap:8px">
+        <span style="font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--sec)">Tags</span>
+        <div style="display:flex; flex-wrap:wrap; gap:8px"><sc-for list="{{ pg.tags }}" as="t"><span style="font-family:'IBM Plex Mono',monospace; font-size:0.75rem; line-height:1.5; padding:2px 8px; background:var(--sunken); border-radius:2px; color:var(--sec)">{{ t }}</span></sc-for></div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:8px">
+        <span style="font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--sec)">Compatibility</span>
+        <div style="display:flex; flex-wrap:wrap; gap:8px">
+          <span style="font-size:0.75rem; line-height:1.5; padding:1px 10px; border:1px solid var(--hair); border-radius:999px; color:var(--sec)">Claude Code ≥ 2.1.110</span>
+          <span style="font-size:0.75rem; line-height:1.5; padding:1px 10px; border:1px solid var(--hair); border-radius:999px; color:var(--sec)">Windows</span>
+          <span style="font-size:0.75rem; line-height:1.5; padding:1px 10px; border:1px solid var(--hair); border-radius:999px; color:var(--sec)">macOS</span>
+        </div>
+      </div>
+    </div>
+
+    <section aria-label="Install" style="background:var(--raised); border:1px solid var(--hair); padding:24px; display:flex; flex-direction:column; gap:12px; min-width:0">
+      <div style="font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--sec)">Install</div>
+      <sc-for list="{{ pg.install }}" as="l">
+        <div style="display:flex; align-items:stretch; border:1px solid var(--hair); border-radius:2px; min-width:0">
+          <code style="flex:1; min-width:0; overflow-x:auto; white-space:nowrap; padding:10px 12px; font-family:'IBM Plex Mono',monospace; font-size:0.875rem; line-height:1.5">{{ l.cmd }}</code>
+          <button onClick="{{ l.onCopy }}" aria-label="{{ l.copyAria }}" style="flex:0 0 auto; min-width:92px; border:0; border-left:1px solid var(--hair); background:transparent; padding:0 16px; cursor:pointer; font-family:inherit; font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:{{ l.copyColor }}; transition:color 240ms cubic-bezier(0.87,0,0.13,1)">{{ l.copyLabel }}</button>
+        </div>
+      </sc-for>
+      <sc-if value="{{ pg.hasAlso }}"><p style="margin:0; font-family:'IBM Plex Mono',monospace; font-size:0.8125rem; line-height:1.5; color:var(--sec)">{{ pg.also }}</p></sc-if>
+    </section>
+
+    <section style="border-top:1px solid var(--hair); padding-top:24px">
+      <h2 style="margin:0 0 16px; font-size:1.375rem; line-height:1.2; font-weight:600">Components</h2>
+      <sc-if value="{{ pg.noComps }}">
+        <div style="background:var(--sunken); padding:32px 24px">
+          <p style="margin:0; font-family:'Source Serif 4',serif; font-size:1.375rem; line-height:1.2">No components yet</p>
+          <p style="margin:8px 0 0; color:var(--sec); max-width:56ch">Skills, agents, hooks and commands appear here once this plugin is migrated to the catalog format.</p>
+        </div>
+      </sc-if>
+      <sc-if value="{{ pg.hasComps }}">
+        <ul style="list-style:none; margin:0; padding:0">
+          <sc-for list="{{ pg.comps }}" as="c">
+            <li style="display:flex; gap:24px; padding:12px 0; border-top:1px solid var(--hair)"><span style="flex:0 0 96px; font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--sec); padding-top:3px">{{ c.kind }}</span><a href="#" onClick="{{ c.go }}">{{ c.name }}</a></li>
+          </sc-for>
+        </ul>
+      </sc-if>
+    </section>
+
+    <section style="border-top:1px solid var(--hair); padding-top:24px">
+      <h2 style="margin:0 0 16px; font-size:1.375rem; line-height:1.2; font-weight:600">Latest change</h2>
+      <div style="display:flex; flex-wrap:wrap; gap:4px 16px; align-items:baseline; margin-bottom:8px"><span style="font-family:'IBM Plex Mono',monospace; font-size:0.875rem; font-weight:500">0.1.0</span><span style="font-family:'IBM Plex Mono',monospace; font-size:0.8125rem; color:var(--sec)">2026-11-09</span></div>
+      <ul style="margin:0; padding-left:20px; color:var(--sec); max-width:68ch">
+        <sc-for list="{{ pg.notes }}" as="n"><li style="margin-bottom:4px">{{ n }}</li></sc-for>
+      </ul>
+    </section>
+
+    <section style="border-top:1px solid var(--hair); padding-top:24px">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:0.8125rem; color:var(--sec); margin-bottom:16px">README.md</div>
+      <h3 style="margin:0 0 12px; font-family:'Source Serif 4',serif; font-size:2rem; line-height:1.1; font-weight:500">{{ pg.readmeTitle }}</h3>
+      <p style="margin:0 0 16px; max-width:68ch; text-wrap:pretty">{{ pg.readmeIntro }}</p>
+      <pre style="margin:0; background:var(--sunken); padding:16px 20px; overflow-x:auto; font-family:'IBM Plex Mono',monospace; font-size:0.875rem; line-height:1.5; border-radius:0">{{ pg.readmeCode }}</pre>
+      <p style="margin:16px 0 0; max-width:68ch; color:var(--sec); text-wrap:pretty">{{ pg.readmeOutro }}</p>
+    </section>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isComponent }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex; flex-direction:column; gap:48px; max-width:880px">
+    <section>
+      <div style="font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--sec); margin-bottom:12px">Frontmatter</div>
+      <table style="width:100%; border-collapse:collapse; font-size:0.875rem">
+        <tbody>
+          <sc-for list="{{ cp.fm }}" as="f">
+            <tr style="border-top:1px solid var(--hair); border-bottom:1px solid var(--hair)">
+              <th scope="row" style="text-align:left; font-weight:400; font-family:'IBM Plex Mono',monospace; color:var(--sec); padding:10px 24px 10px 0; width:120px; vertical-align:top">{{ f.k }}</th>
+              <td style="font-family:'IBM Plex Mono',monospace; padding:10px 0; overflow-wrap:anywhere">{{ f.v }}</td>
+            </tr>
+          </sc-for>
+        </tbody>
+      </table>
+      <sc-if value="{{ cp.hasRuns }}">
+        <p style="margin:16px 0 0; display:flex; flex-wrap:wrap; gap:2px 10px; align-items:baseline; color:var(--caution)"><span style="font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase">Runs commands</span><span>{{ cp.runs }}</span></p>
+      </sc-if>
+    </section>
+
+    <section style="border-top:1px solid var(--hair); padding-top:24px">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:0.8125rem; color:var(--sec); margin-bottom:16px">{{ cp.file }}</div>
+      <p style="margin:0 0 16px; max-width:68ch; font-size:1.125rem; line-height:1.55; text-wrap:pretty">{{ cp.lead }}</p>
+      <h3 style="margin:24px 0 8px; font-size:1.375rem; line-height:1.2; font-weight:600">{{ cp.h }}</h3>
+      <ol style="margin:0; padding-left:24px; max-width:68ch">
+        <sc-for list="{{ cp.items }}" as="i"><li style="margin-bottom:6px">{{ i }}</li></sc-for>
+      </ol>
+      <pre style="margin:24px 0 0; background:var(--sunken); padding:16px 20px; overflow-x:auto; font-family:'IBM Plex Mono',monospace; font-size:0.875rem; line-height:1.5">{{ cp.code }}</pre>
+    </section>
+
+    <section aria-label="Install" style="background:var(--raised); border:1px solid var(--hair); padding:24px; display:flex; flex-direction:column; gap:12px; min-width:0">
+      <div style="font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--sec)">Install with {{ cp.plugin }}</div>
+      <sc-for list="{{ cp.install }}" as="l">
+        <div style="display:flex; align-items:stretch; border:1px solid var(--hair); border-radius:2px; min-width:0">
+          <code style="flex:1; min-width:0; overflow-x:auto; white-space:nowrap; padding:10px 12px; font-family:'IBM Plex Mono',monospace; font-size:0.875rem; line-height:1.5">{{ l.cmd }}</code>
+          <button onClick="{{ l.onCopy }}" aria-label="{{ l.copyAria }}" style="flex:0 0 auto; min-width:92px; border:0; border-left:1px solid var(--hair); background:transparent; padding:0 16px; cursor:pointer; font-family:inherit; font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:{{ l.copyColor }}; transition:color 240ms cubic-bezier(0.87,0,0.13,1)">{{ l.copyLabel }}</button>
+        </div>
+      </sc-for>
+      <sc-if value="{{ cp.hasAlso }}"><p style="margin:0; font-family:'IBM Plex Mono',monospace; font-size:0.8125rem; line-height:1.5; color:var(--sec)">{{ cp.also }}</p></sc-if>
+    </section>
+
+    <p style="margin:0"><a href="{{ cp.source }}">View source on GitHub →</a></p>
+  </div>
+  </sc-if>
+</main>
+</div>
+
+<footer style="margin-top:144px; padding-top:24px; border-top:1px solid var(--hair); display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px 24px; font-size:0.8125rem; line-height:1.4; color:var(--sec)">
+  <span>lindigo-devdigest — a static index of the Lindigo Claude Code marketplace. Rebuilt on every release.</span>
+  <span style="display:flex; gap:16px"><a href="feed.xml">RSS</a><a href="feed.json">JSON feed</a><a href="https://github.com/lindigo-design/devdigest-marketplace">GitHub</a></span>
+</footer>
+</div>
+
+<sc-if value="{{ showBar }}" hint-placeholder-val="{{ true }}">
+<nav aria-label="Prototype screens" style="position:fixed; right:16px; bottom:16px; z-index:30; display:flex; align-items:center; gap:2px; background:var(--raised); border:1px solid var(--hair); padding:4px; font-family:'IBM Plex Mono',monospace; font-size:0.75rem">
+  <span style="padding:0 8px; color:var(--sec)">Screen</span>
+  <sc-for list="{{ jumps }}" as="j" hint-placeholder-count="5">
+    <button onClick="{{ j.go }}" title="{{ j.title }}" aria-label="{{ j.title }}" style="min-width:28px; height:28px; border:0; border-radius:2px; background:{{ j.bg }}; color:{{ j.fg }}; cursor:pointer; font:inherit">{{ j.n }}</button>
+  </sc-for>
+</nav>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;'light'|'dark'&quot;},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;home&quot;,&quot;results&quot;,&quot;no-results&quot;,&quot;plugin&quot;,&quot;component&quot;],&quot;default&quot;:&quot;home&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showScreenBar&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const MK = 'lindigo-devdigest';
+const REPO = 'https://github.com/lindigo-design/devdigest-marketplace';
+const OS = ['Windows', 'macOS'];
+const PLUGINS = [
+  { id: 'engineering-paved-path', desc: 'Base layer with shared team guardrails, security rubric, engineering insights, workflow retros and Mermaid diagrams.', category: 'engineering-standards', deps: [], tags: ['guardrails', 'security', 'retros', 'mermaid', 'standards'],
+    notes: ['First release: shared guardrails and the security rubric.', 'Adds the workflow retro template and Mermaid diagram conventions.'] },
+  { id: 'research-tools', desc: 'Read-only researcher and brainstorm agents.', category: 'research', deps: [['engineering-paved-path', '^0.1']], tags: ['research', 'brainstorm', 'agents', 'read-only'],
+    notes: ['Researcher and brainstorm agents, both limited to read-only tools.', 'Builds on engineering-paved-path ^0.1.'] },
+  { id: 'architecture-review', desc: 'Architecture and security reviewer agents, PR self-review skill with a pre-push gate.', category: 'code-review', deps: [['engineering-paved-path', '^0.1']], tags: ['review', 'security', 'architecture', 'pre-push', 'agents'],
+    notes: ['Architecture and security reviewer agents.', 'PR self-review skill, enforced by a pre-push gate hook.'] },
+  { id: 'sdd-engineering', desc: 'Spec-driven development workflow: spec, plan, implement, test, verify and document, with scoped write hooks.', category: 'workflow', deps: [['engineering-paved-path', '^0.1'], ['research-tools', '^0.1'], ['architecture-review', '^0.1']], tags: ['sdd', 'spec', 'planning', 'implementation', 'testing', 'agents'],
+    notes: ['Six-phase workflow from spec to documentation.', 'Write hooks keep each phase inside its own scope.'] },
+];
+const COMPS = [
+  { name: 'security', kind: 'skill', plugin: 'engineering-paved-path', desc: 'Security rubric for reviewing a change: secrets, input validation, authorization and dependency risk.', tags: ['security', 'review', 'rubric', 'owasp', 'checklist'], fm: [['name', 'security'], ['description', 'Security rubric for code review']] },
+  { name: 'pr-self-review', kind: 'skill', plugin: 'architecture-review', desc: 'Walks a pull request through a self-review before push: scope, tests, security and naming.', tags: ['review', 'pr', 'git', 'checklist', 'pre-push'], fm: [['name', 'pr-self-review'], ['description', 'Self-review a PR before pushing']] },
+  { name: 'security-reviewer', kind: 'agent', plugin: 'architecture-review', desc: 'Read-only agent that reviews a diff for security issues against the team rubric.', tags: ['security', 'review', 'agent', 'diff', 'read-only'], runs: 'Bash (read-only git, enforced by a hook)',
+    fm: [['tools', 'Read, Grep, Glob, Bash'], ['model', 'sonnet'], ['skills', 'security, pr-self-review']] },
+  { name: 'architecture-reviewer', kind: 'agent', plugin: 'architecture-review', desc: 'Reviews module boundaries, dependency direction and design decisions in a change.', tags: ['architecture', 'review', 'design', 'boundaries'], runs: 'Bash (read-only git, enforced by a hook)',
+    fm: [['tools', 'Read, Grep, Glob, Bash'], ['model', 'sonnet'], ['skills', 'pr-self-review']] },
+  { name: 'gate', kind: 'hook', plugin: 'architecture-review', desc: 'PreToolUse hook on Bash that blocks git push until the PR self-review has passed.', tags: ['hook', 'git', 'pre-push', 'guardrail'], runs: 'PreToolUse on Bash',
+    fm: [['event', 'PreToolUse'], ['matcher', 'Bash'], ['command', 'scripts/gate.sh']] },
+];
+const KL = { skill: 'Skill', agent: 'Agent', hook: 'Hook', command: 'Command', plugin: 'Plugin', mcp: 'MCP server' };
+const KORDER = ['skill', 'agent', 'hook', 'command', 'mcp', 'plugin'];
+const GN = { kind: 'Kind', plugin: 'Plugin', category: 'Category', tag: 'Tag', os: 'OS' };
+const SYN = [['безпек', 'security'], ['secur', 'security'], ['рев', 'review'], ['review', 'review'], ['архіт', 'architecture'], ['architect', 'architecture'], ['спец', 'spec'], ['дослід', 'research'], ['тест', 'test'], ['план', 'plan'], ['діаграм', 'mermaid'], ['diagram', 'mermaid']];
+const KINDW = [['скіл', 'skill'], ['skill', 'skill'], ['навичк', 'skill'], ['агент', 'agent'], ['agent', 'agent'], ['хук', 'hook'], ['hook', 'hook'], ['плагін', 'plugin'], ['plugin', 'plugin'], ['команд', 'command'], ['command', 'command']];
+const STOP = new Set(['мені', 'треба', 'для', 'i', 'need', 'a', 'an', 'the', 'for', 'to', 'and', 'що', 'щоб', 'я', 'with', 'of', 'на', 'й', 'і', 'та', 'some']);
+const Q2 = "мені треба скіл для рев'ю безпеки", Q3 = 'kubernetes helm';
+const EMPTYF = () => ({ kind: [], plugin: [], category: [], tag: [], os: [] });
+const catOf = id => PLUGINS.find(p => p.id === id).category;
+const ITEMS = [
+  ...COMPS.map(c => ({ ...c, category: catOf(c.plugin), os: OS })),
+  ...PLUGINS.map(p => ({ kind: 'plugin', name: p.id, plugin: p.id, category: p.category, desc: p.desc, tags: p.tags, deps: p.deps, os: OS })),
+];
+
+function parse(q) {
+  const toks = q.toLowerCase().replace(/[“”"«».,!?]/g, ' ').split(/\s+/).filter(Boolean);
+  let kind = null; const terms = [];
+  toks.forEach(t => {
+    if (STOP.has(t)) return;
+    const k = KINDW.find(([p]) => t.startsWith(p)); if (k) { kind = k[1]; return; }
+    const s = SYN.find(([p]) => t.startsWith(p));
+    const term = s ? s[1] : (t.length >= 3 ? t : null);
+    if (term && !terms.includes(term)) terms.push(term);
+  });
+  return { kind, terms };
+}
+const hay = it => (it.name + ' ' + it.desc + ' ' + it.tags.join(' ') + ' ' + it.plugin).toLowerCase();
+function passes(it, f, except) {
+  return Object.keys(f).every(g => {
+    if (g === except || !f[g].length) return true;
+    const vals = g === 'tag' ? it.tags : g === 'os' ? it.os : [it[g]];
+    return vals.some(v => f[g].includes(v));
+  });
+}
+function deepDeps(id, acc = []) {
+  PLUGINS.find(p => p.id === id).deps.forEach(([d, r]) => { if (!acc.find(a => a[0] === d)) { deepDeps(d, acc); acc.push([d, r]); } });
+  return acc;
+}
+
+class Component extends DCLogic {
+  state = { screen: 'home', query: '', submitted: '', filters: EMPTYF(), focused: false, copied: null, theme: null, vw: typeof window !== 'undefined' ? window.innerWidth : 1280, drawer: false, pluginId: 'sdd-engineering', compId: 'security-reviewer', focusRow: null };
+  searchRef = React.createRef();
+
+  componentDidMount() {
+    this.onResize = () => this.setState({ vw: window.innerWidth });
+    window.addEventListener('resize', this.onResize);
+    this.onKey = e => {
+      const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement && document.activeElement.tagName);
+      if (((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') || (e.key === '/' && !typing)) {
+        e.preventDefault();
+        if (this.state.screen === 'plugin' || this.state.screen === 'component') this.setState({ screen: 'home' }, () => this.focusSearch());
+        else this.focusSearch();
+      }
+    };
+    window.addEventListener('keydown', this.onKey);
+    const start = this.props.startScreen ?? 'home';
+    const map = { home: 1, results: 2, 'no-results': 3, plugin: 4, component: 5 };
+    this.jump(map[start] || 1);
+    this.autosize();
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this.onResize); window.removeEventListener('keydown', this.onKey); clearTimeout(this.ct); }
+  componentDidUpdate() { this.autosize(); }
+  autosize() { const el = this.searchRef.current; if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } }
+  focusSearch() { const el = this.searchRef.current; if (el) { el.focus({ preventScroll: true }); window.scrollTo({ top: 0 }); } }
+  top() { try { window.scrollTo({ top: 0 }); } catch (e) {} }
+
+  submit(q) {
+    if (!q.trim()) return this.goHome();
+    const { kind } = parse(q); const f = EMPTYF(); if (kind) f.kind = [kind];
+    this.setState({ screen: 'results', query: q, submitted: q, filters: f, drawer: false, autoKind: kind });
+  }
+  live(q) {
+    if (!q.trim()) return this.setState({ screen: 'home', query: q, submitted: '', filters: EMPTYF(), autoKind: null });
+    const { kind } = parse(q);
+    this.setState(s => {
+      const f = { ...s.filters };
+      if (kind !== s.autoKind) f.kind = kind ? [kind] : f.kind.filter(k => k !== s.autoKind);
+      return { screen: 'results', query: q, submitted: q, filters: f, autoKind: kind };
+    });
+  }
+  goHome = e => { e && e.preventDefault && e.preventDefault(); this.setState({ screen: 'home', query: '', submitted: '', filters: EMPTYF(), drawer: false, autoKind: null }); this.top(); };
+  openPlugin(id, e) { e && e.preventDefault && e.preventDefault(); this.setState({ screen: 'plugin', pluginId: id }); this.top(); }
+  openComp(name, e) { e && e.preventDefault && e.preventDefault(); this.setState({ screen: 'component', compId: name, prev: this.state.screen }); this.top(); }
+  copy(key, text) {
+    try { navigator.clipboard && navigator.clipboard.writeText(text).catch(() => {}); } catch (e) {}
+    clearTimeout(this.ct); this.setState({ copied: key });
+    this.ct = setTimeout(() => this.setState({ copied: null }), 2000);
+  }
+  copyVals(key, cmd) {
+    const on = this.state.copied === key;
+    return { cmd, copyLabel: on ? 'Copied' : 'Copy', copyColor: on ? 'var(--positive)' : 'var(--ink)', copyAria: on ? 'Copied to clipboard' : 'Copy ' + cmd, onCopy: () => this.copy(key, cmd) };
+  }
+  toggleFilter(g, v) {
+    this.setState(s => { const f = { ...s.filters, [g]: s.filters[g].includes(v) ? s.filters[g].filter(x => x !== v) : [...s.filters[g], v] }; return { filters: f, screen: 'results' }; });
+  }
+  jump(n) {
+    if (n === 1) this.goHome();
+    if (n === 2) this.submit(Q2);
+    if (n === 3) this.submit(Q3);
+    if (n === 4) this.openPlugin('sdd-engineering');
+    if (n === 5) this.openComp('security-reviewer');
+    this.top();
+  }
+  installFor(pid, prefix) {
+    return [`/plugin marketplace add lindigo-design/devdigest-marketplace`, `/plugin install ${pid}@${MK}`].map((c, i) => this.copyVals(prefix + i, c));
+  }
+
+  renderVals() {
+    const s = this.state;
+    const theme = s.theme ?? this.props.theme ?? 'light';
+    const vw = s.vw, wide = vw >= 1200, narrow = vw < 768;
+    const isHome = s.screen === 'home', isResults = s.screen === 'results', isPlugin = s.screen === 'plugin', isComponent = s.screen === 'component';
+    const { terms } = parse(s.submitted);
+    const f = s.filters;
+
+    const scored = ITEMS.map(it => ({ it, sc: terms.length ? terms.filter(t => hay(it).includes(t)).length : 1 }))
+      .filter(x => x.sc > 0)
+      .sort((a, b) => b.sc - a.sc || KORDER.indexOf(a.it.kind) - KORDER.indexOf(b.it.kind));
+    const matches = scored.map(x => x.it);
+    const main = matches.filter(it => passes(it, f));
+    const outside = f.kind.length ? matches.filter(it => passes(it, f, 'kind') && !main.includes(it)) : [];
+
+    const segs = text => text.split(/(\s+)/).filter(Boolean).map(t => {
+      const hl = terms.length > 0 && /\S/.test(t) && terms.some(x => t.toLowerCase().includes(x));
+      return { t, hl, plain: !hl };
+    });
+    const mkRow = (it, i) => {
+      const key = it.kind + ':' + it.name;
+      const isP = it.kind === 'plugin';
+      return {
+        isRow: true, isHeader: false, kindLabel: KL[it.kind], name: it.name,
+        capLink: isP ? it.category : it.plugin,
+        onCap: isP ? () => { this.setState({ screen: 'results', query: '', submitted: '', filters: { ...EMPTYF(), category: [it.category] } }); this.top(); } : () => this.openPlugin(it.plugin),
+        segs: segs(it.desc), tags: it.tags.slice(0, 5),
+        hasDeps: isP && it.deps.length > 0, deps: isP ? it.deps.map(d => d.join(' ')).join(', ') : '',
+        hasRuns: !!it.runs, runs: it.runs || '',
+        ...this.copyVals(key, `/plugin install ${it.plugin}@${MK}`),
+        open: () => isP ? this.openPlugin(it.name) : this.openComp(it.name),
+        delay: (isHome ? 560 : 120) + i * 70 + 'ms',
+        lineSize: s.focusRow === key ? '100% 1px' : '0% 1px',
+        onFocus: () => this.setState({ focusRow: key }), onBlur: () => this.setState({ focusRow: null }),
+      };
+    };
+    let rows = [];
+    if (isHome) rows = ITEMS.filter(it => it.kind === 'plugin').map(mkRow);
+    if (isResults) {
+      rows = main.map(mkRow);
+      if (outside.length) {
+        const fl = f.kind.length === 1 ? `the ${KL[f.kind[0]]} filter` : 'the Kind filter';
+        rows.push({ isHeader: true, isRow: false, title: main.length ? `Also related, outside ${fl}` : `Nothing under ${fl}. Related entries`, note: `${outside.length} more` });
+        rows = rows.concat(outside.map((it, i) => mkRow(it, main.length + i + 1)));
+      }
+    }
+    const noResults = isResults && rows.length === 0;
+
+    const chips = [];
+    Object.keys(f).forEach(g => f[g].forEach(v => chips.push({ text: `${GN[g]}: ${g === 'kind' ? KL[v] : v}`, aria: `Remove filter ${GN[g]} ${v}`, remove: () => this.toggleFilter(g, v) })));
+    const activeCount = chips.length;
+
+    let searchMeta = 'Type what you need — results appear as you type.';
+    if (isResults) {
+      if (noResults) searchMeta = 'No results';
+      else if (!s.submitted) searchMeta = `Showing everything · ${main.length} ${main.length === 1 ? 'entry' : 'entries'}`;
+      else searchMeta = `${main.length} ${main.length === 1 ? 'result' : 'results'}` + (outside.length ? ` · ${outside.length} more outside the filter` : '');
+    }
+
+    const cnt = (g, v) => matches.filter(it => passes(it, f, g) && (g === 'tag' ? it.tags.includes(v) : g === 'os' ? it.os.includes(v) : it[g] === v)).length;
+    const opt = (g, v, label) => {
+      const active = f[g].includes(v), n = cnt(g, v);
+      return { label, count: n, active, toggle: () => this.toggleFilter(g, v),
+        color: active ? 'var(--indigo)' : n ? 'var(--ink)' : 'var(--sec)',
+        boxBg: active ? 'var(--indigo)' : 'transparent', boxBorder: active ? 'var(--indigo)' : 'var(--sec)' };
+    };
+    const tagCounts = {}; matches.forEach(it => it.tags.forEach(t => tagCounts[t] = (tagCounts[t] || 0) + 1));
+    const topTags = Object.keys(tagCounts).sort((a, b) => tagCounts[b] - tagCounts[a]).slice(0, 6);
+    f.tag.forEach(t => { if (!topTags.includes(t)) topTags.push(t); });
+    const filterGroups = [
+      { name: 'Kind', options: KORDER.map(k => opt('kind', k, KL[k])) },
+      { name: 'Plugin', options: PLUGINS.map(p => opt('plugin', p.id, p.id)) },
+      { name: 'Category', options: PLUGINS.map(p => opt('category', p.category, p.category)) },
+      { name: 'Tag', options: topTags.map(t => opt('tag', t, t)) },
+      { name: 'OS', options: OS.map(o => opt('os', o, o)) },
+    ];
+
+    const P = PLUGINS.find(p => p.id === s.pluginId);
+    const pComps = COMPS.filter(c => c.plugin === P.id);
+    const deep = deepDeps(P.id);
+    const usedBy = PLUGINS.filter(p => p.deps.some(d => d[0] === P.id));
+    const sdd = P.id === 'sdd-engineering';
+    const pg = {
+      name: P.id, desc: P.desc, tags: P.tags, notes: P.notes,
+      meta: [['Version', '0.1.0', 1], ['Category', P.category], ['License', 'MIT'], ['Released', '2026-11-09', 1]].map(([k, v, m]) => ({ k, v, font: m ? "'IBM Plex Mono',monospace" : 'inherit' })),
+      deps: P.deps.map(([d, r]) => ({ name: d, range: r, go: e => this.openPlugin(d, e) })), hasDeps: P.deps.length > 0, noDeps: !P.deps.length,
+      usedBy: usedBy.map(u => ({ name: u.id, go: e => this.openPlugin(u.id, e) })), hasUsedBy: usedBy.length > 0, noUsedBy: !usedBy.length,
+      install: this.installFor(P.id, 'pg:'),
+      hasAlso: deep.length > 0, also: 'Also installs: ' + deep.map(d => d.join(' ')).join(', '),
+      comps: pComps.map(c => ({ kind: KL[c.kind], name: c.name, go: e => this.openComp(c.name, e) })),
+      hasComps: !sdd && pComps.length > 0, noComps: sdd || !pComps.length,
+      readmeTitle: P.id,
+      readmeIntro: sdd ? 'Run the workflow one phase at a time. Each phase writes only inside its own scope; the write hooks reject edits outside it, so a plan never quietly becomes an implementation.' : P.desc,
+      readmeCode: sdd ? '/sdd spec "Export invoices as CSV"\n/sdd plan\n/sdd implement --phase 1\n/sdd test\n/sdd verify\n/sdd document' : `/plugin install ${P.id}@${MK}`,
+      readmeOutro: sdd ? 'Specs live in docs/specs/. Verification compares the implementation against the spec before the documentation phase opens.' : 'Components register automatically after install. Restart Claude Code to load them.',
+    };
+
+    const C = COMPS.find(c => c.name === s.compId);
+    const isSR = C.name === 'security-reviewer';
+    const cdeep = deepDeps(C.plugin);
+    const cp = {
+      kindLabel: KL[C.kind], name: C.name, plugin: C.plugin, goPlugin: e => this.openPlugin(C.plugin, e),
+      meta: [['Kind', KL[C.kind]], ['Version', '0.1.0', 1], ['Plugin', C.plugin]].map(([k, v, m]) => ({ k, v, font: m ? "'IBM Plex Mono',monospace" : 'inherit' })),
+      fm: C.fm.map(([k, v]) => ({ k, v })), hasRuns: !!C.runs, runs: C.runs || '',
+      file: `${C.kind}s/${C.name}.md`,
+      lead: isSR ? 'You review a change for security issues. Read the diff and the files it touches; never edit them. Git commands are limited to read-only subcommands, and a hook rejects anything else.' : C.desc,
+      h: isSR ? 'For each finding' : 'When to use it',
+      items: isSR ? ['Cite the file and line.', 'Name the rubric category from the security skill.', 'Rate severity: low, medium or high.', 'Suggest the smallest change that closes the issue.'] : ['Before opening a pull request.', 'When a change touches shared modules or trust boundaries.'],
+      code: isSR ? '## Finding 1 · high\nsrc/auth/session.ts:42\nCategory: secrets in source\nFix: read the signing key from the environment.' : C.desc,
+      install: this.installFor(C.plugin, 'cp:'),
+      hasAlso: cdeep.length > 0, also: 'Also installs: ' + cdeep.map(d => d.join(' ')).join(', '),
+      source: `${REPO}/blob/main/plugins/${C.plugin}/${C.kind}s/${C.name}.md`,
+    };
+
+    const cur = isHome ? 1 : isResults ? (noResults ? 3 : 2) : isPlugin ? 4 : 5;
+    const jumpTitles = ['Home', 'Search results', 'No results', 'Plugin page', 'Component page'];
+    const jumps = jumpTitles.map((t, i) => ({ n: i + 1, title: `${i + 1} · ${t}`, go: () => this.jump(i + 1), bg: cur === i + 1 ? 'var(--ink)' : 'transparent', fg: cur === i + 1 ? 'var(--page)' : 'var(--ink)' }));
+
+    const drawerOpen = narrow && s.drawer;
+    return {
+      theme, themeLabel: theme === 'dark' ? 'Light' : 'Dark',
+      toggleTheme: () => this.setState({ theme: theme === 'dark' ? 'light' : 'dark' }),
+      margin: wide ? '64px' : narrow ? '16px' : '40px',
+      gridCols: wide ? 'minmax(0,2fr) minmax(0,6fr)' : 'minmax(0,1fr)',
+      railPos: wide && !isPlugin && !isComponent ? 'sticky' : 'static',
+      railLabel: isResults ? 'Filters' : isHome ? 'Catalog summary' : 'Details',
+      statCols: wide ? 'minmax(0,1fr)' : 'repeat(auto-fill,minmax(120px,1fr))', statDir: wide ? 'row' : 'column', statAlign: wide ? 'baseline' : 'flex-start', statPad: wide ? '12px 0' : '16px 0',
+      gridPad: isHome || isResults ? '64px' : '0',
+      searchMax: wide ? '87.5%' : '100%',
+      fgDir: wide ? 'column' : 'row',
+      isNarrow: narrow, drawerOpen,
+      drawerLabel: activeCount ? `Filters · ${activeCount}` : 'Filters',
+      toggleDrawer: () => this.setState(x => ({ drawer: !x.drawer })),
+      fwDisplay: narrow && !drawerOpen ? 'none' : 'block', fwPos: drawerOpen ? 'fixed' : 'static', fwPad: drawerOpen ? '24px 16px' : '0', fwRole: drawerOpen ? 'dialog' : 'group',
+      goHome: this.goHome,
+      backFromComp: () => { if (s.prev === 'results') this.setState({ screen: 'results' }); else this.goHome(); },
+      showSearch: isHome || isResults, isHome, isResults, isPlugin, isComponent,
+      searchRef: this.searchRef, query: s.query,
+      onQuery: e => this.live(e.target.value),
+      onQueryKey: e => { if (e.key === 'Enter') e.preventDefault(); if (e.key === 'Escape') e.target.blur(); },
+      onSearchFocus: () => this.setState({ focused: true }), onSearchBlur: () => this.setState({ focused: false }),
+      showFakeCaret: !s.query && !s.focused, ruleColor: s.focused ? 'var(--indigo)' : 'var(--ink)',
+      searchMeta, chips,
+      stats: [
+        { n: 4, label: 'plugins', link: true, zero: false, aria: 'Show 4 plugins', go: () => { this.setState({ screen: 'results', query: '', submitted: '', filters: { ...EMPTYF(), kind: ['plugin'] } }); this.top(); } },
+        ...['skills', 'agents', 'commands', 'hooks', 'MCP servers'].map(l => ({ n: 0, label: l, link: false, zero: true })),
+      ],
+      news: PLUGINS.map(p => ({ plugin: p.id, l1: p.notes[0], l2: p.notes[1], go: e => this.openPlugin(p.id, e) })),
+      rows, showRows: rows.length > 0, rowsLabel: isHome ? '01 Home plugins' : '02 Search results',
+      noResults, submitted: s.submitted, filterNote: activeCount ? ' with the current filters' : '',
+      clearFilters: () => this.setState({ filters: EMPTYF() }),
+      showEverything: () => { this.setState({ screen: 'results', query: '', submitted: '', filters: EMPTYF() }); this.top(); },
+      filterGroups, pg, cp,
+      showBar: this.props.showScreenBar ?? true, jumps,
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+name: validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CLAUDE_CODE_VERSION: "2.1.318"
+  MARKETPLACE: lindigo-devdigest
+  DISABLE_TELEMETRY: "1"
+  DISABLE_AUTOUPDATER: "1"
+
+jobs:
+  validate:
+    name: claude plugin validate --strict
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Claude Code CLI (pinned)
+        run: npm i -g "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}"
+      - name: Validate marketplace
+        run: claude plugin validate --strict .
+      - name: Validate each plugin
+        run: |
+          set -euo pipefail
+          for dir in plugins/*/; do
+            echo "::group::${dir}"
+            claude plugin validate --strict "${dir}"
+            echo "::endgroup::"
+          done
+
+  versions:
+    name: catalog consistency + version bump
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Unit tests (release scripts)
+        run: node --test "scripts/**/*.test.mjs"
+      - name: Check (PR — compare with base branch)
+        if: github.event_name == 'pull_request'
+        run: node .github/scripts/check-versions.mjs "origin/${{ github.base_ref }}"
+      - name: Check (push — catalog consistency only)
+        if: github.event_name != 'pull_request'
+        run: node .github/scripts/check-versions.mjs
+
+  smoke-install:
+    name: smoke install (temporary HOME)
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Claude Code CLI (pinned)
+        run: npm i -g "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}"
+      - name: Add marketplace and install every plugin
+        run: |
+          set -euo pipefail
+          export HOME="$(mktemp -d)"
+          export CLAUDE_CONFIG_DIR="${HOME}/.claude"
+          claude plugin marketplace add ./
+          for name in $(node -p "require('./.claude-plugin/marketplace.json').plugins.map(p => p.name).join(' ')"); do
+            claude plugin install "${name}@${MARKETPLACE}"
+          done
+          claude plugin list
+          claude plugin list --json | node .github/scripts/assert-enabled.mjs

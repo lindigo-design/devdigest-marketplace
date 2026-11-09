@@ -1,0 +1,38 @@
+{
+  "name": "lindigo-devdigest",
+  "description": "Claude Code plugins extracted from the DevDigest course project: team guardrails, read-only research, architecture/security review and a spec-driven engineering workflow.",
+  "owner": {
+    "name": "Yana Levchenko",
+    "url": "https://github.com/lindigo-design"
+  },
+  "plugins": [
+    {
+      "name": "engineering-paved-path",
+      "source": "./plugins/engineering-paved-path",
+      "description": "Base layer: shared team guardrails, security rubric, engineering insights, workflow retros and Mermaid diagrams.",
+      "category": "engineering-standards",
+      "tags": ["guardrails", "security", "retro", "mermaid", "base"]
+    },
+    {
+      "name": "research-tools",
+      "source": "./plugins/research-tools",
+      "description": "Read-only researcher and brainstorm agents for codebase and external research before any change.",
+      "category": "research",
+      "tags": ["research", "brainstorm", "read-only", "agents"]
+    },
+    {
+      "name": "architecture-review",
+      "source": "./plugins/architecture-review",
+      "description": "Architecture and security reviewer agents, PR self-review skill with a pre-push gate, onion and frontend UI architecture rules.",
+      "category": "code-review",
+      "tags": ["review", "architecture", "security", "pr", "hooks"]
+    },
+    {
+      "name": "sdd-engineering",
+      "source": "./plugins/sdd-engineering",
+      "description": "Spec-driven development workflow: spec, plan, implement, test, verify and document with scoped write hooks.",
+      "category": "workflow",
+      "tags": ["sdd", "spec", "planning", "implementation", "testing", "agents"]
+    }
+  ]
+}

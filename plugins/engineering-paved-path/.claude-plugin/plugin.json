@@ -1,0 +1,19 @@
+{
+  "name": "engineering-paved-path",
+  "version": "0.1.0",
+  "description": "Base layer of the DevDigest marketplace: shared team guardrails (as a skill), security rubric, engineering insights, workflow retros and Mermaid diagrams.",
+  "author": {
+    "name": "Yana Levchenko",
+    "url": "https://github.com/lindigo-design"
+  },
+  "homepage": "https://github.com/lindigo-design/devdigest-marketplace/tree/main/plugins/engineering-paved-path",
+  "repository": "https://github.com/lindigo-design/devdigest-marketplace",
+  "license": "MIT",
+  "keywords": [
+    "guardrails",
+    "security",
+    "engineering-insights",
+    "retro",
+    "mermaid"
+  ]
+}

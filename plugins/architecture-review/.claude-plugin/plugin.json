@@ -1,0 +1,25 @@
+{
+  "name": "architecture-review",
+  "version": "0.1.0",
+  "description": "Architecture and security reviewer agents, PR self-review skill with a pre-push gate, onion and frontend UI architecture rules.",
+  "author": {
+    "name": "Yana Levchenko",
+    "url": "https://github.com/lindigo-design"
+  },
+  "homepage": "https://github.com/lindigo-design/devdigest-marketplace/tree/main/plugins/architecture-review",
+  "repository": "https://github.com/lindigo-design/devdigest-marketplace",
+  "license": "MIT",
+  "keywords": [
+    "review",
+    "architecture",
+    "security",
+    "pr-self-review",
+    "hooks"
+  ],
+  "dependencies": [
+    {
+      "name": "engineering-paved-path",
+      "version": "^0.1"
+    }
+  ]
+}
