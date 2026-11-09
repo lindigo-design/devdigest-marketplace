@@ -4,6 +4,11 @@ All notable changes to this plugin. Versions follow [SemVer](https://semver.org/
 
 ## [Unreleased]
 
+## [1.0.1] — 2026-11-09
+
+### Changed
+- README: one-command install (`claude plugin install research-tools --marketplace …`), how to check the install, and how to update or turn on auto-update.
+
 ## [1.0.0] — 2026-11-09
 
 ### Added
