@@ -61,4 +61,3 @@ Site constraints:
 - `site/`: catalog site (Astro + MiniSearch), its tests and fixtures.
 - `.github/`: CI (`validate.yml`, `pages.yml`), CI scripts, CODEOWNERS, PR template.
 - `docs/`: specs, plans, design, security policy, `catalog-index.md`.
-- `docs/temp/`: notes to delete after migration.

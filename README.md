@@ -87,7 +87,6 @@ docs/specs/                          feature specs (catalog site)
 docs/plans/                          implementation plans
 docs/design/                         catalog site design: concept brief, tokens, Claude Design prompt
 docs/catalog-index.md                public schema of the site's index.json
-docs/temp/                           temporary working notes, deleted once plugins are migrated
 ```
 
 Rules for every plugin:
