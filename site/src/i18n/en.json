@@ -57,9 +57,9 @@
 
   "install.title": "Install",
   "install.titleWith": "Install with {plugin}",
-  "install.label.marketplaceAdd": "marketplace add command",
   "install.label.install": "install command for {plugin}",
   "install.also": "Also installs:",
+  "install.more": "Other scopes and the terminal →",
 
   "dep.unsatisfied": "Range not satisfied",
   "dep.unsatisfied.by": "Range not satisfied by {version} in this repository",

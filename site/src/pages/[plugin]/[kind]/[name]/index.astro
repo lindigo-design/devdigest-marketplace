@@ -92,8 +92,8 @@ const hasBody = typeof page.body === "string" && page.body.trim().length > 0;
         </div>
       )}
 
-      <InstallBlock title={t("install.titleWith", { plugin: c.plugin })} plugin={c.plugin} commands={install(c.plugin)}
-        alsoInstalls={transitiveDependencies(catalog.plugins, c.plugin)} />
+      <InstallBlock title={t("install.titleWith", { plugin: c.plugin })} plugin={c.plugin} command={install(c.plugin).install}
+        alsoInstalls={transitiveDependencies(catalog.plugins, c.plugin)} panelHref={href(`${c.plugin}/#install`)} />
 
       <p><a href={githubSource(c.source)}>{t("component.viewSource")}</a></p>
     </div>

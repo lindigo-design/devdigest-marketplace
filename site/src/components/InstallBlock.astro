@@ -1,26 +1,28 @@
 ---
-// Install block (spec CAT-01 R5/AC-3; tokens §5 InstallBlock): marketplace add, plugin install,
-// and the dependencies Claude Code installs automatically.
+// Compact install block (spec CAT-02 R2/AC-11, amending CAT-01 R5/AC-3; tokens §5 InstallBlock): the one-step
+// command, the dependencies Claude Code installs with it, and a link to the plugin page's install panel for the
+// other scopes and the terminal.
 import { t } from "../i18n/t.mjs";
 import CopyCommand from "./CopyCommand.astro";
 interface Props {
   plugin: string;
-  commands: { marketplaceAdd: string; install: string };
+  command: string;
   alsoInstalls: { name: string; range: string | null }[];
   title?: string;
+  panelHref?: string;
 }
-const { plugin, commands, alsoInstalls, title = t("install.title") } = Astro.props;
+const { plugin, command, alsoInstalls, title = t("install.title"), panelHref } = Astro.props;
 const headingId = `install-${plugin}`;
 ---
 <section class="install" aria-labelledby={headingId}>
   <h2 id={headingId} class="t-label">{title}</h2>
-  <CopyCommand command={commands.marketplaceAdd} label={t("install.label.marketplaceAdd")} />
-  <CopyCommand command={commands.install} label={t("install.label.install", { plugin })} />
+  <CopyCommand command={command} label={t("install.label.install", { plugin })} />
   {alsoInstalls.length > 0 && (
     <p class="install__also t-mono">
       {t("install.also")} {alsoInstalls.map((d, i) => <>{i > 0 && ", "}{d.name}{d.range && ` ${d.range}`}</>)}
     </p>
   )}
+  {panelHref && <p class="t-caption"><a href={panelHref}>{t("install.more")}</a></p>}
 </section>
 
 <style>

@@ -24,11 +24,12 @@ changing a field's meaning or type, raises it. Read the version first and ignore
 
 | Field | Type | Meaning |
 | :- | :- | :- |
-| `name` | string | Marketplace name, used in install commands (`/plugin install <plugin>@<name>`) |
+| `name` | string | Marketplace name, used in install ids (`<plugin>@<name>`) |
 | `description` | string \| null | |
 | `owner` | `{ name, url }` \| null | |
 | `repository` | string | GitHub URL of the repository |
 | `addCommand` | string | `/plugin marketplace add <owner>/<repo>` |
+| `source` | string | `<owner>/<repo>`; the one-step install command is `/plugin install <plugin> --marketplace <source>` (added 2026-11-09, additive) |
 | `lastRelease` | string \| null | Date (`YYYY-MM-DD`) of the newest dated CHANGELOG section of any plugin |
 
 ### `plugins[]`

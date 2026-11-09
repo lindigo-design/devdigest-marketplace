@@ -66,11 +66,11 @@ const kinds = ["plugin", "skill", "agent", "command", "hook", "mcp"] as const;
     </section>
 
     <section><h2 class="t-label">CopyCommand</h2>
-      <CopyCommand command="/plugin install architecture-review@lindigo-devdigest" />
+      <CopyCommand command="/plugin install architecture-review --marketplace lindigo-design/devdigest-marketplace" />
     </section>
 
     <section><h2 class="t-label">InstallBlock</h2>
-      <InstallBlock plugin={sdd.name} commands={install(sdd.name)} alsoInstalls={transitiveDependencies(demo.plugins, sdd.name)} />
+      <InstallBlock plugin={sdd.name} command={install(sdd.name).install} alsoInstalls={transitiveDependencies(demo.plugins, sdd.name)} panelHref="#" />
     </section>
 
     <section><h2 class="t-label">DependencyLink</h2>

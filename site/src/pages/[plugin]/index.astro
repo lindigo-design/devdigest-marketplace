@@ -72,7 +72,7 @@ const compat = p.page.compatibility;
         </div>
       </div>
 
-      <InstallBlock plugin={p.name} commands={install(p.name)} alsoInstalls={transitiveDependencies(catalog.plugins, p.name)} />
+      <InstallBlock plugin={p.name} command={install(p.name).install} alsoInstalls={transitiveDependencies(catalog.plugins, p.name)} />
 
       <section class="block" aria-labelledby="components">
         <h2 id="components" class="t-heading-2">{t("plugin.components")}</h2>

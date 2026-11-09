@@ -1,5 +1,6 @@
 // Home page search UI (spec CAT-01 R2, R3, R4, R10/AC-5): live results as you type, filters with counts,
 // chips, URL state, empty state, mobile filter drawer. Data: index.json, loaded once (R2/AC-1).
+import { oneStep } from "../../lib/install.mjs";
 import { t } from "../i18n/t.mjs";
 import { createEngine } from "./engine.mjs";
 import { parseQuery } from "./query.mjs";
@@ -40,7 +41,7 @@ export function initSearch() {
 
   const baseTitle = document.title;
   let engine = null;
-  let marketplace = "";
+  let source = ""; // owner/repo of the marketplace (index.json marketplace.source)
   let failed = false;
   let state = parseState(location.search);
   // Kinds that came from kind words in the query (R2/AC-6), so they can leave again when the word does.
@@ -48,7 +49,7 @@ export function initSearch() {
   let shown = PAGE;
   let lastResults = [];
 
-  const install = (plugin) => `/plugin install ${plugin}@${marketplace}`;
+  const install = (plugin) => oneStep(source, plugin); // CAT-02 R2/AC-11 (Q1)
 
   // ---------- URL ----------
   function commit(mode) {
@@ -264,7 +265,7 @@ export function initSearch() {
     .then((res) => { if (!res.ok) throw new Error(String(res.status)); return res.json(); })
     .then((index) => {
       engine = createEngine(index);
-      marketplace = index.marketplace?.name ?? "";
+      source = index.marketplace?.source ?? "";
       render();
     })
     .catch(() => { failed = true; render(); });

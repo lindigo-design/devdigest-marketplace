@@ -22,6 +22,7 @@ describe("index.json", () => {
 
   test("marketplace block has the add command", () => {
     assert.equal(index.marketplace.addCommand, "/plugin marketplace add lindigo-design/devdigest-marketplace");
+    assert.equal(index.marketplace.source, "lindigo-design/devdigest-marketplace"); // CAT-02 D5
     assert.equal(index.marketplace.lastRelease, "2026-11-08");
   });
 
@@ -56,10 +57,10 @@ describe("index.json", () => {
     assert.equal(other.plugins[0].url, "https://plugins.lindigo.design/engineering-paved-path/");
   });
 
-  test("install commands (R3/AC-4)", () => {
-    assert.deepEqual(installCommands(config, "lindigo-devdigest", "sdd-engineering"), {
+  test("install commands (R3/AC-4, one-step form per CAT-02 R2/AC-11)", () => {
+    assert.deepEqual(installCommands(config, "sdd-engineering"), {
       marketplaceAdd: "/plugin marketplace add lindigo-design/devdigest-marketplace",
-      install: "/plugin install sdd-engineering@lindigo-devdigest",
+      install: "/plugin install sdd-engineering --marketplace lindigo-design/devdigest-marketplace",
     });
     assert.throws(() => repoSlug({ repo: "https://gitlab.com/a/b" }), /github\.com/);
   });

@@ -104,7 +104,7 @@ describe("R8/AC-6, R3/AC-1, AC-4: plugin cards", () => {
     assert.match(t, /^[^]*Plugin engineering-paved-path/);
     assert.equal((card.match(/class="t-mono entry__tag/g) ?? []).length, 5); // 6 tags, 5 shown
     assert.match(t, /Claude Code ≥ 2\.1\.110 Windows macOS/);
-    assert.match(t, /\/plugin install engineering-paved-path@lindigo-devdigest Copy/);
+    assert.match(t, /\/plugin install engineering-paved-path --marketplace lindigo-design\/devdigest-marketplace Copy/);
   });
 });
 
