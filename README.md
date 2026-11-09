@@ -6,7 +6,7 @@ Public [Claude Code plugin marketplace](https://code.claude.com/docs/en/plugin-m
 | :- | :- | :- |
 | [`engineering-paved-path`](plugins/engineering-paved-path) | Architecture rules shared by the other plugins: onion backend architecture, frontend UI structure | — |
 | [`research-tools`](plugins/research-tools) | Read-only `researcher` agent with evidence for every finding | — |
-| [`architecture-review`](plugins/architecture-review) | Architecture/security reviewers, `pr-self-review` + push gate, architecture rule skills | engineering-paved-path |
+| [`architecture-review`](plugins/architecture-review) | Read-only `architecture-reviewer` agent with a read-only Bash guard | engineering-paved-path |
 | [`sdd-engineering`](plugins/sdd-engineering) | Spec → plan → implement → test → verify → docs | engineering-paved-path, research-tools, architecture-review |
 
 > Status: **0.1.0 scaffold.** Manifests and dependency graph are in place; skills, agents and hooks are migrated one plugin at a time.
@@ -58,7 +58,7 @@ The repository is public, so no git credentials are needed to add the marketplac
 graph TD
     EPP["engineering-paved-path<br/>onion-architecture · frontend-ui-architecture"]
     RT["research-tools<br/>researcher"]
-    AR["architecture-review<br/>architecture/security reviewers · pr-self-review · gate"]
+    AR["architecture-review<br/>architecture-reviewer · bash-guard"]
     SDD["sdd-engineering<br/>spec → plan → implement → test → verify → docs"]
     MCP["devdigest-mcp (planned)<br/>DevDigest MCP server"]
 

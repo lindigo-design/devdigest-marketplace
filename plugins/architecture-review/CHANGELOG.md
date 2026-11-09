@@ -4,6 +4,20 @@ All notable changes to this plugin. Versions follow [SemVer](https://semver.org/
 
 ## [Unreleased]
 
+## [0.1.1] — 2026-11-09
+
+### Added
+- Agent `architecture-reviewer`: read-only review of a change set against the onion and frontend UI architecture skills and the project's own documented rules; learns the repository layout first; generalized to any repository.
+- Hook `bash-guard` (`PreToolUse` on `Bash`): read-only git only while `architecture-reviewer` runs; generic script, agent-to-profile map passed from `hooks.json`; self-test.
+- `LICENSE` (MIT) and `sources.json` recording the origin of the agent and hook.
+
+### Changed
+- Scope narrowed to architecture review (spec SDD-01). `security-reviewer` and `pr-self-review` with the push gate are listed under Later; the architecture skills live in `engineering-paved-path`.
+- Minimum Claude Code version raised to 2.1.318.
+
+### Removed
+- Empty `skills/` and `evals/` directories.
+
 ## [0.1.0] — 2026-11-09
 
 ### Added

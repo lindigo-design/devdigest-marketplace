@@ -23,9 +23,9 @@
     {
       "name": "architecture-review",
       "source": "./plugins/architecture-review",
-      "description": "Architecture and security reviewer agents, PR self-review skill with a pre-push gate, onion and frontend UI architecture rules.",
+      "description": "Read-only architecture-reviewer agent that checks a change set against layering rules, with a read-only Bash guard.",
       "category": "code-review",
-      "tags": ["review", "architecture", "security", "pr", "hooks"]
+      "tags": ["review", "architecture", "read-only", "hooks", "agents"]
     },
     {
       "name": "sdd-engineering",
