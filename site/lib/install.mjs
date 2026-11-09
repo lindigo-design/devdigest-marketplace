@@ -69,6 +69,9 @@ export function installModel({ slug, repoUrl, marketplace, plugin, version, deps
   return {
     id,
     install,
+    // "Try it after install" (R6/AC-1, F12, F13)
+    check: { list: "claude plugin list", details: `claude plugin details ${plugin}` },
+    agentSession: (agent) => `claude --agent ${plugin}:${agent}`,
     manage,
     tag,
     download: tagged ? `${repoUrl}/archive/refs/tags/${encodeURIComponent(tag)}.zip` : null,

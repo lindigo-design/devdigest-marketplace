@@ -6,11 +6,14 @@ import { installModel } from "../../../lib/install.mjs";
 import CompatBadge from "../../components/CompatBadge.astro";
 import ComponentGroups from "../../components/ComponentGroups.astro";
 import DependencyLink from "../../components/DependencyLink.astro";
+import DownloadLink from "../../components/DownloadLink.astro";
 import EmptyState from "../../components/EmptyState.astro";
 import InstallPanel from "../../components/InstallPanel.astro";
 import KindLabel from "../../components/KindLabel.astro";
+import ManageBlock from "../../components/ManageBlock.astro";
 import MetaRail from "../../components/MetaRail.astro";
 import Prose from "../../components/Prose.astro";
+import TryIt from "../../components/TryIt.astro";
 import { config, getCatalog, githubSource, href, markdown } from "../../data/site.mjs";
 import { t } from "../../i18n/t.mjs";
 import Base from "../../layouts/Base.astro";
@@ -36,6 +39,7 @@ const model = installModel({
 });
 const totalCost = p.page.contextCost !== null && depPlugins.every((d) => d && d.page.contextCost !== null)
   ? depPlugins.reduce((sum, d) => sum + d.page.contextCost, p.page.contextCost) : null;
+const examples = (p.page.howToUse ?? []).slice(0, 2).map((e: any) => ({ prompt: e.prompt, resultHtml: markdown(e.result, p.page.readmePath) }));
 const hasHooks = [p, ...depPlugins].some((x) => x?.page.components.some((id: string) => byId.get(id)?.kind === "hook"));
 ---
 <Base title={p.name} description={p.description} path={p.path}>
@@ -88,6 +92,7 @@ const hasHooks = [p, ...depPlugins].some((x) => x?.page.components.some((id: str
 
       <InstallPanel plugin={p.name} model={model} alsoInstalls={deps} contextCost={p.page.contextCost} totalCost={totalCost}
         minVersion={p.compat.claudeCode} hasHooks={hasHooks} />
+      {model.download && <DownloadLink url={model.download} tag={model.tag} />}
 
       <section class="block" aria-labelledby="components">
         <h2 id="components" class="t-heading-2">{t("plugin.components")}</h2>
@@ -98,6 +103,10 @@ const hasHooks = [p, ...depPlugins].some((x) => x?.page.components.some((id: str
             text={t("plugin.components.empty.text")} />
         )}
       </section>
+
+      <TryIt plugin={p.name} components={components} examples={examples} model={model} />
+
+      <ManageBlock plugin={p.name} marketplace={catalog.marketplace.name} model={model} usedBy={p.page.usedBy} />
 
       <section class="block" aria-labelledby="latest">
         <h2 id="latest" class="t-heading-2">{t("plugin.latest")}</h2>
@@ -114,6 +123,14 @@ const hasHooks = [p, ...depPlugins].some((x) => x?.page.components.some((id: str
         ) : <p class="t-secondary">{t("plugin.latest.none")}</p>}
       </section>
 
+
+
+      {p.page.readme && (
+        <div class="block">
+          <Prose html={markdown(p.page.readme, p.page.readmePath)} source="README.md" sourceHref={githubSource(p.page.readmePath)} />
+        </div>
+      )}
+
       <section class="block" aria-labelledby="compat-notes">
         <h2 id="compat-notes" class="t-heading-2">{t("plugin.compatNotes")}</h2>
         {compat.file ? (
@@ -126,12 +143,6 @@ const hasHooks = [p, ...depPlugins].some((x) => x?.page.components.some((id: str
           </>
         ) : <p class="t-secondary">{t("plugin.compatNotes.none")}</p>}
       </section>
-
-      {p.page.readme && (
-        <div class="block">
-          <Prose html={markdown(p.page.readme, p.page.readmePath)} source="README.md" sourceHref={githubSource(p.page.readmePath)} />
-        </div>
-      )}
     </div>
   </div>
 </Base>

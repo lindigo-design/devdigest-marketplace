@@ -174,4 +174,106 @@ describe("R2, R3: install panel", () => {
   });
 });
 
+describe("R4: manage block", () => {
+  const M = "lindigo-design/devdigest-marketplace";
+  const manage = (path) => {
+    const html = site.page(path);
+    return html.slice(html.indexOf('id="manage"'), html.indexOf("</details>", html.indexOf('id="manage"')));
+  };
+
+  test("AC-1: collapsed disclosure with every action, session and terminal forms", () => {
+    const html = manage("sdd-engineering/");
+    assert.match(html, /^id="manage"[^>]*>/);
+    assert.doesNotMatch(html.slice(0, html.indexOf(">")), /open/); // collapsed by default
+    const t = text(html);
+    for (const re of [
+      /Update this plugin In a Claude Code session \/plugin → Installed → sdd-engineering → Update now In your terminal/,
+      /Update every plugin from this marketplace In a Claude Code session \/plugin → Marketplaces → lindigo-devdigest → Update marketplace In your terminal Use a Claude Code session\./,
+      /Turn on auto-update In a Claude Code session \/plugin → Marketplaces → lindigo-devdigest → Enable auto-update .*"autoUpdate": true/,
+      /Disable In a Claude Code session \/plugin disable sdd-engineering@lindigo-devdigest Copy/,
+      /Enable In a Claude Code session \/plugin enable sdd-engineering@lindigo-devdigest Copy/,
+      /Uninstall In a Claude Code session \/plugin uninstall sdd-engineering@lindigo-devdigest Copy/,
+      /Pin this release In a Claude Code session Use the terminal\./,
+      /Auto-update is off by default for this marketplace\./,
+    ]) assert.match(t, re);
+  });
+
+  test("AC-2: scope-dependent terminal commands, one variant per scope", () => {
+    const t = text(manage("sdd-engineering/"));
+    assert.match(t, /User claude plugin uninstall sdd-engineering@lindigo-devdigest --prune Copy Project claude plugin uninstall sdd-engineering@lindigo-devdigest --scope project --prune Copy Local claude plugin uninstall sdd-engineering@lindigo-devdigest --scope local --prune Copy/);
+    assert.match(t, /Project claude plugin disable sdd-engineering@lindigo-devdigest --scope project Copy/);
+    assert.match(t, /User claude plugin update sdd-engineering@lindigo-devdigest Copy/);
+  });
+
+  test("AC-3, AC-4: listing refresh note, --prune and the project uninstall choice", () => {
+    const t = text(manage("sdd-engineering/"));
+    assert.match(t, /claude plugin marketplace update without a name only refreshes the listings; it installs no new versions\./);
+    assert.match(t, /--prune also removes the dependencies that were installed with it/);
+    assert.match(t, /disable it for you only, or uninstall it for everyone/);
+  });
+
+  test("AC-5: pin = remove, add #tag, reinstall, with the whole-catalog warning", () => {
+    const t = text(manage("sdd-engineering/"));
+    assert.match(t, new RegExp(`User claude plugin marketplace remove lindigo-devdigest Copy claude plugin marketplace add ${M}#sdd-engineering--v0\\.1\\.0 Copy claude plugin install sdd-engineering@lindigo-devdigest Copy`));
+    assert.match(t, /A pin applies to the whole catalog, not only to this plugin\. Removing the marketplace uninstalls every plugin installed from it and deletes their saved data/);
+  });
+
+  test("AC-6: the disable note names the dependents, only when there are some", () => {
+    assert.match(text(manage("engineering-paved-path/")), /While a plugin that depends on it is enabled \(research-tools, architecture-review, sdd-engineering\), Claude Code refuses/);
+    assert.doesNotMatch(text(manage("sdd-engineering/")), /While a plugin that depends on it/);
+  });
+});
+
+describe("R5: download source", () => {
+  test("AC-1, AC-2: link to the tag archive with the whole-repository note", () => {
+    const html = site.page("sdd-engineering/");
+    assert.match(html, /href="https:\/\/github\.com\/lindigo-design\/devdigest-marketplace\/archive\/refs\/tags\/sdd-engineering--v0\.1\.0\.zip"/);
+    assert.match(text(html), /Download source \(\.zip\) The whole repository at the release tag sdd-engineering--v0\.1\.0\. To install, use the commands above\./);
+  });
+
+  test("AC-3: no tag → no link, and a build warning", () => {
+    assert.doesNotMatch(site.page("research-tools/"), /archive\/refs\/tags/);
+    assert.match(site.log, /no release tag research-tools--v0\.1\.0 yet/);
+  });
+});
+
+describe("R6: try it after install", () => {
+  test("AC-1: check that it loaded", () => {
+    const t = text(site.page("research-tools/"));
+    assert.match(t, /Try it after install Check that it loaded In a session, type \/ and look for \/research-tools: List installed plugins .* claude plugin list Copy See its components .* claude plugin details research-tools Copy/);
+  });
+
+  test("AC-1, AC-3: how to call each kind; agents by mention, by name, or delegated", () => {
+    const sdd = text(site.page("sdd-engineering/"));
+    assert.match(sdd, /Call it Skills: type \/sdd-engineering:write-spec Commands: type \/sdd-engineering:sdd Hooks run automatically; there is nothing to call\. MCP servers start with the session/);
+    const rt = text(site.page("research-tools/"));
+    assert.match(rt, /Agents: mention @agent-research-tools:brainstorm ?, @agent-research-tools:researcher You can also name the agent in plain words, or let Claude delegate .* claude --agent research-tools:brainstorm/);
+  });
+
+  test("AC-2: the first two README examples, prompt copyable without backticks, result rendered", () => {
+    const html = site.page("sdd-engineering/");
+    const t = text(html);
+    assert.match(t, /Examples from the README \/sdd-engineering:write-spec Customers need invoices as PDF Copy specs\/invoice-pdf\.md with EARS criteria\. @agent-sdd-engineering:scope-guard plans a\|b Copy A pipe-escaped cell stays one cell\./);
+    const tryIt = text(html.slice(html.indexOf('id="try-it"'), html.indexOf('id="manage"')));
+    assert.doesNotMatch(tryIt, /A third row the catalog does not show/);
+    assert.match(html, /<code[^>]*data-copy-text[^>]*>\/sdd-engineering:write-spec Customers need invoices as PDF<\/code>/);
+    assert.match(html, /<strong>EARS<\/strong>/);
+  });
+
+  test("AC-4: no How to use table → no examples, other parts stay", () => {
+    const t = text(site.page("architecture-review/"));
+    assert.match(t, /Try it after install Check that it loaded/);
+    assert.doesNotMatch(t, /Examples from the README/);
+  });
+});
+
+describe("D3: page order", () => {
+  test("install, components, try it, manage, latest change, README, compatibility notes", () => {
+    const html = site.page("sdd-engineering/");
+    const at = ['id="install"', 'id="components"', 'id="try-it"', 'id="manage"', 'id="latest"', "Fixture README for", 'id="compat-notes"'].map((s) => html.indexOf(s));
+    assert.ok(at.every((i) => i > -1), JSON.stringify(at));
+    assert.deepEqual([...at].sort((a, b) => a - b), at);
+  });
+});
+
 export { section };

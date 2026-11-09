@@ -1,0 +1,15 @@
+---
+// Download the plugin's released source (spec CAT-02 R5/AC-1, AC-2; tokens §5 DownloadLink). GitHub archives a
+// whole repository, so the note says so; installing goes through Claude Code. Not rendered without a tag (AC-3).
+import { t } from "../i18n/t.mjs";
+interface Props { url: string; tag: string }
+const { url, tag } = Astro.props;
+---
+<p class="dl">
+  <a href={url}>{t("download.link")}</a>
+  <span class="t-caption t-secondary">{t("download.note", { tag })}</span>
+</p>
+
+<style>
+  .dl { display: flex; flex-direction: column; gap: var(--space-1); margin: 0; overflow-wrap: anywhere; }
+</style>

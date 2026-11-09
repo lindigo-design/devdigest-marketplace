@@ -96,3 +96,26 @@ test.describe("without JavaScript (R2/AC-10)", () => {
     for (const s of ["Install for you (user scope)", "project scope)", "local scope)", `--scope local`, "git add .claude/settings.json"]) expect(t).toContain(s);
   });
 });
+
+test.describe("manage block (R4)", () => {
+  test("collapsed; opens with the keyboard; terminal commands follow the scope choice", async ({ page }) => {
+    await page.goto("./sdd-engineering/");
+    const summary = page.locator("#manage > summary");
+    await expect(page.locator("#manage")).not.toHaveAttribute("open", "");
+    await summary.focus();
+    await page.keyboard.press("Enter");
+    await expect(page.locator("#manage")).toHaveAttribute("open", "");
+    const uninstall = page.locator('[data-action="uninstall"]');
+    await expect(uninstall.getByText("claude plugin uninstall sdd-engineering@lindigo-devdigest --prune", { exact: true })).toBeVisible();
+    await page.getByRole("radio", { name: /^Project/ }).check();
+    await expect(uninstall.getByText("claude plugin uninstall sdd-engineering@lindigo-devdigest --scope project --prune", { exact: true })).toBeVisible();
+    await expect(uninstall.getByText("claude plugin uninstall sdd-engineering@lindigo-devdigest --prune", { exact: true })).toBeHidden();
+    await expect(uninstall.getByText(/uninstall it for everyone/)).toBeVisible();
+  });
+
+  test("download link points at the release tag archive (R5)", async ({ page }) => {
+    await page.goto("./sdd-engineering/");
+    await expect(page.getByRole("link", { name: "Download source (.zip)" }))
+      .toHaveAttribute("href", "https://github.com/lindigo-design/devdigest-marketplace/archive/refs/tags/sdd-engineering--v0.1.0.zip");
+  });
+});
