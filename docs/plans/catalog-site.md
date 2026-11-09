@@ -4,7 +4,7 @@
 | :- | :- |
 | Spec | [CAT-01](../specs/marketplace-catalog.md) (approved 2026-11-09) |
 | Design | [concept-brief.md](../design/concept-brief.md), [design-tokens.md](../design/design-tokens.md) (both approved), [prototype](../design/prototype/) (reference only) |
-| Status | approved 2026-11-09 (decisions D1–D7 resolved in section 0) |
+| Status | implemented 2026-11-09 (T0–T12; decisions D1–D8 in section 0; acceptance run in section 12); first deploy after merge |
 | Branch | `feat/catalog-site` |
 | Created | 2026-11-09 |
 
@@ -379,3 +379,23 @@ Commits: one per task on `feat/catalog-site`, each only after your OK (CLAUDE.md
 | Display-size `<textarea>` vs. screen readers | Explicit label "I need a", Enter suppressed, axe + manual NVDA check in T11. |
 | Real plugins have no components until migration, so the demo can't fully run on prod data | `demo` fixture build for steps 1–2; real data covers the empty state (step 7). |
 | Astro/MiniSearch major updates | Exact versions in `package-lock.json`; Dependabot is out of scope for now. |
+
+## 12. Acceptance run (spec §10), 2026-11-09
+
+Run on branch `feat/catalog-site` before merge. Steps that need a merged `main` or the deployed site were simulated in a
+throwaway clone; they are repeated on the real site after the first deploy.
+
+| # | Step | How it was checked | Result |
+| :- | :- | :- | :- |
+| 1 | Demo query turns on the skill filter; the `security` skill and the review skills appear | Playwright on the `demo` fixture build (`search.spec.mjs`, "acceptance demo step 1"); the real plugins have no components yet | pass: `security` and `pr-self-review` lead, skill filter chip shown |
+| 2 | Copied install command installs the plugin with its dependencies | `claude plugin marketplace add ./` + `claude plugin install sdd-engineering@lindigo-devdigest` in a throwaway `CLAUDE_CONFIG_DIR` (the CLI form of the copied `/plugin install` command; the copy itself is covered by the clipboard e2e test) | pass: "+ 3 dependencies"; all 4 plugins enabled |
+| 3 | `sdd-engineering` page lists 3 dependencies with links and `^0.1` | build of the real repository | pass |
+| 4 | A new skill is searchable after merge with no site code change | throwaway clone: add `research-tools/skills/web-lookup`, commit, build | pass: page built; a mixed UA/EN query finds it first. **After merge:** repeat on the deployed site |
+| 5 | A release updates stats, What's new and both feeds (`<plugin>--v<version>`) | throwaway clone: `scripts/release.mjs research-tools minor --update-dependents` (0.2.0; `sdd-engineering` → 0.1.1), commit, build | pass: "1 skill", What's new and `feed.json` / `feed.xml` gain `research-tools--v0.2.0`. Without `--update-dependents` the script refused the bump (it would break `sdd-engineering`'s `^0.1`), as designed. **After merge:** repeat with a real release |
+| 6 | Every plugin card shows "Claude Code ≥ 2.1.110", "Windows", "macOS" | build of the real repository | pass: 4 of 4 cards |
+| 7 | Today's scaffold: zero counts with the migration note; build succeeds | build of the real repository | pass |
+
+Test totals at T12: 250 unit, 38 build, 74 browser (Playwright + axe) tests.
+
+Open after merge: owner enables Settings → Pages → Source: GitHub Actions; check the first deploy; repeat steps 4–5 on the
+live site; manual screen-reader check (NVDA) of the search line; leave-animation for live results (tokens §6 layer 3) not built.
