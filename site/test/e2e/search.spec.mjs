@@ -196,6 +196,18 @@ test.describe("cards (R3)", () => {
     expect(await cols("[data-rail-filters]", "[data-results]")).toEqual(home);
   });
 
+  for (const width of [1440, 360]) {
+    test(`a card's description, tags row and copy block share one right edge at ${width}px (tokens §5 ResultEntry body width)`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("./?view=all&kind=plugin");
+      await expect(page.locator("[data-search-meta]")).not.toHaveText(/Loading/);
+      const edges = await page.evaluate(() => [...document.querySelectorAll("article.entry")].map((a) =>
+        [".entry__desc", ".entry__meta", ".copy"].map((s) => Math.round(a.querySelector(s).getBoundingClientRect().right))));
+      expect(edges.length).toBeGreaterThan(0);
+      for (const e of edges) expect(new Set(e).size, JSON.stringify(e)).toBe(1);
+    });
+  }
+
   test("hook and agent cards show the runs-commands marker (R3/AC-3)", async ({ page }) => {
     await page.goto("./?kind=agent");
     await expect(page.locator('article[data-entry="architecture-review/agent/security-reviewer"] .runs')).toHaveText(/Runs commands\s*Read, Grep, Glob, Bash/);

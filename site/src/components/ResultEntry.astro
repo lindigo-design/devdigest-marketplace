@@ -75,6 +75,10 @@ const isPlugin = e.kind === "plugin";
   .entry:hover, .entry:focus-within { background-size: 100% var(--rule-thin); }
   .entry .entry__kind { flex: 0 0 var(--space-10); padding-top: var(--space-1); }
   .entry__body { flex: 1 1 calc(var(--space-10) * 2); min-width: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+  /* Description, tags + badges and the copy block share one width (tokens §5 ResultEntry body width).
+     The body sets it; its children fill it instead of each using its own measure. */
+  .entry__body > * { width: 100%; max-width: calc(var(--measure) * 1.2); }
+  .entry__body > .entry__desc, .entry__body > .copy { max-width: calc(var(--measure) * 1.2); }
   .entry__title { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-4); }
   .entry__name { overflow-wrap: anywhere; }
   .entry__link { color: var(--ink-primary); text-decoration: none; transition: color var(--duration-quick) var(--ease-settle); }
