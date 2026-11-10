@@ -164,7 +164,9 @@ const relations = (p: any) => ({
   .filters .filters__toggle { display: none; width: 100%; } /* beats .button's display */
   /* The filter panel sits on surface/raised so it reads apart from the results (owner review 2026-11-09). */
   .filters__panel { padding: var(--space-5); background: var(--surface-raised); }
-  @media (min-width: 1200px) { .filters { margin-right: var(--space-6); } }
+  /* Both rails (stats on the home view, filters on results) share one width and one gap to the main column,
+     so the page does not shift between the two views (owner review 2026-11-10). */
+  @media (min-width: 1200px) { .home > .rail { margin-right: var(--space-6); } }
   .filters__head {
     display: flex;
     justify-content: space-between;

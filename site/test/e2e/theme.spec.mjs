@@ -1,42 +1,47 @@
-// Theme switch (spec CAT-01 R7/AC-2, amended 2026-11-10; tokens §5 ThemeSwitch).
+// Light/Dark switch (spec CAT-01 R7/AC-2, amended 2026-11-10; tokens §5 ThemeSwitch).
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 const bg = (page) => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-const pressed = (page) => page.locator('[data-theme-switch] [aria-pressed="true"]');
+const sw = (page) => page.getByRole("switch", { name: "Dark theme" });
+const knobMoved = (page) => page.locator(".theme-switch__knob").evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m41 > 0);
 const LIGHT_BG = "rgb(245, 243, 238)"; // surface/page, light
 const DARK_BG = "rgb(17, 17, 21)"; // surface/page, dark
 
 test.describe("theme switch", () => {
   test.use({ colorScheme: "light" });
 
-  test("Auto follows the OS; Dark and Light override it and persist across pages and reloads", async ({ page }) => {
+  test("until flipped, the switch shows the OS theme and follows OS changes", async ({ page }) => {
     await page.goto("./");
-    await expect(pressed(page)).toHaveText("Auto");
+    await expect(sw(page)).toHaveAttribute("aria-checked", "false");
     expect(await bg(page)).toBe(LIGHT_BG);
-
-    await page.getByRole("button", { name: "Dark" }).click();
-    await expect(pressed(page)).toHaveText("Dark");
-    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-    await expect.poll(() => bg(page)).toBe(DARK_BG);
-
-    await page.goto("./sdd-engineering/");
-    await expect(pressed(page)).toHaveText("Dark");
+    expect(await knobMoved(page)).toBe(false);
+    await page.emulateMedia({ colorScheme: "dark" });
+    await expect(sw(page)).toHaveAttribute("aria-checked", "true");
     expect(await bg(page)).toBe(DARK_BG);
-
-    await page.getByRole("button", { name: "Auto" }).click();
+    await expect.poll(() => knobMoved(page)).toBe(true);
     await expect(page.locator("html")).not.toHaveAttribute("data-theme", /.*/);
-    await page.reload();
-    await expect(pressed(page)).toHaveText("Auto");
-    expect(await bg(page)).toBe(LIGHT_BG);
   });
 
-  test("a light site on a dark OS", async ({ page }) => {
-    await page.emulateMedia({ colorScheme: "dark" });
+  test("flipping overrides the OS and persists across pages and reloads", async ({ page }) => {
     await page.goto("./");
+    await sw(page).click();
+    await expect(sw(page)).toHaveAttribute("aria-checked", "true");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
     expect(await bg(page)).toBe(DARK_BG);
-    await page.getByRole("button", { name: "Light" }).click();
-    await expect.poll(() => bg(page)).toBe(LIGHT_BG);
+
+    await page.goto("./sdd-engineering/");
+    await expect(sw(page)).toHaveAttribute("aria-checked", "true");
+    expect(await bg(page)).toBe(DARK_BG);
+
+    await sw(page).click();
+    await page.reload();
+    await expect(sw(page)).toHaveAttribute("aria-checked", "false");
+    expect(await bg(page)).toBe(LIGHT_BG);
+    // The explicit Light choice now holds even on a dark OS.
+    await page.emulateMedia({ colorScheme: "dark" });
+    await expect(sw(page)).toHaveAttribute("aria-checked", "false");
+    expect(await bg(page)).toBe(LIGHT_BG);
   });
 
   test("the saved theme is applied before first paint (no flash of the other theme)", async ({ page }) => {
@@ -51,14 +56,16 @@ test.describe("theme switch", () => {
     expect(await page.evaluate(() => window.__themeAtBody)).toBe("dark");
   });
 
-  test("keyboard: the switch is reachable and toggles with Enter, with a visible focus ring", async ({ page }) => {
+  test("keyboard: the switch is reachable, flips with Space and Enter, with a visible focus ring", async ({ page }) => {
     await page.goto("./");
-    const dark = page.getByRole("button", { name: "Dark" });
-    await dark.focus();
-    const ring = await dark.evaluate((el) => { const s = getComputedStyle(el); return s.outlineStyle !== "none" && parseFloat(s.outlineWidth) >= 2; });
+    const s = sw(page);
+    await s.focus();
+    const ring = await s.evaluate((el) => { const c = getComputedStyle(el); return c.outlineStyle !== "none" && parseFloat(c.outlineWidth) >= 2; });
     expect(ring).toBe(true);
+    await page.keyboard.press("Space");
+    await expect(s).toHaveAttribute("aria-checked", "true");
     await page.keyboard.press("Enter");
-    await expect(dark).toHaveAttribute("aria-pressed", "true");
+    await expect(s).toHaveAttribute("aria-checked", "false");
   });
 
   for (const theme of ["light", "dark"]) {
