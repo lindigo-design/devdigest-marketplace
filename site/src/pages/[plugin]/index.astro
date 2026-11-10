@@ -155,7 +155,8 @@ const hasHooks = [p, ...depPlugins].some((x) => x?.page.components.some((id: str
   .rail__block { display: flex; flex-direction: column; gap: var(--space-2); padding-block: var(--space-4); border-top: var(--rule-thin) solid var(--rule-hairline); }
   .list { display: flex; flex-direction: column; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
   .main { display: flex; flex-direction: column; gap: var(--space-7); min-width: 0; }
-  .facts { display: flex; flex-wrap: wrap; gap: var(--space-5) var(--space-7); }
+  /* Tags, then compatibility below: two kinds of information, one per line (owner review 2026-11-10). */
+  .facts { display: flex; flex-direction: column; gap: var(--space-5); }
   .facts__group { display: flex; flex-direction: column; gap: var(--space-2); }
   .tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
   .tag {

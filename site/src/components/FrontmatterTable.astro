@@ -1,6 +1,8 @@
 ---
-// Frontmatter as a key/value table (spec CAT-01 R5/AC-4; agents list tools, model, skills first).
-// Values are strings, lists (joined) or nested objects (shown as YAML). `env` is already removed upstream.
+// Frontmatter as one wrapping line of key/value pairs separated by "·" (spec CAT-01 R5/AC-4; agents list
+// tools, model, skills first; tokens §5 Frontmatter line, owner review 2026-11-10: was a two-column table).
+// Values are strings, lists (joined) or nested objects (shown as YAML, on a line of their own).
+// `env` is already removed upstream.
 import { stringify } from "yaml";
 import { t } from "../i18n/t.mjs";
 interface Props { data: Record<string, unknown>; first?: string[]; caption?: string }
@@ -12,36 +14,38 @@ const show = (v: unknown) =>
   : String(v);
 ---
 {keys.length > 0 && (
-  <table class="fm">
-    <caption class="t-label">{caption}</caption>
-    <tbody>
+  <div class="fm">
+    <p class="t-label fm__caption">{caption}</p>
+    <dl class="fm__list t-mono">
       {keys.map((k) => {
         const v = show(data[k]);
+        const block = v.includes("\n");
         return (
-          <tr>
-            <th scope="row" class="t-mono">{k}</th>
-            <td class="t-mono">{v.includes("\n") ? <pre>{v}</pre> : v}</td>
-          </tr>
+          <div class={block ? "fm__item fm__item--block" : "fm__item"}>
+            <dt>{k}</dt>
+            <dd>{block ? <pre>{v}</pre> : v}</dd>
+          </div>
         );
       })}
-    </tbody>
-  </table>
+    </dl>
+  </div>
 )}
 
 <style>
-  .fm { width: 100%; border-collapse: collapse; }
-  caption { text-align: left; padding-bottom: var(--space-3); }
-  tr { border-top: var(--rule-thin) solid var(--rule-hairline); }
-  tr:last-child { border-bottom: var(--rule-thin) solid var(--rule-hairline); }
-  th {
-    width: 30%;
-    padding: var(--space-2) var(--space-5) var(--space-2) 0;
-    text-align: left;
-    vertical-align: top;
-    font-weight: var(--weight-regular);
+  /* No rule between the caption and the pairs: they belong together (proximity; owner review 2026-11-10).
+     The section's own top rule separates the frontmatter from what is above it. */
+  .fm__caption { margin: 0 0 var(--space-2); }
+  .fm__list { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2) 0; margin: 0; }
+  .fm__item { display: inline-flex; align-items: baseline; gap: var(--space-2); min-width: 0; }
+  /* The separator is decoration (screen readers read a description list). It trails each pair, so a wrapped
+     line never starts with "·". */
+  .fm__item:not(:last-child, .fm__item--block, :has(+ .fm__item--block))::after {
+    content: "·";
+    padding-inline: var(--space-1) var(--space-3);
     color: var(--ink-secondary);
-    overflow-wrap: anywhere;
   }
-  td { padding: var(--space-2) 0; overflow-wrap: anywhere; }
+  .fm__item--block { flex-basis: 100%; flex-direction: column; gap: var(--space-1); }
+  dt { color: var(--ink-secondary); }
+  dd { margin: 0; color: var(--ink-primary); overflow-wrap: anywhere; }
   pre { margin: 0; white-space: pre-wrap; }
 </style>
