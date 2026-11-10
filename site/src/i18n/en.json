@@ -6,10 +6,7 @@
   "header.nav.aria": "Site",
   "header.searchHint": "to search",
   "header.catalog": "Catalog",
-  "theme.aria": "Theme",
-  "theme.auto": "Auto",
-  "theme.light": "Light",
-  "theme.dark": "Dark",
+  "theme.switch.aria": "Dark theme",
   "nav.github": "GitHub",
 
   "footer.about": "{marketplace}: a static index of the Lindigo Claude Code marketplace, rebuilt on every change to the repository.",
