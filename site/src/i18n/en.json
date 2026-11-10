@@ -212,7 +212,6 @@
   "home.stats.noComponents": "No components yet — plugins are being migrated.",
   "home.lastRelease": "Last release",
   "home.lastRelease.none": "None yet",
-  "home.feeds": "Feeds",
   "home.whatsNew": "What’s new",
   "home.whatsNew.none": "No released versions yet.",
   "home.plugins": "Plugins",

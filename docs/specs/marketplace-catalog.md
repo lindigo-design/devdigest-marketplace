@@ -150,7 +150,7 @@ Never read: `evals/results/`, `node_modules/`, `.claude/settings.local.json`, an
 - **AC-1:** The system SHALL publish an Atom feed at `feed.xml` and a JSON Feed 1.1 at `feed.json`, both built from the same release entries as R8/AC-3, with up to 50 items.
 - **AC-2:** Each feed item SHALL represent one plugin release, with a stable id `<plugin>--v<version>`, title `<plugin> <version>`, the release date, the CHANGELOG notes as content, and an absolute link to the plugin page.
 - **AC-3:** Feed URLs and item links SHALL be absolute and derived from the origin and base path configuration (R6/AC-4).
-- **AC-4:** Every page SHALL advertise both feeds with `<link rel="alternate">` tags, and the home page SHALL show visible links to them.
+- **AC-4:** Every page SHALL advertise both feeds with `<link rel="alternate">` tags, and the site footer SHALL show visible links to them. (Amended 2026-11-10 by the owner: the home page no longer repeats them in its rail; most visitors do not use feeds, and the footer link is enough for those who do.)
 - **AC-5:** WHEN no plugin has a dated release, the feeds SHALL still be valid documents with zero items.
 - **AC-6:** The system SHALL also publish the search index as a documented, versioned JSON file (`index.json` with a `schemaVersion` field) so other sites and tools can reuse the catalog data.
 

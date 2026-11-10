@@ -205,6 +205,33 @@ test.describe("cards (R3)", () => {
         [".entry__desc", ".entry__meta", ".copy"].map((s) => Math.round(a.querySelector(s).getBoundingClientRect().right))));
       expect(edges.length).toBeGreaterThan(0);
       for (const e of edges) expect(new Set(e).size, JSON.stringify(e)).toBe(1);
+      // Tags, then compatibility badges below them (tokens §5 Facts).
+      const stacked = await page.evaluate(() => [...document.querySelectorAll("article.entry")].filter((a) => a.querySelector(".entry__tags"))
+        .every((a) => a.querySelector(".badges").getBoundingClientRect().top >= a.querySelector(".entry__tags").getBoundingClientRect().bottom));
+      expect(stacked).toBe(true);
+    });
+  }
+
+  for (const url of ["./engineering-paved-path/skill/security/", "./research-tools/"]) {
+    test(`page main column: one right edge for the install block and the text on ${url} (tokens §5 Page main column)`, async ({ page }) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto(url);
+      const r = await page.evaluate(() => {
+        const m = document.querySelector(".main");
+        const right = (el) => Math.round(el.getBoundingClientRect().right);
+        const box = m.querySelector(".copy").closest("section, .block, [class*='install']");
+        // Lines of the command text itself (the field stretches to the Copy button's height).
+        const range = document.createRange();
+        range.selectNodeContents(m.querySelector(".copy__text"));
+        const copyLines = new Set([...range.getClientRects()].map((q) => Math.round(q.top))).size;
+        // Any paragraph in the column (Try it notes, README text) ends at the same edge.
+        const paras = [...m.querySelectorAll(".ti p, .prose p")].map(right);
+        return { main: right(m), prose: right(m.querySelector(".prose")), box: right(box), copyLines, paras };
+      });
+      expect(r.prose).toBe(r.main);
+      for (const p of r.paras) expect(p).toBe(r.main);
+      expect(r.box).toBe(r.main);
+      expect(r.copyLines).toBe(1);
     });
   }
 

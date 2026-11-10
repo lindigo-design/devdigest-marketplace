@@ -66,7 +66,11 @@ const PER_SCOPE = new Set(["update", "disable", "enable", "uninstall", "pin"]);
 
 <style>
   .mb { min-width: 0; padding-top: var(--space-5); border-top: var(--rule-thin) solid var(--rule-hairline); }
-  .mb__summary { cursor: pointer; width: fit-content; }
+  /* Disclosure marker as in FilterGroup: "+" closed, "−" open, on the right (tokens §5 Section anatomy). */
+  .mb__summary { display: flex; align-items: baseline; cursor: pointer; list-style: none; transition: color var(--duration-quick) var(--ease-settle); }
+  .mb__summary::-webkit-details-marker { display: none; }
+  .mb__summary::after { content: "+"; margin-left: auto; font-family: var(--font-mono); font-weight: var(--weight-regular); color: var(--ink-secondary); }
+  .mb[open] > .mb__summary::after { content: "−"; }
   .mb__summary:hover { color: var(--accent-indigo); }
   .mb p { margin: 0; }
   .mb__rows { display: flex; flex-direction: column; margin-top: var(--space-4); }

@@ -8,7 +8,7 @@ import ResultEntry from "../components/ResultEntry.astro";
 import SearchLine from "../components/SearchLine.astro";
 import StatNumeral from "../components/StatNumeral.astro";
 import WhatsNewItem from "../components/WhatsNewItem.astro";
-import { FEEDS, getCatalog, href } from "../data/site.mjs";
+import { getCatalog, href } from "../data/site.mjs";
 import { t } from "../i18n/t.mjs";
 import Base from "../layouts/Base.astro";
 
@@ -50,10 +50,6 @@ const relations = (p: any) => ({
           {catalog.lastRelease
             ? <time class="t-mono" datetime={catalog.lastRelease}>{catalog.lastRelease}</time>
             : <span class="t-secondary">{t("home.lastRelease.none")}</span>}
-        </div>
-        <div class="rail__fact">
-          <h2 class="t-label">{t("home.feeds")}</h2>
-          <span class="rail__feeds t-caption"><a href={href(FEEDS.atom)}>{t("feed.atom")}</a><a href={href(FEEDS.json)}>{t("feed.json")}</a></span>
         </div>
       </div>
     </aside>
@@ -121,7 +117,6 @@ const relations = (p: any) => ({
   .rail__note { margin-top: var(--space-4); max-width: 36ch; }
   .rail__facts { display: flex; flex-wrap: wrap; gap: var(--space-6) var(--space-7); }
   .rail__fact { display: flex; flex-direction: column; gap: var(--space-2); }
-  .rail__feeds { display: flex; gap: var(--space-4); }
   .main { display: flex; flex-direction: column; gap: var(--space-9); min-width: 0; }
   .section-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: var(--space-2) var(--space-4); padding-bottom: var(--space-4); }
   .news-list { margin: 0; padding: 0; list-style: none; border-bottom: var(--rule-thin) solid var(--rule-hairline); }
