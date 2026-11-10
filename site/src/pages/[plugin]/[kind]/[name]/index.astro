@@ -130,7 +130,11 @@ const hasRelations = (c.page.preloads?.length ?? 0) + (c.page.preloadedBy?.lengt
   .page-head__in { display: flex; flex-wrap: wrap; gap: 0 var(--space-2); align-items: baseline; }
   .rail { display: flex; flex-direction: column; min-width: 0; }
   .rail__block { display: flex; flex-direction: column; gap: var(--space-2); padding-block: var(--space-4); border-top: var(--rule-thin) solid var(--rule-hairline); }
-  .main { display: flex; flex-direction: column; gap: var(--space-7); min-width: 0; }
+  /* One content width for the whole main column (tokens §5 Page main column, owner review 2026-11-10): tags,
+     install, frontmatter and the text share one right edge; the copy field, settings snippet and prose fill it
+     instead of stopping at their own measure. */
+  .main { display: flex; flex-direction: column; gap: var(--space-7); min-width: 0; max-width: calc(var(--measure) * 1.5); }
+  .main :global(.copy), .main :global(.snippet), .main :global(.prose) { max-width: none; }
   /* Tags, then compatibility below: two kinds of information, one per line (owner review 2026-11-10). */
   .facts { display: flex; flex-direction: column; gap: var(--space-5); }
   .facts__group { display: flex; flex-direction: column; gap: var(--space-2); }

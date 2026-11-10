@@ -94,7 +94,9 @@ const isPlugin = e.kind === "plugin";
   /* Name and description (R3/AC-2); without this, names get the browser's default yellow. */
   .entry mark { background: var(--accent-indigo-soft); color: var(--accent-indigo); padding: 0 var(--space-1); }
   .entry__rel { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-5); }
-  .entry__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); }
+  /* Tags, then compatibility badges below: the same structure as the facts on plugin and component pages
+     (tokens §5 Facts, owner review 2026-11-10). */
+  .entry__meta { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); }
   .entry__tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
   .entry__tag { padding: 0 var(--space-2); background: var(--surface-sunken); border-radius: var(--radius-s); font-size: var(--type-label); color: var(--ink-secondary); }
 </style>

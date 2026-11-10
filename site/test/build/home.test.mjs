@@ -109,9 +109,12 @@ describe("R8/AC-6, R3/AC-1, AC-4: plugin cards", () => {
 });
 
 describe("R9/AC-4, §7", () => {
-  test("visible feed links on the home page", () => {
+  test("visible feed links in the footer, not repeated in the home rail (amended 2026-11-10)", () => {
     const html = demo.page("");
-    assert.match(html, new RegExp(`<span class="rail__feeds[^>]*><a href="${BASE}feed\\.xml"[^>]*>Atom feed</a><a href="${BASE}feed\\.json"[^>]*>JSON feed</a>`));
+    const footer = html.slice(html.indexOf("<footer"));
+    assert.match(footer, new RegExp(`<a href="${BASE}feed\\.xml"[^>]*>Atom feed</a>`));
+    assert.match(footer, new RegExp(`<a href="${BASE}feed\\.json"[^>]*>JSON feed</a>`));
+    assert.doesNotMatch(html, /rail__feeds|>Feeds</);
   });
 
   test("without JavaScript: a notice, and the plugin list is static HTML", () => {

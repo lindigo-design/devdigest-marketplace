@@ -117,7 +117,7 @@ const hasHooks = [p, ...depPlugins].some((x) => x?.page.components.some((id: str
               <span class="t-mono t-secondary">{latest.date}</span>
               {latest.rollback && <span class="t-label release__rollback">{t("release.rollback")}</span>}
             </p>
-            <Prose html={markdown(latest.notes, `${p.source}/CHANGELOG.md`)} />
+            <div class="release__notes"><Prose html={markdown(latest.notes, `${p.source}/CHANGELOG.md`)} /></div>
             <p class="t-caption"><a href={githubSource(`${p.source}/CHANGELOG.md`)}>{t("plugin.latest.changelog")}</a></p>
           </>
         ) : <p class="t-secondary">{t("plugin.latest.none")}</p>}
@@ -154,7 +154,11 @@ const hasHooks = [p, ...depPlugins].some((x) => x?.page.components.some((id: str
   .rail { display: flex; flex-direction: column; min-width: 0; }
   .rail__block { display: flex; flex-direction: column; gap: var(--space-2); padding-block: var(--space-4); border-top: var(--rule-thin) solid var(--rule-hairline); }
   .list { display: flex; flex-direction: column; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
-  .main { display: flex; flex-direction: column; gap: var(--space-7); min-width: 0; }
+  /* One content width for the whole main column (tokens §5 Page main column, owner review 2026-11-10): tags,
+     install, frontmatter and the text share one right edge; the copy field, settings snippet and prose fill it
+     instead of stopping at their own measure. */
+  .main { display: flex; flex-direction: column; gap: var(--space-7); min-width: 0; max-width: calc(var(--measure) * 1.5); }
+  .main :global(.copy), .main :global(.snippet), .main :global(.prose) { max-width: none; }
   /* Tags, then compatibility below: two kinds of information, one per line (owner review 2026-11-10). */
   .facts { display: flex; flex-direction: column; gap: var(--space-5); }
   .facts__group { display: flex; flex-direction: column; gap: var(--space-2); }
@@ -173,6 +177,19 @@ const hasHooks = [p, ...depPlugins].some((x) => x?.page.components.some((id: str
   .release { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-4); }
   .release__version { font-weight: var(--weight-medium); }
   .release__rollback { color: var(--signal-rollback); }
+  /* CHANGELOG groups ("Added", "Changed", …) read as sub-section labels, like "Check that it loaded" in Try it
+     (tokens §5 Section anatomy, owner review 2026-11-10). */
+  .release__notes :global(:is(h2, h3, h4, h5, h6)) {
+    margin: var(--space-3) 0 0;
+    font-family: var(--font-sans);
+    font-size: var(--type-label);
+    line-height: var(--leading-label);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-secondary);
+  }
+  .release__notes :global(.prose > :first-child) { margin-top: 0; }
   .compat { display: grid; grid-template-columns: auto 1fr; gap: var(--space-2) var(--space-5); margin: 0; }
   .compat dd { margin: 0; }
 </style>
