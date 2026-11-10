@@ -128,7 +128,7 @@ Never read: `evals/results/`, `node_modules/`, `.claude/settings.local.json`, an
 ### CAT-01/R7: Quality bar
 
 - **AC-1:** The site SHALL meet WCAG 2.1 AA: keyboard-reachable search, filters, cards and copy actions; visible focus; contrast per the Lindigo tokens.
-- **AC-2:** The site SHALL support light and dark themes, following the OS preference.
+- **AC-2:** The site SHALL support light and dark themes, following the OS preference by default. A control in the site header SHALL let the reader choose Auto (OS preference), Light or Dark; the choice SHALL persist in that browser and apply before the first paint, so the page does not flash the other theme. (Amended 2026-11-10 by the owner: a reader may use a light OS and want a dark site, or the reverse.)
 - **AC-3:** The site SHALL be usable at 360 px width with no horizontal page scroll.
 - **AC-4:** The search index transferred to the browser SHALL stay under 300 KB gzipped at 500 entries.
 - **AC-5:** The site SHALL load no third-party scripts or trackers in the MVP.

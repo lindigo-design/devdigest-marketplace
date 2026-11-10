@@ -1,8 +1,10 @@
 ---
-// Site header: brand, search shortcut hint, catalog and GitHub links. No theme toggle (plan D1).
+// Site header: brand, search shortcut hint, catalog and GitHub links, theme switch (R7/AC-2; tokens §5 ThemeSwitch).
+// The switch is wired by src/client/theme.mjs; without JavaScript it is hidden and the OS preference applies.
 import { config, getCatalog, href } from "../data/site.mjs";
 import { t } from "../i18n/t.mjs";
 const name = getCatalog().marketplace.name;
+const THEMES = [["auto", t("theme.auto")], ["light", t("theme.light")], ["dark", t("theme.dark")]];
 ---
 <header class="site-header rule-bottom">
   <a class="site-header__brand" href={href()}>{name}</a>
@@ -10,6 +12,9 @@ const name = getCatalog().marketplace.name;
     <span class="site-header__hint" data-js-only><kbd>/</kbd> {t("header.searchHint")}</span>
     <a href={href()}>{t("header.catalog")}</a>
     <a href={config.repo}>{t("nav.github")}</a>
+    <span class="theme" role="group" aria-label={t("theme.aria")} data-js-only data-theme-switch>
+      {THEMES.map(([v, label]) => <button type="button" class="theme__option" data-theme-value={v} aria-pressed={v === "auto" ? "true" : "false"}>{label}</button>)}
+    </span>
   </nav>
 </header>
 
@@ -44,5 +49,19 @@ const name = getCatalog().marketplace.name;
     font-size: var(--type-label);
     color: var(--ink-primary);
   }
+  /* ThemeSwitch (tokens §5): three text buttons; the selected one is ink/primary with an indigo strong underline. */
+  .theme { display: inline-flex; align-items: center; gap: var(--space-3); }
+  .theme__option {
+    padding: 0;
+    border: 0;
+    border-bottom: var(--rule-strong) solid transparent;
+    background: none;
+    font: inherit;
+    color: var(--ink-secondary);
+    cursor: pointer;
+    transition: color var(--duration-quick) var(--ease-settle), border-color var(--duration-quick) var(--ease-settle);
+  }
+  .theme__option:hover { color: var(--accent-indigo); }
+  .theme__option[aria-pressed="true"] { color: var(--ink-primary); border-bottom-color: var(--accent-indigo); }
   :global(html:not(.js)) [data-js-only] { display: none; }
 </style>

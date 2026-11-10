@@ -1,6 +1,6 @@
 /*
  * Lindigo design tokens, Editorial / Swiss direction (vendored).
- * Source: docs/design/design-tokens.md, section 8 (approved 2026-11-09). Copied verbatim on 2026-11-09.
+ * Source: docs/design/design-tokens.md, section 8 (approved 2026-11-09). Copied verbatim on 2026-11-10.
  * Do not edit here: change design-tokens.md first, then re-copy. test/unit/tokens.test.mjs checks they match.
  */
 
@@ -95,8 +95,10 @@
   }
 }
 
+/* color: dark. The OS preference applies unless the reader picked a theme in the header
+   (data-theme on <html>, set before first paint; tokens §5 ThemeSwitch). */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --surface-page: #111115;
     --surface-raised: #1A1A20;
     --surface-sunken: #0B0B0E;
@@ -110,6 +112,21 @@
     --signal-positive: #6CC594;
     --signal-rollback: #C79BEB;
   }
+}
+
+:root[data-theme="dark"] {
+  --surface-page: #111115;
+  --surface-raised: #1A1A20;
+  --surface-sunken: #0B0B0E;
+  --ink-primary: #EDEBE6;
+  --ink-secondary: #A9A7B1;
+  --ink-whisper: #6E6C77;
+  --rule-hairline: #2B2A32;
+  --accent-indigo: #8F9AFF;
+  --accent-indigo-soft: #22254A;
+  --signal-caution: #E38B57;
+  --signal-positive: #6CC594;
+  --signal-rollback: #C79BEB;
 }
 
 @media (prefers-reduced-motion: reduce) {
