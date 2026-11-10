@@ -1,6 +1,7 @@
 ---
 // Page shell: head metadata, feed discovery (R9/AC-4), self-hosted fonts and tokens (R7/AC-5, AC-6),
-// skip link, header, footer. Theme follows the OS (R7/AC-2, plan D1).
+// skip link, header, footer. Theme follows the OS unless the reader picked one in the header (R7/AC-2,
+// amended 2026-11-10): the inline script applies the saved choice before first paint.
 import "../styles/fonts.css";
 import "../styles/tokens.css";
 import "../styles/base.css";
@@ -26,7 +27,14 @@ const fullTitle = title ? t("doc.title", { title, site: catalog.marketplace.name
     <link rel="alternate" type="application/atom+xml" title={t("feed.link.atom", { marketplace: catalog.marketplace.name })} href={absolute(FEEDS.atom)} />
     <link rel="alternate" type="application/feed+json" title={t("feed.link.json", { marketplace: catalog.marketplace.name })} href={absolute(FEEDS.json)} />
     <meta name="catalog-base" content={config.base} />
-    <script is:inline>document.documentElement.classList.add("js");</script>
+    <script is:inline>
+      document.documentElement.classList.add("js");
+      // Same key as src/client/theme.mjs. Storage can be blocked: then the OS preference applies.
+      try {
+        const theme = localStorage.getItem("lindigo-devdigest:theme");
+        if (theme === "light" || theme === "dark") document.documentElement.dataset.theme = theme;
+      } catch {}
+    </script>
   </head>
   <body>
     <a class="skip-link" href="#main">{t("skip.link")}</a>
@@ -40,7 +48,9 @@ const fullTitle = title ? t("doc.title", { title, site: catalog.marketplace.name
     <script>
       import { initCopy } from "../client/copy.mjs";
       import { initShortcuts } from "../client/shortcuts.mjs";
+      import { initTheme } from "../client/theme.mjs";
       initCopy();
+      initTheme();
       initShortcuts({ base: document.querySelector('meta[name="catalog-base"]')?.getAttribute("content") ?? "/" });
     </script>
   </body>

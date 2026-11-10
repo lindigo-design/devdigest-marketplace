@@ -11,6 +11,9 @@ html {
   text-size-adjust: 100%;
   scroll-padding-top: var(--space-9); /* in-page anchors land below the sticky site header (tokens §5) */
 }
+/* A theme picked in the header (tokens §5 ThemeSwitch) also sets native controls and scrollbars. */
+html[data-theme="light"] { color-scheme: light; }
+html[data-theme="dark"] { color-scheme: dark; }
 
 body {
   margin: 0;

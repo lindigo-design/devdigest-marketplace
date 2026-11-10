@@ -129,6 +129,7 @@ Added 2026-11-09 (owner review of the live site). No new tokens.
 | **Component page** (skill, agent, command, hook, MCP server): the same layout as the plugin page. Head: kind label, title in `type/display`, "in plugin … · v…" and the description in `type/body-lg` `ink/secondary` within the measure. Rail: kind, plugin, version; "Preloads / Preloaded by" relations; source link. Main: a facts row (tags, compatibility badges with their labels), then hook / MCP / frontmatter (without the description, already shown in the head), body, install block | default |
 | **FilterGroup** (collapsible, replaces the always-open list): each group is a disclosure; the summary shows the group name in `type/label`, the number of checked values in `type/mono` `accent/indigo`, and "+" / "−" in `ink/secondary` on the right; `rule/hairline` between groups. Kind starts open, and so does every group with a filter from the URL; what the reader opens or closes stays that way while they type | closed · open · hover (summary turns `accent/indigo`) · focus-visible · has checked values |
 | **Filter panel**: on `surface/raised` with `space/5` padding, so it reads apart from the results; on wide screens `space/6` more between the panel and the results. The mobile drawer keeps `surface/page` | default |
+| **ThemeSwitch** (added 2026-11-10, spec CAT-01 R7/AC-2): in the SiteHeader nav, after the links; three text buttons "Auto · Light · Dark" in `type/caption` in a group labelled "Theme". Auto follows the OS; Light / Dark set `data-theme` on `<html>`, which the §8 dark selectors honour. The choice is kept in the browser and applied by an inline script before first paint. Hidden without JavaScript (the OS preference still applies) | default (`ink/secondary`) · selected (`ink/primary`, `rule/strong` underline in `accent/indigo`, `aria-pressed="true"`) · hover (`accent/indigo`) · focus-visible |
 
 ## 6. Motion
 
@@ -257,8 +258,10 @@ Signature moments (3 layers, the skill requires at least 2):
   }
 }
 
+/* color: dark. The OS preference applies unless the reader picked a theme in the header
+   (data-theme on <html>, set before first paint; tokens §5 ThemeSwitch). */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --surface-page: #111115;
     --surface-raised: #1A1A20;
     --surface-sunken: #0B0B0E;
@@ -272,6 +275,21 @@ Signature moments (3 layers, the skill requires at least 2):
     --signal-positive: #6CC594;
     --signal-rollback: #C79BEB;
   }
+}
+
+:root[data-theme="dark"] {
+  --surface-page: #111115;
+  --surface-raised: #1A1A20;
+  --surface-sunken: #0B0B0E;
+  --ink-primary: #EDEBE6;
+  --ink-secondary: #A9A7B1;
+  --ink-whisper: #6E6C77;
+  --rule-hairline: #2B2A32;
+  --accent-indigo: #8F9AFF;
+  --accent-indigo-soft: #22254A;
+  --signal-caution: #E38B57;
+  --signal-positive: #6CC594;
+  --signal-rollback: #C79BEB;
 }
 
 @media (prefers-reduced-motion: reduce) {
