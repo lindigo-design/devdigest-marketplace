@@ -1,6 +1,6 @@
 {
   "name": "architecture-review",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Read-only architecture-reviewer agent that checks a change set against layering rules, with a read-only Bash guard.",
   "author": {
     "name": "Yana Levchenko",

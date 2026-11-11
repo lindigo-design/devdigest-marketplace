@@ -4,6 +4,15 @@ All notable changes to this plugin. Versions follow [SemVer](https://semver.org/
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-11-11
+
+### Added
+- `workflow-retro` ships `scripts/transcript-metrics.mjs`, called through `${CLAUDE_SKILL_DIR}` so it works wherever the plugin is installed. It reads the session and subagent transcripts and returns tokens (counted once per `message.id`), cache hit rate, tool calls, spans, parallelism, the critical path, files read by several agents and, with `--prices`, cost. It never prints transcript text. Self-test: `scripts/transcript-metrics.self-test.mjs`.
+- Eval suite `evals/`: `spec-creator` starts on a spec request, `workflow-retro` and `fastify-best-practices` load on their requests, `run-plan` never starts on its own (it has `disable-model-invocation`), and an unrelated request starts no skill or agent of this plugin.
+
+### Changed
+- `workflow-retro` step 1c uses the bundled script instead of adding up transcript usage by hand; prices are passed inline, so the skill still writes nothing before the user confirms.
+
 ## [1.0.1] — 2026-11-09
 
 ### Changed

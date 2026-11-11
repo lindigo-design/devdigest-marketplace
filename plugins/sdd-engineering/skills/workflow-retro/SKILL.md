@@ -36,7 +36,8 @@ If fewer than 2 `Agent` tool calls are found in the session → output
   columns `N/A`. Never invent numbers.
 - **No vague recommendations.** Every recommendation names a specific file or owner and specific text.
 - **Always end with the Action items checklist:** at most 5 items, each assignable to a file or owner.
-- Bash is for read-only commands only (listing and reading transcripts, `git status`, `git diff`).
+- Bash is for read-only commands only: the bundled `${CLAUDE_SKILL_DIR}/scripts/transcript-metrics.mjs`,
+  listing transcripts, `git status`, `git diff`.
 
 ## Phase 1: Collect
 
@@ -59,33 +60,42 @@ appears in the transcript (`message.model` of assistant entries): `input`, `outp
 `cache_creation`, in USD per million tokens. If the fetch or the parse fails, set the cost columns to
 `N/A` and note `prices unavailable`; never guess rates. Prices are not cached to disk.
 
-### 1c. Parse the transcripts
+### 1c. Measure the transcripts with the bundled script
 
-Locate the current session's transcript and its subagents:
+Do not add up tokens by hand. Run the script that ships with this skill (read-only, Node ≥ 22, prints
+JSON with numbers, model names, agent types, timestamps and file paths only, never transcript text):
 
 ```bash
-ls -t ~/.claude/projects/*/[0-9a-f]*.jsonl 2>/dev/null | head -1
-# subagents of that session: <session-id>/subagents/agent-<id>.jsonl (+ agent-<id>.meta.json:
-# agentType, description, toolUseId → links to the main session's Agent call)
+node "${CLAUDE_SKILL_DIR}/scripts/transcript-metrics.mjs" --latest
+# or name the session's transcript(s): a session continued after context compaction spans several files
+node "${CLAUDE_SKILL_DIR}/scripts/transcript-metrics.mjs" <session.jsonl> [<more.jsonl> ...]
 ```
 
-A session continued after context compaction may span several `.jsonl` files; include all of them.
+With the prices from 1b, add them inline (no file: this skill writes nothing before the user confirms):
+`--prices '{"<model>": {"input": n, "output": n, "cacheRead": n, "cacheCreation": n}}'`, in USD per
+million tokens. The script then fills `costUsd` and `savingsUsd`; a model missing from the prices leaves
+them `null`.
 
-If no transcript is found → output `transcript not found: token columns N/A, span and tools estimated
-from the conversation` and fill those columns with `N/A`.
+What it returns, and how the dashboard uses it:
 
-For each agent:
+- `agents[]`: one row per subagent (`<session-id>/subagents/agent-<id>.jsonl` + `.meta.json`):
+  `agent` (first 8 characters of the ID), `agentType`, `toolUseId` (links to the main session's Agent
+  call), `tokens` (`in`, `out`, `cacheRead`, `cacheCreation`), `hitPercent`, `toolCalls`, `tools`,
+  `spanSeconds`, `web`, `filesRead`, `costUsd`, `interrupted`.
+- Usage is counted **once per `message.id`**: one model response is written as several lines carrying
+  the same `usage`, so summing lines would double- or triple-count. Each response is priced at its own
+  model.
+- `totals`: `agents`, `interrupted`, `wallSeconds`, `parallelism`, `criticalPath`.
+- `duplications`: files read by two or more agents (the input to 2a).
+- `session.agentCalls`: the main session's Agent calls with their `subagent_type`, in order (the input
+  to 1a).
 
-- **Tokens:** sum the `usage` objects of `"type":"assistant"` entries **once per unique `message.id`**
-  (one model response is written as several lines, one per content block, all carrying the same
-  `usage`; summing lines double- or triple-counts). Price each response at its own `message.model`.
-- **Tools:** count the `"type":"tool_use"` entries.
-- **Span:** last `timestamp` minus first `timestamp`, in seconds.
-- **Agent ID:** first 8 characters of the subagent conversation ID.
-- An agent with no `usage` entries (interrupted) → its token columns are `N/A (interrupted)`; add
-  `Partial data: N agent(s) interrupted.`
+If the script prints `transcript not found` → output `transcript not found: token columns N/A, span
+and tools estimated from the conversation` and fill those columns with `N/A`. An agent with
+`interrupted: true` → its token columns are `N/A (interrupted)`; add
+`Partial data: N agent(s) interrupted.`
 
-Formulas:
+The formulas the script applies (for reference; do not recompute):
 
 ```
 cost        = (in × input + out × output + cache_read × cache_read_rate + cache_creation × cache_creation_rate) / 1_000_000

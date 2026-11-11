@@ -4,6 +4,11 @@ All notable changes to this plugin. Versions follow [SemVer](https://semver.org/
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-11-11
+
+### Added
+- Eval suite `evals/`: `architecture-reviewer` starts on a pre-merge layering review and not on an unrelated request (deterministic `tool_used` graders; run with `claude plugin eval`).
+
 ## [1.0.1] — 2026-11-09
 
 ### Changed

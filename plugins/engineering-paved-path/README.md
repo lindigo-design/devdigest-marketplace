@@ -48,13 +48,21 @@ None. This is the base layer.
 | `architecture-review` | `architecture-reviewer` preloads both skills |
 | `sdd-engineering` | `implementation-planner` applies both when planning |
 
+## Evals
+
+[`evals/`](evals/README.md) checks behaviour, not only the manifest: a backend layering question loads `onion-architecture`, a component-structure question loads `frontend-ui-architecture`, an unrelated request loads neither. The graders are deterministic (`tool_used`); the agent runs call the model, so a run is paid and CI does not run it.
+
+```bash
+claude plugin eval ./plugins/engineering-paved-path --runs 1 --ablation none
+```
+
 ## Later
 
 Planned for minor releases once their source and licence are confirmed or they are written:
 
 - `security`: security rubric and checklists (licence of the original not confirmed yet).
 - `guardrails`, `engineering-insights`, `mermaid-diagram`.
-- Evals for both skills (1.1), with a sample application to run them against.
+- Quality evals for both skills against a sample application (the trigger evals ship in 1.1).
 
 ## Licence
 
