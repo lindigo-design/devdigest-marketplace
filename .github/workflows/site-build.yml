@@ -1,6 +1,6 @@
-name: catalog site
+name: site build
 
-# Builds and tests the catalog site on every PR, and deploys it to GitHub Pages on every push to main
+# Builds the catalog index (scripts/build-index.mjs) and the catalog site, and tests both, on every PR, and deploys it to GitHub Pages on every push to main
 # (spec CAT-01 R1/AC-1, R6). No repository secrets are used. Pull requests have no paths filter on purpose: the
 # main ruleset requires the three site checks, and a filtered-out PR would wait for them forever.
 # A pushed release tag (<plugin>--v<version>, from scripts/tag-release.mjs) rebuilds main, so the plugin page's
@@ -52,8 +52,16 @@ jobs:
         run: node scripts/fonts-css.mjs --check
       - name: Unit tests (index builder, search, feeds, token and UI-string lint, budgets)
         run: npm test
-      - name: Catalog of this repository
-        run: npm run check
+      # The public index.json, built outside the site by the same code (site/lib): counts, warnings, or every broken
+      # file with the reason. Kept as an artifact so a PR's index can be downloaded and diffed.
+      - name: Build the catalog index (scripts/build-index.mjs)
+        run: node ../scripts/build-index.mjs --out "${RUNNER_TEMP}/catalog-index/index.json"
+      - name: Keep the catalog index
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: catalog-index
+          path: ${{ runner.temp }}/catalog-index/index.json
+          retention-days: 7
       - name: Build tests (fixtures, pages, base-path matrix)
         run: npm run test:build
 

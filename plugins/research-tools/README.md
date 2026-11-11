@@ -54,10 +54,17 @@ Agents are namespaced: `@agent-research-tools:<agent>`.
 
 None.
 
+## Evals
+
+[`evals/`](evals/README.md) checks behaviour, not only the manifest: a research question with evidence goes to `researcher`, a trivial edit does not. The graders are deterministic (`tool_used`); the agent runs call the model, so a run is paid and CI does not run it.
+
+```bash
+claude plugin eval ./plugins/research-tools --runs 1 --ablation none
+```
+
 ## Later
 
 - `brainstorm`: an interactive, read-only ideation agent.
-- Evals for `researcher` (1.1).
 
 ## Licence
 

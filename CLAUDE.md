@@ -21,7 +21,7 @@ claude plugin validate --strict .
 for d in plugins/*/; do claude plugin validate --strict "$d"; done
 node .github/scripts/check-versions.mjs origin/main
 node --test "scripts/**/*.test.mjs"
-npm --prefix site run check
+node scripts/build-index.mjs        # needs npm --prefix site ci once
 ```
 
 When `site/` changes, also run (from `site/`): `npm test`, `npm run test:build`, `npm run e2e`.
@@ -60,7 +60,7 @@ Site constraints:
 
 - `.claude-plugin/marketplace.json`: the catalog.
 - `plugins/<p>/`: one plugin.
-- `scripts/`: release tooling + `lib/` with unit tests.
+- `scripts/`: `build-index.mjs` (catalog index, as CI builds it), release tooling + `lib/` with unit tests.
 - `site/`: catalog site (Astro + MiniSearch), its tests and fixtures.
-- `.github/`: CI (`validate.yml`, `pages.yml`), CI scripts, CODEOWNERS, PR template.
-- `docs/`: specs, plans, design, security policy, `catalog-index.md`.
+- `.github/`: CI (`validate.yml`, `site-build.yml`), CI scripts, CODEOWNERS, PR template.
+- `docs/`: entry points `PLUGIN-GUIDELINES.md`, `RELEASES.md`, `SITE-SPEC.md`; specs, plans, design, security policy, `catalog-index.md`.

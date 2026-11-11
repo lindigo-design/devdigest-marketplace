@@ -61,7 +61,7 @@ Subagents cannot start other subagents, so your main session does the orchestrat
 | agent | `implementer` | Implements exactly one plan task (backend or frontend), runs its verify commands, reports. |
 | agent | `plan-verifier` | Read-only: checks one task or the whole plan against the plan and the spec's criteria, with evidence. |
 | skill | `run-plan` | Runs an approved plan in the main session (you start it; Claude does not start it on its own). |
-| skill | `workflow-retro` | Retrospective of a finished run. |
+| skill | `workflow-retro` | Retrospective of a finished run; its bundled script `scripts/transcript-metrics.mjs` measures tokens, cache, spans and cost from the transcripts. |
 | skill | `fastify-best-practices` | Fastify routes, plugins, validation, errors, performance (third-party, MIT). |
 | hook | `write-scope` | `spec-creator` writes only Markdown under `specs/`, `implementation-planner` only under `plans/`. |
 | hook | `bash-guard` | `plan-verifier`'s Bash: read-only git only. |
@@ -94,11 +94,19 @@ Stack skills that this plugin does not ship yet. The agents work without them an
 - Next.js App Router practices: not bundled because its upstream has no licence file yet.
 - React and React Testing Library practices: not bundled until their source and licence are confirmed.
 
+## Evals
+
+[`evals/`](evals/README.md) checks behaviour, not only the manifest: a spec request starts `spec-creator`, a retro request loads `workflow-retro`, a Fastify question loads `fastify-best-practices`, `run-plan` never starts on its own, and an unrelated request starts nothing. The graders are deterministic (`tool_used`); the agent runs call the model, so a run is paid and CI does not run it.
+
+```bash
+claude plugin eval ./plugins/sdd-engineering --runs 1 --ablation none
+```
+
 ## Later
 
 - `react-best-practices`, `next-best-practices`, `testing` skills (as minor releases once licensed).
 - `test-writer` and `doc-writer` agents.
-- Evals for the agents and skills (1.1).
+- Evals for `implementation-planner`, `implementer` and `plan-verifier` (they need a sample spec and plan to run against).
 
 ## Licence
 

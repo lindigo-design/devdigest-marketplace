@@ -9,7 +9,7 @@ Public [Claude Code plugin marketplace](https://code.claude.com/docs/en/plugin-m
 | [`architecture-review`](plugins/architecture-review) | Read-only `architecture-reviewer` agent with a read-only Bash guard | engineering-paved-path |
 | [`sdd-engineering`](plugins/sdd-engineering) | Spec → plan → implement → verify → architecture review → retro | engineering-paved-path, research-tools, architecture-review |
 
-> Status: **1.0.0.** All four plugins ship their first stable components. Not yet included: the `security`, React, Next.js and testing skills (licence of the originals not confirmed), `brainstorm`, `security-reviewer`, `pr-self-review`, `test-writer`, `doc-writer`, and evals (planned for 1.1). Each plugin README lists them under *Later*.
+> Status: **1.1.0.** All four plugins ship their stable components and an eval suite (`plugins/<name>/evals/`). Not yet included: the `security`, React, Next.js and testing skills (licence of the originals not confirmed), `brainstorm`, `security-reviewer`, `pr-self-review`, `test-writer`, `doc-writer`. Each plugin README lists them under *Later*.
 
 ## Install
 
@@ -47,7 +47,7 @@ The repository is public, so no git credentials are needed to add the marketplac
 
 **<https://lindigo-design.github.io/devdigest-marketplace/>** lets you find any plugin, skill, agent, command, hook or MCP server by describing what you need, in English or Ukrainian (for example "I need a skill for security review"), and copy the install command. Each plugin and component has its own page: what it does, what it may run, its dependencies, compatibility and source. A plugin page also shows how to install it for you, for a whole repository or locally (in a session or a terminal, with the `.claude/settings.json` to commit), how to call each component, how to update, pin or remove it, and a download of the released source.
 
-- Built from this repository only, on every push to `main` ([`pages.yml`](.github/workflows/pages.yml)); no manual edits, no backend, no trackers.
+- Built from this repository only, on every push to `main` ([`site-build.yml`](.github/workflows/site-build.yml)); no manual edits, no backend, no trackers.
 - Feeds of plugin releases: [Atom](https://lindigo-design.github.io/devdigest-marketplace/feed.xml) and [JSON Feed](https://lindigo-design.github.io/devdigest-marketplace/feed.json).
 - The whole catalog as data: [`index.json`](https://lindigo-design.github.io/devdigest-marketplace/index.json), schema in [docs/catalog-index.md](docs/catalog-index.md).
 - Source in [`site/`](site/README.md); specs [CAT-01](docs/specs/marketplace-catalog.md) (catalog) and [CAT-02](docs/specs/install-and-use.md) (install and use).
@@ -77,11 +77,14 @@ plugins/<name>/
   .claude-plugin/plugin.json         name, version, dependencies — the only place a version lives
   skills/ agents/ hooks/ evals/      components (only what the plugin uses)
   README.md CHANGELOG.md COMPATIBILITY.md
-scripts/                             release.mjs, tag-release.mjs, rollback.mjs (+ lib/ with unit tests)
+scripts/                             build-index.mjs (catalog index), release.mjs, tag-release.mjs, rollback.mjs (+ lib/)
 site/                                catalog site: Astro + MiniSearch, built from the files above (see site/README.md)
 .github/workflows/validate.yml       validate --strict, unit tests, version bump check, smoke install
-.github/workflows/pages.yml          catalog site: build and test on PRs, deploy to GitHub Pages from main
+.github/workflows/site-build.yml     catalog index + site: build and test on PRs, deploy to GitHub Pages from main
 .github/scripts/                     CI checks: check-versions.mjs, assert-enabled.mjs
+docs/PLUGIN-GUIDELINES.md            what a plugin contains: layout, component rules, helper files, evals, licences
+docs/RELEASES.md                     versioning, the full release cycle, tags, update, rollback
+docs/SITE-SPEC.md                    catalog site: what it does, where its specs, design and code live
 docs/SECURITY.md                     security policy and vulnerability reporting
 docs/specs/                          feature specs (catalog site)
 docs/plans/                          implementation plans
@@ -89,7 +92,7 @@ docs/design/                         catalog site design: concept brief, tokens,
 docs/catalog-index.md                public schema of the site's index.json
 ```
 
-Rules for every plugin:
+Rules for every plugin (full list: [docs/PLUGIN-GUIDELINES.md](docs/PLUGIN-GUIDELINES.md)):
 
 - Paths only via `${CLAUDE_PLUGIN_ROOT}` (bundled files) and `${CLAUDE_PLUGIN_DATA}` (state that survives updates). No `..`, no absolute paths.
 - No secrets, caches, eval results or memory files in the repo. User-specific values go in `userConfig` (`sensitive: true` for tokens).
@@ -99,65 +102,11 @@ Rules for every plugin:
 
 ## Versioning and releases
 
-- `version` lives **only** in `plugins/<name>/.claude-plugin/plugin.json`, never in `marketplace.json`. Users get a new copy only when this string changes.
-- Any change under `plugins/<name>/` must bump that plugin's version (SemVer). CI fails a PR that changes a plugin without raising its version above `main`.
-- Dependencies use caret ranges on the major (`^1.0` = `>=1.0.0 <2.0.0`). A breaking change in a base plugin bumps its major and requires dependents to widen their range in the same PR (`release.mjs <plugin>=major …` releases them together).
-- Update the plugin's `CHANGELOG.md` in the same PR.
+- `version` lives only in `plugins/<name>/.claude-plugin/plugin.json`; any change under a plugin bumps it (CI checks).
+- Release with `node scripts/release.mjs <plugin> patch|minor|major` on a branch, then `node scripts/tag-release.mjs --push` on `main` after merge. Tags are `<plugin>--v<version>`.
+- Roll back by rolling forward: `node scripts/rollback.mjs <plugin> <good-version>`; never move a tag or lower a version.
 
-| Step | Command | Where |
-| :- | :- | :- |
-| Prepare a release | `node scripts/release.mjs <plugin> patch\|minor\|major` | feature branch |
-| Release several plugins together | `node scripts/release.mjs <plugin>=major <plugin>=major …` | feature branch |
-| Tag released versions | `node scripts/tag-release.mjs --push` | `main`, after merge |
-| Roll back | `node scripts/rollback.mjs <plugin> <good-version> --reason "<why>"` | feature branch, then tag after merge |
-
-Every script supports `--dry-run` and `--help`. They need only Node ≥ 22 and git; validation uses the `claude` CLI when it is on `PATH`.
-
-### Release
-
-Write release notes under `## [Unreleased]` in the plugin's `CHANGELOG.md`, then on a branch:
-
-```bash
-node scripts/release.mjs <plugin> patch|minor|major [--update-dependents] [--dry-run]
-```
-
-The script bumps `version` in `plugin.json`, moves the `[Unreleased]` notes into a dated version section and runs `claude plugin validate --strict`. If the new version breaks a dependent's range (for example `engineering-paved-path` `2.0.0` vs `^1.0`), it stops; `--update-dependents` widens those ranges and patch-releases the dependents in the same change.
-
-### Release tags
-
-After the PR is merged, tag every plugin whose version has no tag yet (`<plugin>--v<version>`), on `main`:
-
-```bash
-node scripts/tag-release.mjs --dry-run
-node scripts/tag-release.mjs --push
-```
-
-It wraps `claude plugin tag`, which also checks that `plugin.json` and the marketplace entry agree. Dependency ranges resolve against these tags, so a missing tag means dependents get whatever is on the default branch.
-
-### Update
-
-```
-/plugin marketplace update lindigo-devdigest
-/reload-plugins
-```
-
-or from a shell: `claude plugin update <plugin>@lindigo-devdigest` (restart required).
-
-### Rollback = roll forward + bump
-
-Never move or delete a published tag and never lower a version: clients compare versions and would keep the cached copy.
-
-```bash
-node scripts/rollback.mjs <plugin> <good-version> --reason "<why>" [--dry-run]
-```
-
-The script restores `plugins/<plugin>/` from the tag `<plugin>--v<good-version>`, sets the version to the next patch **above** the bad one (bad `0.2.1` → `0.2.2` with the content of `0.2.0`), keeps the CHANGELOG history and adds a `### Reverted` entry naming the withdrawn versions. It refuses when the good version's dependency ranges no longer match the current dependencies. Then open a PR, merge, and run `node scripts/tag-release.mjs --push`.
-
-To undo one commit instead of a whole version, `git revert <sha>` and release a patch with `scripts/release.mjs`.
-
-Users who must stay on a known-good catalog meanwhile can add the marketplace pinned to a ref: `/plugin marketplace add lindigo-design/devdigest-marketplace#<tag-or-branch>`.
-
-**Renaming or removing a plugin:** never change `name` in place. Use `displayName` for a new label; for a real rename or removal add an entry to the append-only `renames` map in `marketplace.json`.
+The full cycle, update and rollback details: [docs/RELEASES.md](docs/RELEASES.md).
 
 ## Local development
 

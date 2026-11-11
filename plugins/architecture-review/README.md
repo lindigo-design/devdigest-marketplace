@@ -54,11 +54,18 @@ Agents are namespaced: `@agent-architecture-review:<agent>`.
 | :- | :- | :- |
 | `engineering-paved-path` | `^1.0` | the two architecture skills the agent preloads |
 
+## Evals
+
+[`evals/`](evals/README.md) checks behaviour, not only the manifest: a pre-merge layering request starts `architecture-reviewer`, an unrelated one does not. The graders are deterministic (`tool_used`); the agent runs call the model, so a run is paid and CI does not run it.
+
+```bash
+claude plugin eval ./plugins/architecture-review --runs 1 --ablation none
+```
+
 ## Later
 
 - `security-reviewer`: waits for the `security` skill, whose licence is not confirmed yet.
 - `pr-self-review` with a push gate.
-- Evals for `architecture-reviewer` (1.1).
 
 ## Licence
 
