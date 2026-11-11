@@ -77,11 +77,11 @@ jobs:
       - name: Components (manual run — every plugin)
         if: github.event_name == 'workflow_dispatch'
         run: node .github/scripts/check-components.mjs
-      - name: Hook self-tests
+      - name: Hook and skill-script self-tests
         run: |
           set -euo pipefail
           shopt -s nullglob
-          for f in plugins/*/hooks/*self-test.mjs; do
+          for f in plugins/*/hooks/*self-test.mjs plugins/*/skills/*/scripts/*self-test.mjs; do
             echo "::group::${f}"
             node "${f}"
             echo "::endgroup::"

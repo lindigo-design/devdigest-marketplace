@@ -188,7 +188,7 @@ All plugins declare Claude Code ≥ 2.1.318 as their minimum (SDD-01 R5/AC-8), s
 - **AC-1:** WHEN the tag `<plugin>--v<version>` exists in the build's git checkout, the plugin page SHALL show a "Download source (.zip)" link to `https://github.com/lindigo-design/devdigest-marketplace/archive/refs/tags/<plugin>--v<version>.zip`. The repository part comes from `SITE_REPO` (CAT-01 R6/AC-4).
 - **AC-2:** The link label or the text next to it SHALL say that the zip holds the whole repository at that release, and that installing goes through Claude Code (D7).
 - **AC-3:** IF the tag does not exist, THEN the link SHALL be omitted and the build SHALL print a warning naming the plugin and the missing tag.
-- **AC-4:** `pages.yml` SHALL fetch tags in its checkout. It SHALL also rebuild and deploy when a tag matching `*--v*` is pushed, so the link appears once `scripts/tag-release.mjs --push` has run after a merge.
+- **AC-4:** `site-build.yml` SHALL fetch tags in its checkout. It SHALL also rebuild and deploy when a tag matching `*--v*` is pushed, so the link appears once `scripts/tag-release.mjs --push` has run after a merge.
 
 ### CAT-02/R6: Try it after install
 
